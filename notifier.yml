@@ -1,0 +1,147 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  DB_PATH: "/opt/data/res.txt"
+
+---
+# Backend REST service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifier-backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifier-backend-pod
+  template:
+    metadata:
+      labels:
+        app: notifier-backend-pod
+    spec:
+      containers:
+      - name: notifier-backend-pod-image
+        image: grap.de/notifier:v1
+        imagePullPolicy: Never
+        resources: 
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: data-volume
+          mountPath: /opt/data
+        envFrom:
+        - configMapRef:
+            name: backend-config
+        env:
+        - name: IFTTT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: notifier-secret
+              key: api_key
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: notifier-appdata
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifier-backend-service
+spec:
+  selector:
+    app: notifier-backend-pod
+  ports:
+  - protocol: "TCP"
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+
+# Webserver for static html content
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifier-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifier-static-deploy
+  template:
+    metadata:
+      labels:
+        app: notifier-static-deploy
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: static-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: static-volume
+        persistentVolumeClaim:
+          claimName: notifier-statichtml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifier-static-service
+spec:
+  ports:
+    - port: 2000
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app:  notifier-static-deploy
+  type: ClusterIP
+
+
+# Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notifier-test-ingress
+  annotations:
+    # HTTPS entrypoint enabled
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # TLS enabled
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+    - debasus
+    - debshuttle
+    secretName: notifier-tls
+  rules:
+  - http:
+      paths:
+      - path: /notifier/app
+        pathType: Prefix
+        backend:
+          service:
+            name: notifier-static-service
+            port:
+              number: 2000
+      - path: /notifier/api
+        pathType: Prefix
+        backend:
+          service:
+            name: notifier-backend-service
+            port:
+              number: 5000            
+  ingressClassName: traefik
+
+

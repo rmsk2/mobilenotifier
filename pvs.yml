@@ -1,0 +1,26 @@
+# Persistent volume claims
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: notifier-statichtml
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: notifier-appdata
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 100Mi
