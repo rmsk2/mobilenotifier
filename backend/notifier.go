@@ -121,5 +121,8 @@ func main() {
 		http.Handle("/notifier/app/", http.StripPrefix("/notifier/app/", http.FileServer(http.Dir(dirName))))
 	}
 
-	http.ListenAndServe(":5000", nil)
+	err := http.ListenAndServe(":5000", nil)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
