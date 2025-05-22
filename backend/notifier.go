@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"notifier/sms"
+	"notifier/tools"
 	"os"
 )
 
@@ -62,6 +63,7 @@ func main() {
 		log.Println("Database opened")
 
 		w.Write(data)
+		w.Write([]byte(tools.UUIDGen().String()))
 	})
 
 	http.HandleFunc("POST /notifier/api/send/{recipient}", func(w http.ResponseWriter, r *http.Request) {
