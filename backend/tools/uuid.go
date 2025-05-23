@@ -17,13 +17,33 @@ func UUIDGen() *UUID {
 	res := new(UUID)
 	rand.Read(res.Data[0:])
 
-	res.Data[8] = res.Data[8] & 63
-	res.Data[8] = res.Data[8] | 0x80
-
-	res.Data[6] = res.Data[6] & 0x0F
-	res.Data[6] = res.Data[6] | 0x40
+	res.normalize()
 
 	return res
+}
+
+func (u *UUID) normalize() {
+	u.Data[8] = u.Data[8] & 63
+	u.Data[8] = u.Data[8] | 0x80
+
+	u.Data[6] = u.Data[6] & 0x0F
+	u.Data[6] = u.Data[6] | 0x40
+}
+
+func NewUuidFromSlice(data []byte) (*UUID, bool) {
+	if len(data) != 16 {
+		return nil, false
+	}
+
+	res := new(UUID)
+
+	for i := range 16 {
+		res.Data[i] = data[i]
+	}
+
+	res.normalize()
+
+	return res, true
 }
 
 // AsSlice returns the UUID value as a byte slice.
@@ -57,6 +77,17 @@ func (u *UUID) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func NewUuidFromString(s string) (*UUID, bool) {
+	res := new(UUID)
+	ok := res.Parse(s)
+
+	if !ok {
+		return nil, false
+	}
+
+	return res, true
 }
 
 // IsEqual if a and rhs denote the same UUID

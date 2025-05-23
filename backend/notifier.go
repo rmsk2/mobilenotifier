@@ -6,9 +6,13 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"notifier/repo"
 	"notifier/sms"
-	"notifier/tools"
 	"os"
+	"os/signal"
+	"syscall"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 const envApiKey = "IFTTT_API_KEY"
@@ -32,41 +36,8 @@ type SmsMessage struct {
 	Message string `json:"message"`
 }
 
-func main() {
-	txt := createSender()
-
-	http.HandleFunc("/notifier/api/test", func(w http.ResponseWriter, r *http.Request) {
-		log, err := createLogger()
-		if err != nil {
-			http.Error(w, "Internal error", http.StatusInternalServerError)
-			return
-		}
-
-		log.Println("Looking for database")
-
-		dbPath, ok := os.LookupEnv(envDbPath)
-		if !ok {
-			log.Printf("Environment variable '%s' not found in environment", envDbPath)
-			http.Error(w, "Internal error", http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("DB Data file: %s\n", dbPath)
-
-		data, err := os.ReadFile(dbPath)
-		if err != nil {
-			log.Println("Unable to open data base")
-			http.Error(w, "Internal error", http.StatusInternalServerError)
-			return
-		}
-
-		log.Println("Database opened")
-
-		w.Write(data)
-		w.Write([]byte(tools.UUIDGen().String()))
-	})
-
-	http.HandleFunc("POST /notifier/api/send/{recipient}", func(w http.ResponseWriter, r *http.Request) {
+func makeSmsHandler(txt sms.SmsSender) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		log, err := createLogger()
 		if err != nil {
 			http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -114,14 +85,55 @@ func main() {
 		}
 
 		log.Printf("SMS with message '%s' successfully sent", m.Message)
-	})
+	}
+}
+
+func InstallSignalHandler(db *bolt.DB, dbOpened *bool) {
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+		<-sigChan
+		if *dbOpened {
+			log.Println("Closing BBolt DB")
+			db.Close()
+		}
+		os.Exit(0)
+	}()
+}
+
+func main() {
+	dbOpened := false
+
+	boltPath, ok := os.LookupEnv(envDbPath)
+	if !ok {
+		log.Fatalf("Environment variable '%s' not found in environment", envDbPath)
+	}
+
+	db, err := bolt.Open(boltPath, 0600, nil)
+	if err != nil {
+		log.Fatalf("Unable to open database file %s: %v\n", boltPath, err)
+	}
+	dbOpened = true
+	defer func() {
+		db.Close()
+		log.Println("bbolt DB closed")
+	}()
+
+	err = repo.CreateBuckets(db)
+	if err != nil {
+		log.Fatalf("Unable to create buckets in database file %s: %v\n", boltPath, err)
+	}
+
+	http.HandleFunc("POST /notifier/api/send/{recipient}", makeSmsHandler(createSender()))
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
 		http.Handle("/notifier/app/", http.StripPrefix("/notifier/app/", http.FileServer(http.Dir(dirName))))
 	}
 
-	err := http.ListenAndServe(":5100", nil)
+	InstallSignalHandler(db, &dbOpened)
+
+	err = http.ListenAndServe(":5100", nil)
 	if err != nil {
 		fmt.Println(err)
 	}

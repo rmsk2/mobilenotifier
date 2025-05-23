@@ -31,7 +31,7 @@ spec:
             memory: "256Mi"
             cpu: "500m"
         ports:
-        - containerPort: 5000
+        - containerPort: 5100
         volumeMounts:
         - name: data-volume
           mountPath: /opt/data
@@ -59,8 +59,8 @@ spec:
     app: notifier-backend-pod
   ports:
   - protocol: "TCP"
-    port: 5000
-    targetPort: 5000
+    port: 5100
+    targetPort: 5100
   type: ClusterIP
 
 # Webserver for static html content
@@ -141,7 +141,7 @@ spec:
           service:
             name: notifier-backend-service
             port:
-              number: 5000            
+              number: 5100            
   ingressClassName: traefik
 
 

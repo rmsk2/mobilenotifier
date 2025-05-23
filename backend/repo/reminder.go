@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-type MetaKind int
+type ReminderType int
 type WarningType int
 
 const (
-	Anniversary MetaKind = iota + 1
+	Anniversary ReminderType = iota + 1
 	WeeklyEvent
 	OneShot
 )
@@ -21,7 +21,7 @@ const (
 	WeekBefore
 )
 
-type Reminder struct {
+type Notification struct {
 	Id          *tools.UUID
 	Parent      *tools.UUID
 	WarningTime time.Time
@@ -29,9 +29,9 @@ type Reminder struct {
 	Recipient   string
 }
 
-type MetaReminder struct {
+type Reminder struct {
 	Id          *tools.UUID
-	Kind        MetaKind
+	Kind        ReminderType
 	Param       int
 	WarningAt   []WarningType
 	Spec        time.Time
@@ -39,24 +39,22 @@ type MetaReminder struct {
 	Recipients  []string
 }
 
-//type ReminderGeneratorFunc func(time.Time, int) ([]*Reminder, error)
+type NotificationPredicate func(r *Notification) bool
 
-type ReminderPredicate func(r *Reminder) bool
+type NotificationRepo interface {
+	Upsert(n *Notification) error
+	Get(u *tools.UUID) (*Notification, error)
+	Delete(u *tools.UUID) error
+	GetExpired() ([]*tools.UUID, error)
+	CountSiblings(parent *tools.UUID) (int, error)
+	Filter(p NotificationPredicate) ([]*tools.UUID, error)
+}
+
+type ReminderPredicate func(m *Reminder) bool
 
 type ReminderRepo interface {
 	Upsert(r *Reminder) error
 	Get(u *tools.UUID) (*Reminder, error)
 	Delete(u *tools.UUID) error
-	GetExpired() ([]*tools.UUID, error)
-	CountSiblings(parent *tools.UUID) (int, error)
-	Filter(p ReminderPredicate) ([]*tools.UUID, error)
-}
-
-type MetaReminderPredicate func(m *MetaReminder) bool
-
-type MetaReminderRepo interface {
-	Upsert(m *MetaReminder) error
-	Get(u *tools.UUID) (*MetaReminder, error)
-	Delete(u *tools.UUID) error
-	Filter(p MetaReminderPredicate) ([]*tools.UUID, error)
+	Filter(p ReminderPredicate) ([]*Reminder, error)
 }
