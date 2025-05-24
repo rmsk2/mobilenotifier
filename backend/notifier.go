@@ -1,16 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"notifier/repo"
 	"notifier/sms"
 	"os"
-	"os/signal"
-	"syscall"
-
-	bolt "go.etcd.io/bbolt"
 )
 
 const envApiKey = "IFTTT_API_KEY"
@@ -34,53 +29,16 @@ func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 	}
 }
 
-func InstallSignalHandler(db *bolt.DB, dbOpened *bool) {
-	go func(openFlag *bool) {
-		sigChan := make(chan os.Signal, 1)
-		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-		<-sigChan
-		if *dbOpened {
-			log.Println("Closing BBolt DB")
-			db.Close()
-		}
-		os.Exit(0)
-	}(dbOpened)
-}
-
-func initDB(openFlag *bool) (*bolt.DB, error) {
-	boltPath, ok := os.LookupEnv(envDbPath)
-	if !ok {
-		return nil, fmt.Errorf("environment variable '%s' not found in environment", envDbPath)
-	}
-
-	db, err := bolt.Open(boltPath, 0600, nil)
-	if err != nil {
-		return nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
-	}
-
-	*openFlag = true
-	InstallSignalHandler(db, openFlag)
-
-	err = repo.CreateBuckets(db)
-	if err != nil {
-		db.Close()
-		*openFlag = false
-		return nil, fmt.Errorf("unable to create buckets in database file %s: %v", boltPath, err)
-	}
-
-	return db, nil
-}
-
 func run() int {
 	dbOpened := false
 
-	db, err := initDB(&dbOpened)
+	_, raw, err := repo.InitDB(&dbOpened, envDbPath)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
 	}
 	defer func() {
-		db.Close()
+		raw.Close()
 		log.Println("bbolt DB closed")
 	}()
 
