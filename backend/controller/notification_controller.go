@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"encoding/json"
@@ -32,17 +32,17 @@ type ListResponse struct {
 	Uuids []*tools.UUID `json:"uuids"`
 }
 
-type NotficationHandler struct {
+type NotficationController struct {
 	db          *repo.DBLocker
 	addressBook sms.SmsAddressBook
 	log         *log.Logger
 	nullUuid    *tools.UUID
 }
 
-func NewNotificationHandler(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logger) *NotficationHandler {
+func NewNotificationController(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logger) *NotficationController {
 	nuid, _ := tools.NewUuidFromString(nullUuidStr)
 
-	return &NotficationHandler{
+	return &NotficationController{
 		db:          l,
 		addressBook: a,
 		log:         lg,
@@ -50,7 +50,7 @@ func NewNotificationHandler(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logg
 	}
 }
 
-func (n *NotficationHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
+func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		n.log.Println("Unable to read body")
@@ -117,7 +117,7 @@ func (n *NotficationHandler) HandlePost(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte(data))
 }
 
-func (n *NotficationHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
+func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
 	uuid, ok := tools.NewUuidFromString(uuidRaw)
@@ -141,7 +141,7 @@ func (n *NotficationHandler) HandleDelete(w http.ResponseWriter, r *http.Request
 	n.log.Printf("Notification with id '%s' deleted ", uuid)
 }
 
-func (n *NotficationHandler) HandleList(w http.ResponseWriter, r *http.Request) {
+func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
 	raw := n.db.Lock(false)
 	defer func() { n.db.Unlock(false) }()
 
@@ -171,7 +171,7 @@ func (n *NotficationHandler) HandleList(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte(data))
 }
 
-func (n *NotficationHandler) HandleExpiry(w http.ResponseWriter, r *http.Request) {
+func (n *NotficationController) HandleExpiry(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
 	uuid, ok := tools.NewUuidFromString(uuidRaw)

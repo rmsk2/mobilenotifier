@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"encoding/json"
@@ -13,21 +13,21 @@ type SmsMessage struct {
 	Message string `json:"message"`
 }
 
-type SmSHandler struct {
+type SmSController struct {
 	log         *log.Logger
 	txt         sms.SmsSender
 	addressBook sms.SmsAddressBook
 }
 
-func NewSmsHandler(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmSHandler {
-	return &SmSHandler{
+func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmSController {
+	return &SmSController{
 		log:         l,
 		txt:         t,
 		addressBook: a,
 	}
 }
 
-func (s *SmSHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
 	ok, err := s.addressBook.CheckRecipient(recipient)
 

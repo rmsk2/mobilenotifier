@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-	"notifier/handler"
+	"notifier/controller"
 	"notifier/repo"
 	"notifier/sms"
 	"notifier/warner"
@@ -52,14 +52,14 @@ func run() int {
 	}()
 
 	smsSender, smsAddressBook := createSender()
-	smsHandler := handler.NewSmsHandler(createLogger(), smsSender, smsAddressBook)
-	http.HandleFunc("POST /notifier/api/send/{recipient}", smsHandler.Handle)
+	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
+	http.HandleFunc("POST /notifier/api/send/{recipient}", smsController.Handle)
 
-	notificationHandler := handler.NewNotificationHandler(dbl, smsAddressBook, createLogger())
-	http.HandleFunc("POST /notifier/api/notification", notificationHandler.HandlePost)
-	http.HandleFunc("/notifier/api/notification", notificationHandler.HandleList)
-	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationHandler.HandleDelete)
-	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", notificationHandler.HandleExpiry)
+	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
+	http.HandleFunc("POST /notifier/api/notification", notificationController.HandlePost)
+	http.HandleFunc("/notifier/api/notification", notificationController.HandleList)
+	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationController.HandleDelete)
+	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", notificationController.HandleExpiry)
 
 	t := time.NewTicker(60 * time.Second)
 	warner.Start(dbl, smsSender, smsAddressBook, t, createLogger())
