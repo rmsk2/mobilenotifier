@@ -50,6 +50,13 @@ func NewNotificationController(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.L
 	}
 }
 
+func (n *NotficationController) Add() {
+	http.HandleFunc("POST /notifier/api/notification", n.HandlePost)
+	http.HandleFunc("/notifier/api/notification", n.HandleList)
+	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", n.HandleDelete)
+	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", n.HandleExpiry)
+}
+
 func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

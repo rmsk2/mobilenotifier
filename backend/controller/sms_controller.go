@@ -27,6 +27,10 @@ func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmS
 	}
 }
 
+func (s *SmSController) Add() {
+	http.HandleFunc("POST /notifier/api/send/{recipient}", s.Handle)
+}
+
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
 	ok, err := s.addressBook.CheckRecipient(recipient)

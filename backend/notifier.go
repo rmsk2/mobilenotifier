@@ -53,13 +53,10 @@ func run() int {
 
 	smsSender, smsAddressBook := createSender()
 	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
-	http.HandleFunc("POST /notifier/api/send/{recipient}", smsController.Handle)
+	smsController.Add()
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
-	http.HandleFunc("POST /notifier/api/notification", notificationController.HandlePost)
-	http.HandleFunc("/notifier/api/notification", notificationController.HandleList)
-	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationController.HandleDelete)
-	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", notificationController.HandleExpiry)
+	notificationController.Add()
 
 	t := time.NewTicker(60 * time.Second)
 	warner.Start(dbl, smsSender, smsAddressBook, t, createLogger())
