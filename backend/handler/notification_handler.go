@@ -39,7 +39,7 @@ type NotficationHandler struct {
 	nullUuid    *tools.UUID
 }
 
-func NewNotifationHandler(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logger) *NotficationHandler {
+func NewNotificationHandler(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logger) *NotficationHandler {
 	nuid, _ := tools.NewUuidFromString(nullUuidStr)
 
 	return &NotficationHandler{
@@ -142,8 +142,8 @@ func (n *NotficationHandler) HandleDelete(w http.ResponseWriter, r *http.Request
 }
 
 func (n *NotficationHandler) HandleList(w http.ResponseWriter, r *http.Request) {
-	raw := n.db.Lock(true)
-	defer func() { n.db.Unlock(true) }()
+	raw := n.db.Lock(false)
+	defer func() { n.db.Unlock(false) }()
 
 	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
 	uuids, err := notifRepo.Filter(func(*repo.Notification) bool { return true })
@@ -181,8 +181,8 @@ func (n *NotficationHandler) HandleExpiry(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	raw := n.db.Lock(true)
-	defer func() { n.db.Unlock(true) }()
+	raw := n.db.Lock(false)
+	defer func() { n.db.Unlock(false) }()
 
 	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
 	notification, err := notifRepo.Get(uuid)

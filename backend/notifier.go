@@ -53,7 +53,7 @@ func run() int {
 	smsHandler := handler.NewSmsHandler(createLogger(), smsSender, smsAddressBook)
 	http.HandleFunc("POST /notifier/api/send/{recipient}", smsHandler.Handle)
 
-	notificationHandler := handler.NewNotifationHandler(dbl, smsAddressBook, createLogger())
+	notificationHandler := handler.NewNotificationHandler(dbl, smsAddressBook, createLogger())
 	http.HandleFunc("POST /notifier/api/notification", notificationHandler.HandlePost)
 	http.HandleFunc("/notifier/api/notification", notificationHandler.HandleList)
 	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationHandler.HandleDelete)
