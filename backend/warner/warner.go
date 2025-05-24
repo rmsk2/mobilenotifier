@@ -97,10 +97,15 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 		return false
 	}
 
+	w.log.Printf("Message sent to '%s' for notification '%s'", info.recipient, info.uuid)
+
 	err = repo.Delete(info.uuid)
 	if err != nil {
 		w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
+		return false
 	}
+
+	w.log.Printf("Notification '%s' deleted", info.uuid)
 
 	return true
 }
