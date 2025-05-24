@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"notifier/handler"
 	"notifier/repo"
 	"notifier/sms"
 	"os"
@@ -49,7 +50,7 @@ func run() int {
 	}()
 
 	smsSender, smsAddressBook := createSender()
-	smsHandler := NewSmsHandler(createLogger(), smsSender, smsAddressBook)
+	smsHandler := handler.NewSmsHandler(createLogger(), smsSender, smsAddressBook)
 	http.HandleFunc("POST /notifier/api/send/{recipient}", smsHandler.Handle)
 
 	dirName, ok := os.LookupEnv(envServeLocal)
