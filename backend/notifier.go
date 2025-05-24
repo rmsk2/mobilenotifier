@@ -39,7 +39,7 @@ func run() int {
 		return ERROR_EXIT
 	}
 
-	_, rawDB, err := repo.InitDB(&dbOpened, boltPath)
+	dbl, rawDB, err := repo.InitDB(&dbOpened, boltPath)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
@@ -52,6 +52,12 @@ func run() int {
 	smsSender, smsAddressBook := createSender()
 	smsHandler := handler.NewSmsHandler(createLogger(), smsSender, smsAddressBook)
 	http.HandleFunc("POST /notifier/api/send/{recipient}", smsHandler.Handle)
+
+	notificationHandler := handler.NewNotifationHandler(dbl, smsAddressBook, createLogger())
+	http.HandleFunc("POST /notifier/api/notification", notificationHandler.HandlePost)
+	http.HandleFunc("/notifier/api/notification", notificationHandler.HandleList)
+	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationHandler.HandleDelete)
+	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", notificationHandler.HandleExpiry)
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
