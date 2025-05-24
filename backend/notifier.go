@@ -23,12 +23,14 @@ func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
 
-func createSender() sms.SmsSender {
+func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 	apiKey, ok := os.LookupEnv(envApiKey)
 	if !ok {
-		return sms.NewDummySender()
+		dummy := sms.NewDummySender()
+		return dummy, dummy
 	} else {
-		return sms.NewIftttSender(apiKey)
+		ifft := sms.NewIftttSender(apiKey)
+		return ifft, ifft
 	}
 }
 
@@ -82,7 +84,8 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
-	smsHandler := NewSmsHandler(createLogger(), createSender())
+	smsSender, smsAddressBook := createSender()
+	smsHandler := NewSmsHandler(createLogger(), smsSender, smsAddressBook)
 	http.HandleFunc("POST /notifier/api/send/{recipient}", smsHandler.Handle)
 
 	dirName, ok := os.LookupEnv(envServeLocal)

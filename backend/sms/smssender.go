@@ -8,13 +8,16 @@ import (
 	"net/http"
 )
 
-type SmsSender interface {
+type SmsAddressBook interface {
 	CheckRecipient(r string) (bool, error)
 	ListRecipients() ([]string, error)
+}
+
+type SmsSender interface {
 	Send(recipient string, message string) error
 }
 
-func NewIftttSender(apiKey string) SmsSender {
+func NewIftttSender(apiKey string) *iftttSmsSender {
 	res := new(iftttSmsSender)
 	res.recipientMap = map[string]string{
 		"martin": "SendSMS1",

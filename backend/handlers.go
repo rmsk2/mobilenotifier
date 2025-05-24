@@ -14,20 +14,22 @@ type SmsMessage struct {
 }
 
 type SmSHandler struct {
-	log *log.Logger
-	txt sms.SmsSender
+	log         *log.Logger
+	txt         sms.SmsSender
+	addressBook sms.SmsAddressBook
 }
 
-func NewSmsHandler(l *log.Logger, t sms.SmsSender) *SmSHandler {
+func NewSmsHandler(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmSHandler {
 	return &SmSHandler{
-		log: l,
-		txt: t,
+		log:         l,
+		txt:         t,
+		addressBook: a,
 	}
 }
 
 func (s *SmSHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
-	ok, err := s.txt.CheckRecipient(recipient)
+	ok, err := s.addressBook.CheckRecipient(recipient)
 
 	if err != nil {
 		s.log.Printf("error accessing recipient info: %v", err)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func NewDummySender() SmsSender {
+func NewDummySender() *dummySmsSender {
 	res := new(dummySmsSender)
 	res.recipientMap = map[string]string{
 		"martin": "SendSMS1",
