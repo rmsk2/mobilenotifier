@@ -3,7 +3,6 @@ package repo
 import (
 	"fmt"
 	"notifier/tools"
-	"os"
 	"sync"
 
 	bolt "go.etcd.io/bbolt"
@@ -32,12 +31,7 @@ func (l *DBLocker) Unlock(doWrite bool) {
 	}
 }
 
-func InitDB(openFlag *bool, envDbPath string) (*DBLocker, *bolt.DB, error) {
-	boltPath, ok := os.LookupEnv(envDbPath)
-	if !ok {
-		return nil, nil, fmt.Errorf("environment variable '%s' not found in environment", envDbPath)
-	}
-
+func InitDB(openFlag *bool, boltPath string) (*DBLocker, *bolt.DB, error) {
 	db, err := bolt.Open(boltPath, 0600, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)

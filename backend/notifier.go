@@ -32,13 +32,19 @@ func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 func run() int {
 	dbOpened := false
 
-	_, raw, err := repo.InitDB(&dbOpened, envDbPath)
+	boltPath, ok := os.LookupEnv(envDbPath)
+	if !ok {
+		log.Printf("environment variable '%s' not found in environment", envDbPath)
+		return ERROR_EXIT
+	}
+
+	_, rawDB, err := repo.InitDB(&dbOpened, boltPath)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
 	}
 	defer func() {
-		raw.Close()
+		rawDB.Close()
 		log.Println("bbolt DB closed")
 	}()
 
