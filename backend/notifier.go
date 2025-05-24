@@ -6,7 +6,9 @@ import (
 	"notifier/handler"
 	"notifier/repo"
 	"notifier/sms"
+	"notifier/warner"
 	"os"
+	"time"
 )
 
 const envApiKey = "IFTTT_API_KEY"
@@ -58,6 +60,9 @@ func run() int {
 	http.HandleFunc("/notifier/api/notification", notificationHandler.HandleList)
 	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", notificationHandler.HandleDelete)
 	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", notificationHandler.HandleExpiry)
+
+	t := time.NewTicker(60 * time.Second)
+	warner.Start(dbl, smsSender, smsAddressBook, t, createLogger())
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {

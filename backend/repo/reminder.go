@@ -45,7 +45,7 @@ type NotificationRepo interface {
 	Upsert(n *Notification) error
 	Get(u *tools.UUID) (*Notification, error)
 	Delete(u *tools.UUID) error
-	GetExpired() ([]*tools.UUID, error)
+	GetExpired(time.Time) ([]*tools.UUID, error)
 	CountSiblings(parent *tools.UUID) (int, error)
 	Filter(p NotificationPredicate) ([]*tools.UUID, error)
 }

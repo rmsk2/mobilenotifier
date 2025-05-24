@@ -152,7 +152,7 @@ func (b *BoltNotificationRepo) Delete(u *tools.UUID) error {
 	return err
 }
 
-func (b *BoltNotificationRepo) GetExpired() ([]*tools.UUID, error) {
+func (b *BoltNotificationRepo) GetExpired(refTime time.Time) ([]*tools.UUID, error) {
 	res := []*tools.UUID{}
 
 	err := b.db.View(func(tx *bolt.Tx) error {
@@ -161,8 +161,6 @@ func (b *BoltNotificationRepo) GetExpired() ([]*tools.UUID, error) {
 			return fmt.Errorf("bucket '%s' not found", bucketExpiryTimes)
 		}
 
-		now := time.Now().Unix()
-
 		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
@@ -170,7 +168,7 @@ func (b *BoltNotificationRepo) GetExpired() ([]*tools.UUID, error) {
 				return fmt.Errorf("illegal data length: %d", len(v))
 			}
 
-			if now >= (int64)(binary.BigEndian.Uint64(v)) {
+			if refTime.Unix() >= (int64)(binary.BigEndian.Uint64(v)) {
 				u, ok := tools.NewUuidFromSlice(k)
 				if !ok {
 					return fmt.Errorf("illegal uid format: %x", v)
