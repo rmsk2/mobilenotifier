@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+const lenMessageMax = 160
+
 type SmsAddressBook interface {
 	CheckRecipient(r string) (bool, error)
 	ListRecipients() ([]string, error)
@@ -59,6 +61,11 @@ func (i *iftttSmsSender) Send(recipient string, message string) error {
 	}
 
 	requestURL := fmt.Sprintf("https://maker.ifttt.com/trigger/%s/with/key/%s", v, i.apiKey)
+
+	if len([]rune(message)) > lenMessageMax {
+		temp := message
+		message = string([]rune(temp)[:lenMessageMax])
+	}
 
 	var ifftData ifftBody
 	ifftData.Value1 = message

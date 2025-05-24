@@ -38,6 +38,11 @@ func (i *dummySmsSender) Send(recipient string, message string) error {
 		return fmt.Errorf("recipient %s is unknown", recipient)
 	}
 
+	if len([]rune(message)) > lenMessageMax {
+		temp := message
+		message = string([]rune(temp)[:lenMessageMax])
+	}
+
 	fmt.Printf("Sending '%s' to '%s' using '%s'\n", message, recipient, v)
 
 	return nil

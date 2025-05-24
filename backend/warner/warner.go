@@ -35,12 +35,12 @@ func Start(l *repo.DBLocker, sender sms.SmsSender, addrBook sms.SmsAddressBook, 
 	go func() {
 		for {
 			t := <-warner.ticker.C
-			warner.ProcessTick(t)
+			warner.processTick(t)
 		}
 	}()
 }
 
-func (w *warningGenerator) Collect(refTime time.Time) []expiryInfo {
+func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
 	res := []expiryInfo{}
 	raw := w.db.Lock(false)
 	defer func() { w.db.Unlock(false) }()
@@ -70,7 +70,7 @@ func (w *warningGenerator) Collect(refTime time.Time) []expiryInfo {
 	return res
 }
 
-func (w *warningGenerator) SendAndDeleteOne(info expiryInfo) {
+func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	raw := w.db.Lock(true)
 	defer func() { w.db.Unlock(true) }()
 
@@ -78,7 +78,7 @@ func (w *warningGenerator) SendAndDeleteOne(info expiryInfo) {
 	ok, err := w.addrBook.CheckRecipient(info.recipient)
 	if err != nil {
 		w.log.Printf("Unable to determine validity of recipient '%s': %v", info.recipient, err)
-		return
+		return false
 	}
 
 	if !ok {
@@ -86,31 +86,64 @@ func (w *warningGenerator) SendAndDeleteOne(info expiryInfo) {
 		err = repo.Delete(info.uuid)
 		if err != nil {
 			w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
+			return false
 		}
-		return
+		return true
 	}
 
 	err = w.sender.Send(info.recipient, info.description)
 	if err != nil {
 		w.log.Printf("Unable to send SMS to '%s' for notification '%s': %v", info.recipient, info.uuid, err)
-		return
+		return false
 	}
 
 	err = repo.Delete(info.uuid)
 	if err != nil {
 		w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
 	}
+
+	return true
 }
 
-func (w *warningGenerator) SendAndDelete(expiredNotifications []expiryInfo) {
-	for _, j := range expiredNotifications {
-		w.SendAndDeleteOne(j)
+func (w *warningGenerator) determineChildlessParents(affectedParents map[*tools.UUID]bool) []string {
+	res := []string{}
+
+	raw := w.db.Lock(false)
+	defer func() { w.db.Unlock(false) }()
+
+	repo := repo.NewBBoltNotificationRepo(raw)
+
+	for i := range affectedParents {
+		count, err := repo.CountSiblings(i)
+		if err != nil {
+			log.Printf("Problem: Unable to determine child count for parent '%s'. This could create a dead reminder", i)
+			continue
+		}
+
+		if count == 0 {
+			res = append(res, i.String())
+		}
 	}
+
+	return res
 }
 
-func (w *warningGenerator) ProcessTick(refTime time.Time) {
+func (w *warningGenerator) processTick(refTime time.Time) {
 	w.log.Printf("Ticking at %v", refTime)
+	affectedParents := map[*tools.UUID]bool{}
 
-	res := w.Collect(refTime)
-	w.SendAndDelete(res)
+	expiredNotifications := w.collect(refTime)
+
+	for _, j := range expiredNotifications {
+		if w.sendAndDeleteOne(j) {
+			affectedParents[j.parent] = true
+		}
+	}
+
+	// Prevent locking of databasse if there is nothing to do
+	if len(affectedParents) == 0 {
+		return
+	}
+
+	_ = w.determineChildlessParents(affectedParents)
 }
