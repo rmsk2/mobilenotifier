@@ -7,6 +7,8 @@ prog=notifier
 rm $binary
 rm $prog
 
+swag init -g controller/swagger_base.go
+
 # build binary
 CGO_ENABLED=0 go build
 
