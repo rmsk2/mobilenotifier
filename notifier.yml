@@ -5,6 +5,7 @@ metadata:
   name: backend-config
 data:
   DB_PATH: "/opt/data/res.txt"
+  SWAGGER_URL: "https://debshuttle/notifier/api/swagger/doc.json"
 
 ---
 # Backend REST service

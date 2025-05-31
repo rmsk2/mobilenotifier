@@ -18,6 +18,7 @@ import (
 const envApiKey = "IFTTT_API_KEY"
 const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
+const envSwaggerUrl = "SWAGGER_URL"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
 
@@ -38,6 +39,11 @@ func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 
 func run() int {
 	dbOpened := false
+
+	swaggerUrl, ok := os.LookupEnv(envSwaggerUrl)
+	if !ok {
+		swaggerUrl = "http://localhost:5100/notifier/api/swagger/doc.json"
+	}
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
@@ -71,7 +77,7 @@ func run() int {
 		http.Handle("/notifier/app/", http.StripPrefix("/notifier/app/", http.FileServer(http.Dir(dirName))))
 	}
 
-	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL("http://localhost:5100/notifier/api/swagger/doc.json")))
+	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL(swaggerUrl)))
 
 	err = http.ListenAndServe(":5100", nil)
 	if err != nil {
