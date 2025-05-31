@@ -141,7 +141,7 @@ func (w *warningGenerator) processTick(refTime time.Time) {
 		}
 	}
 
-	// Prevent locking of databasse if there is nothing to do
+	// Prevent locking of database if there is nothing to do
 	if len(affectedParents) == 0 {
 		return
 	}
