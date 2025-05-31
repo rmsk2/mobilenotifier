@@ -163,8 +163,8 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 	n.log.Printf("Notification with id '%s' deleted ", uuid)
 }
 
-// @Summary      Get all exsisting notifications
-// @Description  Get all exsisting notifications as a JSON list
+// @Summary      Get all existing notifications
+// @Description  Get all existing notifications as a JSON list
 // @Tags	     Notification
 // @Accept       json
 // @Success      200  {object} ListResponse
