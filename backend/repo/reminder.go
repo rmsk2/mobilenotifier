@@ -41,20 +41,28 @@ type Reminder struct {
 
 type NotificationPredicate func(r *Notification) bool
 
-type NotificationRepo interface {
-	Upsert(n *Notification) error
+type NotificationRepoRead interface {
 	Get(u *tools.UUID) (*Notification, error)
-	Delete(u *tools.UUID) error
 	GetExpired(time.Time) ([]*tools.UUID, error)
 	CountSiblings(parent *tools.UUID) (int, error)
 	Filter(p NotificationPredicate) ([]*tools.UUID, error)
 }
 
+type NotificationRepoWrite interface {
+	NotificationRepoRead
+	Upsert(n *Notification) error
+	Delete(u *tools.UUID) error
+}
+
 type ReminderPredicate func(m *Reminder) bool
 
-type ReminderRepo interface {
-	Upsert(r *Reminder) error
+type ReminderRepoRead interface {
 	Get(u *tools.UUID) (*Reminder, error)
-	Delete(u *tools.UUID) error
 	Filter(p ReminderPredicate) ([]*Reminder, error)
+}
+
+type ReminderRepoWrite interface {
+	ReminderRepoRead
+	Upsert(r *Reminder) error
+	Delete(u *tools.UUID) error
 }

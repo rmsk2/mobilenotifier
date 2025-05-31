@@ -34,7 +34,7 @@ func Test1(t *testing.T) {
 		return
 	}
 
-	var r NotificationRepo = NewBBoltNotificationRepo(db)
+	var r NotificationRepoWrite = NewBBoltNotificationRepo(db)
 
 	testUUID1, _ := tools.NewUuidFromString(Uuid1)
 	testUUID2, _ := tools.NewUuidFromString(Uuid2)
@@ -165,7 +165,7 @@ func Test2(t *testing.T) {
 		return
 	}
 
-	var r NotificationRepo = NewBBoltNotificationRepo(db)
+	var r NotificationRepoWrite = NewBBoltNotificationRepo(db)
 
 	testUUID1, _ := tools.NewUuidFromString(Uuid1)
 	testUUID2, _ := tools.NewUuidFromString(Uuid2)
@@ -237,7 +237,7 @@ func Test3(t *testing.T) {
 		return
 	}
 
-	var r ReminderRepo = NewBBoltReminderRepo(db)
+	var r ReminderRepoWrite = NewBBoltReminderRepo(db)
 
 	testUUID1, _ := tools.NewUuidFromString(Uuid1)
 	testUUID2, _ := tools.NewUuidFromString(Uuid2)

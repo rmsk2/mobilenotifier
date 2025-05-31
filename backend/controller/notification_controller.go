@@ -33,13 +33,13 @@ type ListResponse struct {
 }
 
 type NotficationController struct {
-	db          *repo.DBLocker
+	db          repo.DBSerializer
 	addressBook sms.SmsAddressBook
 	log         *log.Logger
 	nullUuid    *tools.UUID
 }
 
-func NewNotificationController(l *repo.DBLocker, a sms.SmsAddressBook, lg *log.Logger) *NotficationController {
+func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger) *NotficationController {
 	nuid, _ := tools.NewUuidFromString(nullUuidStr)
 
 	return &NotficationController{
@@ -106,11 +106,10 @@ func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Reques
 		Recipient:   m.Recipient,
 	}
 
-	raw := n.db.Lock(true)
-	defer func() { n.db.Unlock(true) }()
+	writeRepo, _ := n.db.Lock()
+	defer func() { n.db.Unlock() }()
 
-	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
-	err = notifRepo.Upsert(&notification)
+	err = writeRepo.Upsert(&notification)
 	if err != nil {
 		n.log.Printf("error creating new notification: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -134,11 +133,10 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	raw := n.db.Lock(true)
-	defer func() { n.db.Unlock(true) }()
+	writeRepo, _ := n.db.Lock()
+	defer func() { n.db.Unlock() }()
 
-	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
-	err := notifRepo.Delete(uuid)
+	err := writeRepo.Delete(uuid)
 	if err != nil {
 		n.log.Printf("error deleting notification: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -149,11 +147,10 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 }
 
 func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
-	raw := n.db.Lock(false)
-	defer func() { n.db.Unlock(false) }()
+	readRepo, _ := n.db.Lock()
+	defer func() { n.db.Unlock() }()
 
-	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
-	uuids, err := notifRepo.Filter(func(*repo.Notification) bool { return true })
+	uuids, err := readRepo.Filter(func(*repo.Notification) bool { return true })
 	if err != nil {
 		n.log.Printf("error listing notification: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -188,11 +185,10 @@ func (n *NotficationController) HandleExpiry(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	raw := n.db.Lock(false)
-	defer func() { n.db.Unlock(false) }()
+	readRepo, _ := n.db.Lock()
+	defer func() { n.db.Unlock() }()
 
-	var notifRepo repo.NotificationRepo = repo.NewBBoltNotificationRepo(raw)
-	notification, err := notifRepo.Get(uuid)
+	notification, err := readRepo.Get(uuid)
 	if err != nil {
 		n.log.Printf("error retrieving notification: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)

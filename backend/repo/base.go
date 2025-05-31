@@ -8,30 +8,39 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-type DBLocker struct {
+type DBSerializer interface {
+	RLock() (NotificationRepoRead, ReminderRepoRead)
+	RUnlock()
+	Lock() (NotificationRepoWrite, ReminderRepoWrite)
+	Unlock()
+}
+
+type BoltDBLocker struct {
 	db    *bolt.DB
 	mutex *sync.RWMutex
 }
 
-func (l *DBLocker) Lock(doWrite bool) *bolt.DB {
-	if doWrite {
-		l.mutex.Lock()
-	} else {
-		l.mutex.RLock()
-	}
+func (l *BoltDBLocker) Lock() (NotificationRepoWrite, ReminderRepoWrite) {
+	l.mutex.Lock()
 
-	return l.db
+	return NewBBoltNotificationRepo(l.db), NewBBoltReminderRepo(l.db)
 }
 
-func (l *DBLocker) Unlock(doWrite bool) {
-	if doWrite {
-		l.mutex.Unlock()
-	} else {
-		l.mutex.RUnlock()
-	}
+func (l *BoltDBLocker) Unlock() {
+	l.mutex.Unlock()
 }
 
-func InitDB(openFlag *bool, boltPath string) (*DBLocker, *bolt.DB, error) {
+func (l *BoltDBLocker) RLock() (NotificationRepoRead, ReminderRepoRead) {
+	l.mutex.RLock()
+
+	return NewBBoltNotificationRepo(l.db), NewBBoltReminderRepo(l.db)
+}
+
+func (l *BoltDBLocker) RUnlock() {
+	l.mutex.RUnlock()
+}
+
+func InitDB(openFlag *bool, boltPath string) (*BoltDBLocker, *bolt.DB, error) {
 	db, err := bolt.Open(boltPath, 0600, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
@@ -47,7 +56,7 @@ func InitDB(openFlag *bool, boltPath string) (*DBLocker, *bolt.DB, error) {
 		return nil, nil, fmt.Errorf("unable to create buckets in database file %s: %v", boltPath, err)
 	}
 
-	res := DBLocker{
+	res := BoltDBLocker{
 		db:    db,
 		mutex: new(sync.RWMutex),
 	}

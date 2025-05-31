@@ -16,14 +16,14 @@ type expiryInfo struct {
 }
 
 type warningGenerator struct {
-	db       *repo.DBLocker
+	db       repo.DBSerializer
 	sender   sms.SmsSender
 	addrBook sms.SmsAddressBook
 	ticker   *time.Ticker
 	log      *log.Logger
 }
 
-func Start(l *repo.DBLocker, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger) {
+func Start(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger) {
 	warner := warningGenerator{
 		db:       l,
 		sender:   sender,
@@ -42,18 +42,17 @@ func Start(l *repo.DBLocker, sender sms.SmsSender, addrBook sms.SmsAddressBook, 
 
 func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
 	res := []expiryInfo{}
-	raw := w.db.Lock(false)
-	defer func() { w.db.Unlock(false) }()
+	readRepo, _ := w.db.RLock()
+	defer func() { w.db.RUnlock() }()
 
-	repo := repo.NewBBoltNotificationRepo(raw)
-	uuids, err := repo.GetExpired(refTime)
+	uuids, err := readRepo.GetExpired(refTime)
 	if err != nil {
 		w.log.Printf("Unable to determine expired notifications: %v", err)
 		return []expiryInfo{}
 	}
 
 	for _, j := range uuids {
-		info, err := repo.Get(j)
+		info, err := readRepo.Get(j)
 		if err != nil {
 			log.Printf("Unable to retrieve info for notification id '%s'", j)
 		} else {
@@ -71,10 +70,9 @@ func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
 }
 
 func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
-	raw := w.db.Lock(true)
-	defer func() { w.db.Unlock(true) }()
+	writeRepo, _ := w.db.Lock()
+	defer func() { w.db.Unlock() }()
 
-	repo := repo.NewBBoltNotificationRepo(raw)
 	ok, err := w.addrBook.CheckRecipient(info.recipient)
 	if err != nil {
 		w.log.Printf("Unable to determine validity of recipient '%s': %v", info.recipient, err)
@@ -83,7 +81,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 
 	if !ok {
 		w.log.Printf("Recipeient '%s' in notification '%s' is invalid. Deleting notification", info.recipient, info.uuid)
-		err = repo.Delete(info.uuid)
+		err = writeRepo.Delete(info.uuid)
 		if err != nil {
 			w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
 			return false
@@ -99,7 +97,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 
 	w.log.Printf("Message sent to '%s' for notification '%s'", info.recipient, info.uuid)
 
-	err = repo.Delete(info.uuid)
+	err = writeRepo.Delete(info.uuid)
 	if err != nil {
 		w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
 		return false
@@ -113,13 +111,11 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 func (w *warningGenerator) determineChildlessParents(affectedParents map[*tools.UUID]bool) []string {
 	res := []string{}
 
-	raw := w.db.Lock(false)
-	defer func() { w.db.Unlock(false) }()
-
-	repo := repo.NewBBoltNotificationRepo(raw)
+	readRepo, _ := w.db.RLock()
+	defer func() { w.db.RUnlock() }()
 
 	for i := range affectedParents {
-		count, err := repo.CountSiblings(i)
+		count, err := readRepo.CountSiblings(i)
 		if err != nil {
 			log.Printf("Problem: Unable to determine child count for parent '%s'. This could create a dead reminder", i)
 			continue
