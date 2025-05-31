@@ -9,6 +9,10 @@ import (
 	"notifier/warner"
 	"os"
 	"time"
+
+	_ "notifier/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const envApiKey = "IFTTT_API_KEY"
@@ -67,6 +71,8 @@ func run() int {
 		http.Handle("/notifier/app/", http.StripPrefix("/notifier/app/", http.FileServer(http.Dir(dirName))))
 	}
 
+	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL("http://localhost:5100/notifier/api/swagger/doc.json")))
+
 	err = http.ListenAndServe(":5100", nil)
 	if err != nil {
 		log.Println(err)
@@ -76,6 +82,18 @@ func run() int {
 	return ERROR_OK
 }
 
+// @title Mbile Notifier API
+// @version 1.0
+// @description This is an API for managing reminders sent to your mobile phone.
+
+// @contact.name API Support
+// @contact.email rmsk2@gmx.de
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host debshuttle
+// @BasePath /notifier/api/
 func main() {
 	os.Exit(run())
 }
