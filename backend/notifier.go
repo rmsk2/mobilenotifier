@@ -88,18 +88,6 @@ func run() int {
 	return ERROR_OK
 }
 
-// @title Mbile Notifier API
-// @version 1.0
-// @description This is an API for managing reminders sent to your mobile phone.
-
-// @contact.name API Support
-// @contact.email rmsk2@gmx.de
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host debshuttle
-// @BasePath /notifier/api/
 func main() {
 	os.Exit(run())
 }

@@ -57,6 +57,15 @@ func (n *NotficationController) Add() {
 	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", n.HandleExpiry)
 }
 
+// @Summary      Create a new notification
+// @Description  Create a new notification which is tracked and executed by the web service
+// @Tags	     Notification
+// @Accept       json
+// @Param        notification_data  body  NotificationData true "Specification of notification to set"
+// @Success      200  {object} UuidResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification [post]
 func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -123,6 +132,14 @@ func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Reques
 	w.Write([]byte(data))
 }
 
+// @Summary      Delete a notification
+// @Description  Delete a notfification with the specified uuid
+// @Tags	     Notification
+// @Param        uuid   path  string  true  "UUID of notification"
+// @Success      200  {object} nil
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification/delete/{uuid} [delete]
 func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -146,6 +163,14 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 	n.log.Printf("Notification with id '%s' deleted ", uuid)
 }
 
+// @Summary      Get all exsisting notifications
+// @Description  Get all exsisting notifications as a JSON list
+// @Tags	     Notification
+// @Accept       json
+// @Success      200  {object} ListResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification [get]
 func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
 	readRepo, _ := n.db.Lock()
 	defer func() { n.db.Unlock() }()
@@ -175,6 +200,14 @@ func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Reques
 	w.Write([]byte(data))
 }
 
+// @Summary      Get expiry date of notification
+// @Description  Get expiry date of notfification with the specified uuid
+// @Tags	     Notification
+// @Param        uuid   path  string  true  "UUID of notification"
+// @Success      200  {object} nil
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification/expiry/{uuid} [get]
 func (n *NotficationController) HandleExpiry(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 

@@ -31,6 +31,16 @@ func (s *SmSController) Add() {
 	http.HandleFunc("POST /notifier/api/send/{recipient}", s.Handle)
 }
 
+// @Summary      Send a text message to a recipient
+// @Description  Send a text message specified in the body to the recipient specified in the URL
+// @Tags	     SMS
+// @Accept       json
+// @Param        recipient   path  string  true  "Recipient"
+// @Param        message_spec  body  SmsMessage true "Specification of message to send"
+// @Success      200  {object} nil
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/send/{recipient} [post]
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
 	ok, err := s.addressBook.CheckRecipient(recipient)
