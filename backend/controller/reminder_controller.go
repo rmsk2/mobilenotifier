@@ -12,15 +12,6 @@ import (
 	"time"
 )
 
-/*
-	Kind        ReminderType
-	Param       int
-	WarningAt   []WarningType
-	Spec        time.Time
-	Description string
-	Recipients  []string
-*/
-
 type ReminderData struct {
 	Kind        repo.ReminderType  `json:"kind"`
 	Param       int                `json:"param"`
@@ -46,6 +37,16 @@ type ReminderController struct {
 	log         *log.Logger
 }
 
+type ReminderOverview struct {
+	Id          *tools.UUID       `json:"id"`
+	Description string            `json:"description"`
+	Kind        repo.ReminderType `json:"kind"`
+}
+
+type OverviewResponse struct {
+	Reminders []*ReminderOverview `json:"reminders"`
+}
+
 func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger) *ReminderController {
 	return &ReminderController{
 		db:          l,
@@ -57,6 +58,7 @@ func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Lo
 func (n *ReminderController) Add() {
 	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
 	http.HandleFunc("/notifier/api/reminder", n.HandleList)
+	http.HandleFunc("/notifier/api/reminder/views/basic", n.HandleOverview)
 	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", n.HandlePostUpsert)
 	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", n.HandleDelete)
 	http.HandleFunc("/notifier/api/reminder/{uuid}", n.HandleGet)
@@ -274,7 +276,7 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 type ReminderListResponse struct {
-	Reminders []*ReminderResult
+	Reminders []*ReminderResult `json:"reminders"`
 }
 
 // @Summary      Get all existing reminders
@@ -313,6 +315,53 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 	}
 
 	n.log.Println("Created list for all reminders")
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Write([]byte(data))
+}
+
+// @Summary      Get basic information about existing reminders
+// @Description  Get basic information for existing reminders as a JSON list
+// @Tags	     Reminder
+// @Accept       json
+// @Success      200  {object} OverviewResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/reminder/views/basic [get]
+func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Request) {
+	_, readRepo := n.db.RLock()
+	defer func() { n.db.RUnlock() }()
+
+	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
+	if err != nil {
+		n.log.Printf("error listing notification: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	responses := []*ReminderOverview{}
+	for _, j := range allReminders {
+		o := ReminderOverview{
+			Id:          j.Id,
+			Description: j.Description,
+			Kind:        j.Kind,
+		}
+		responses = append(responses, &o)
+	}
+
+	resp := OverviewResponse{
+		Reminders: responses,
+	}
+
+	data, err := json.Marshal(&resp)
+	if err != nil {
+		n.log.Printf("error serializing response: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	n.log.Println("Created overview for all reminders")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
