@@ -54,7 +54,7 @@ func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
 	for _, j := range uuids {
 		info, err := readRepo.Get(j)
 		if err != nil {
-			log.Printf("Unable to retrieve info for notification id '%s'", j)
+			w.log.Printf("Unable to retrieve info for notification id '%s'", j)
 		} else {
 			currentInfo := expiryInfo{
 				uuid:        j,
@@ -118,7 +118,7 @@ func (w *warningGenerator) determineChildlessParents(affectedParents map[string]
 		u, _ := tools.NewUuidFromString(i)
 		count, err := readRepo.CountSiblings(u)
 		if err != nil {
-			log.Printf("Problem: Unable to determine child count for parent '%s'. This could create a dead reminder", i)
+			w.log.Printf("Problem: Unable to determine child count for parent '%s'. This could create a dead reminder", i)
 			continue
 		}
 
@@ -147,7 +147,6 @@ func (w *warningGenerator) processTick(refTime time.Time) {
 		return
 	}
 
-	reminderProc := NewReminderProcessor(w.db, w.log)
 	remindersToReschedule := w.determineChildlessParents(affectedParents)
-	reminderProc.ProcessExpired(remindersToReschedule)
+	ProcessExpired(w.db, w.log, remindersToReschedule)
 }

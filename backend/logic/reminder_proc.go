@@ -25,18 +25,6 @@ func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error)
 	}
 }
 
-func NewReminderProcessor(d repo.DBSerializer, l *log.Logger) *ReminderProcessor {
-	return &ReminderProcessor{
-		dbl: d,
-		log: l,
-	}
-}
-
-type ReminderProcessor struct {
-	dbl repo.DBSerializer
-	log *log.Logger
-}
-
 func ProcessNewUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.ReminderRepoWrite, reminder *repo.Reminder) error {
 	return ProcessOneUuid(repoNotify, repoReminder, reminder, true)
 }
@@ -75,31 +63,31 @@ func ProcessOneUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.Rem
 	return nil
 }
 
-func (r *ReminderProcessor) ProcessExpired(uuidsToProcess []string) {
-	nRepo, rRepo := r.dbl.Lock()
-	defer func() { r.dbl.Unlock() }()
+func ProcessExpired(dbl repo.DBSerializer, extLog *log.Logger, uuidsToProcess []string) {
+	nRepo, rRepo := dbl.Lock()
+	defer func() { dbl.Unlock() }()
 
 	for _, j := range uuidsToProcess {
 		uid, ok := tools.NewUuidFromString(j)
 		if !ok {
-			log.Printf("Unable to parse reminder uuid '%s'", j)
+			extLog.Printf("Unable to parse reminder uuid '%s'", j)
 			continue
 		}
 
 		reminder, err := rRepo.Get(uid)
 		if err != nil {
-			log.Printf("Unable to read reminder uuid '%s': %v", uid, err)
+			extLog.Printf("Unable to read reminder uuid '%s': %v", uid, err)
 			continue
 		}
 
 		if reminder == nil {
-			log.Printf("Reminder uuid '%s' not found in repo", uid)
+			extLog.Printf("Reminder uuid '%s' not found in repo", uid)
 			continue
 		}
 
 		err = ProcessOneUuid(nRepo, rRepo, reminder, false)
 		if err != nil {
-			log.Printf("Unable to reschedule reminder '%s': %v", j, err)
+			extLog.Printf("Unable to reschedule reminder '%s': %v", j, err)
 		}
 	}
 }
