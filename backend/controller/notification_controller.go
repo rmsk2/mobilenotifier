@@ -54,7 +54,7 @@ func (n *NotficationController) Add() {
 	http.HandleFunc("POST /notifier/api/notification", n.HandlePost)
 	http.HandleFunc("/notifier/api/notification", n.HandleList)
 	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", n.HandleDelete)
-	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", n.HandleExpiry)
+	http.HandleFunc("/notifier/api/notification/{uuid}/expiry", n.HandleExpiry)
 }
 
 // @Summary      Create a new notification
@@ -207,7 +207,7 @@ func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Reques
 // @Success      200  {object} nil
 // @Failure      400  {object} string
 // @Failure      500  {object} string
-// @Router       /notifier/api/notification/expiry/{uuid} [get]
+// @Router       /notifier/api/notification/{uuid}/expiry [get]
 func (n *NotficationController) HandleExpiry(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
