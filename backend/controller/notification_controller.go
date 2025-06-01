@@ -172,8 +172,8 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 // @Failure      500  {object} string
 // @Router       /notifier/api/notification [get]
 func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
-	readRepo, _ := n.db.Lock()
-	defer func() { n.db.Unlock() }()
+	readRepo, _ := n.db.RLock()
+	defer func() { n.db.RUnlock() }()
 
 	uuids, err := readRepo.Filter(func(*repo.Notification) bool { return true })
 	if err != nil {
@@ -218,8 +218,8 @@ func (n *NotficationController) HandleExpiry(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	readRepo, _ := n.db.Lock()
-	defer func() { n.db.Unlock() }()
+	readRepo, _ := n.db.RLock()
+	defer func() { n.db.RUnlock() }()
 
 	notification, err := readRepo.Get(uuid)
 	if err != nil {

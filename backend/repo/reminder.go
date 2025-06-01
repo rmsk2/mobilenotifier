@@ -19,6 +19,7 @@ const (
 	NoonBefore
 	EveningBefore
 	WeekBefore
+	SameDay
 )
 
 type Notification struct {

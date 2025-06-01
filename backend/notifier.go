@@ -68,6 +68,9 @@ func run() int {
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
 	notificationController.Add()
 
+	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
+	reminderController.Add()
+
 	t := time.NewTicker(60 * time.Second)
 	warner.Start(dbl, smsSender, smsAddressBook, t, createLogger())
 
