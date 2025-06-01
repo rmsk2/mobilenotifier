@@ -28,8 +28,8 @@ type ReminderResult struct {
 }
 
 type ReminderResponse struct {
-	Found bool            `json:"found"`
-	Data  *ReminderResult `json:"data"`
+	Found bool           `json:"found"`
+	Data  *repo.Reminder `json:"data"`
 }
 
 type ReminderController struct {
@@ -225,29 +225,11 @@ func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request
 	n.log.Printf("reminder with id '%s' deleted ", uuid)
 }
 
-func RawToReminderResult(reminder *repo.Reminder) *ReminderResult {
-	d := ReminderData{
-		Kind:        reminder.Kind,
-		Param:       reminder.Param,
-		WarningAt:   reminder.WarningAt,
-		Spec:        reminder.Spec,
-		Description: reminder.Description,
-		Recipients:  reminder.Recipients,
-	}
-
-	reminderResult := ReminderResult{
-		Id:           reminder.Id,
-		ReminderData: d,
-	}
-
-	return &reminderResult
-}
-
 // @Summary      Get a reminder
 // @Description  Get a reminder with the specified uuid
 // @Tags	     Reminder
 // @Param        uuid   path  string  true  "UUID of reminder"
-// @Success      200  {object} nil
+// @Success      200  {object} ReminderResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/{uuid} [get]
@@ -281,7 +263,7 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 	} else {
 		response = ReminderResponse{
 			Found: true,
-			Data:  RawToReminderResult(reminder),
+			Data:  reminder,
 		}
 	}
 
@@ -300,7 +282,7 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 type ReminderListResponse struct {
-	Reminders []*ReminderResult `json:"reminders"`
+	Reminders []*repo.Reminder `json:"reminders"`
 }
 
 // @Summary      Get all existing reminders
@@ -321,13 +303,8 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	responses := []*ReminderResult{}
-	for _, j := range allReminders {
-		responses = append(responses, RawToReminderResult(j))
-	}
-
 	resp := ReminderListResponse{
-		Reminders: responses,
+		Reminders: allReminders,
 	}
 
 	data, err := json.Marshal(&resp)

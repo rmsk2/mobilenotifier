@@ -23,21 +23,21 @@ const (
 )
 
 type Notification struct {
-	Id          *tools.UUID
-	Parent      *tools.UUID
-	WarningTime time.Time
-	Description string
-	Recipient   string
+	Id          *tools.UUID `json:"id"`
+	Parent      *tools.UUID `json:"parent"`
+	WarningTime time.Time   `json:"warning_time"`
+	Description string      `json:"description"`
+	Recipient   string      `json:"recipient"`
 }
 
 type Reminder struct {
-	Id          *tools.UUID
-	Kind        ReminderType
-	Param       int
-	WarningAt   []WarningType
-	Spec        time.Time
-	Description string
-	Recipients  []string
+	Id          *tools.UUID   `json:"id"`
+	Kind        ReminderType  `json:"kind"`
+	Param       int           `json:"param"`
+	WarningAt   []WarningType `json:"warning_at"`
+	Spec        time.Time     `json:"spec"`
+	Description string        `json:"description"`
+	Recipients  []string      `json:"recipients"`
 }
 
 type NotificationPredicate func(r *Notification) bool
