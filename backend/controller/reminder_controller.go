@@ -335,7 +335,7 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 
 	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
 	if err != nil {
-		n.log.Printf("error listing notification: %v", err)
+		n.log.Printf("error listing reminders: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
