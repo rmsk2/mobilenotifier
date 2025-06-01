@@ -1,4 +1,4 @@
-package warner
+package logic
 
 import (
 	"log"
@@ -23,7 +23,7 @@ type warningGenerator struct {
 	log      *log.Logger
 }
 
-func Start(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger) {
+func StartWarner(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger) {
 	warner := warningGenerator{
 		db:       l,
 		sender:   sender,

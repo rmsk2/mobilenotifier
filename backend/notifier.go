@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 	"notifier/controller"
+	"notifier/logic"
 	"notifier/repo"
 	"notifier/sms"
-	"notifier/warner"
 	"os"
 	"time"
 
@@ -72,7 +72,7 @@ func run() int {
 	reminderController.Add()
 
 	t := time.NewTicker(60 * time.Second)
-	warner.Start(dbl, smsSender, smsAddressBook, t, createLogger())
+	logic.StartWarner(dbl, smsSender, smsAddressBook, t, createLogger())
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
