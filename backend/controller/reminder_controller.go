@@ -58,7 +58,7 @@ func (n *ReminderController) Add() {
 	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
 	http.HandleFunc("/notifier/api/reminder", n.HandleList)
 	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", n.HandlePostUpsert)
-	http.HandleFunc("DELETE /notifier/api/reminder/delete/{uuid}", n.HandleDelete)
+	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", n.HandleDelete)
 	http.HandleFunc("/notifier/api/reminder/{uuid}", n.HandleGet)
 }
 
@@ -175,7 +175,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 // @Success      200  {object} nil
 // @Failure      400  {object} string
 // @Failure      500  {object} string
-// @Router       /notifier/api/reminder/delete/{uuid} [delete]
+// @Router       /notifier/api/reminder/{uuid} [delete]
 func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 

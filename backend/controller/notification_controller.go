@@ -53,7 +53,7 @@ func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *lo
 func (n *NotficationController) Add() {
 	http.HandleFunc("POST /notifier/api/notification", n.HandlePost)
 	http.HandleFunc("/notifier/api/notification", n.HandleList)
-	http.HandleFunc("DELETE /notifier/api/notification/delete/{uuid}", n.HandleDelete)
+	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", n.HandleDelete)
 	http.HandleFunc("/notifier/api/notification/expiry/{uuid}", n.HandleExpiry)
 }
 
@@ -139,7 +139,7 @@ func (n *NotficationController) HandlePost(w http.ResponseWriter, r *http.Reques
 // @Success      200  {object} nil
 // @Failure      400  {object} string
 // @Failure      500  {object} string
-// @Router       /notifier/api/notification/delete/{uuid} [delete]
+// @Router       /notifier/api/notification/{uuid} [delete]
 func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
