@@ -23,6 +23,7 @@ func NewIftttSender(apiKey string) *iftttSmsSender {
 	res := new(iftttSmsSender)
 	res.recipientMap = map[string]string{
 		"martin": "SendSMS1",
+		"push":   "SendPush1",
 	}
 
 	res.apiKey = apiKey

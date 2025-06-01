@@ -1,0 +1,105 @@
+package logic
+
+import (
+	"fmt"
+	"log"
+	"notifier/repo"
+	"notifier/tools"
+)
+
+type NotificationGenerator interface {
+	IsReschudleNeeded(*repo.Reminder) bool
+	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
+}
+
+func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error) {
+	switch k {
+	case repo.OneShot:
+		return NewOneShotGenerator(), nil
+	case repo.Anniversary:
+		return nil, fmt.Errorf("unknown reminder type: %d", k)
+	case repo.WeeklyEvent:
+		return nil, fmt.Errorf("unknown reminder type: %d", k)
+	default:
+		return nil, fmt.Errorf("unknown reminder type: %d", k)
+	}
+}
+
+func NewReminderProcessor(d repo.DBSerializer, l *log.Logger) *ReminderProcessor {
+	return &ReminderProcessor{
+		dbl: d,
+		log: l,
+	}
+}
+
+type ReminderProcessor struct {
+	dbl repo.DBSerializer
+	log *log.Logger
+}
+
+func ProcessNewUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.ReminderRepoWrite, reminder *repo.Reminder) error {
+	return ProcessOneUuid(repoNotify, repoReminder, reminder, true)
+}
+
+func ProcessOneUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.ReminderRepoWrite, reminder *repo.Reminder, forceReschedule bool) error {
+	c, err := repoNotify.CountSiblings(reminder.Id)
+	if err != nil {
+		return err
+	}
+
+	if c != 0 {
+		return fmt.Errorf("there are existing notifications for reminder '%s'", reminder.Id)
+	}
+
+	proc, err := ReminderTypeToGenerator(reminder.Kind)
+	if err != nil {
+		return err
+	}
+
+	if !(forceReschedule || proc.IsReschudleNeeded(reminder)) {
+		return repoReminder.Delete(reminder.Id)
+	}
+
+	newNotifications, err := proc.Reschedule(reminder)
+	if err != nil {
+		return err
+	}
+
+	for _, j := range newNotifications {
+		err := repoNotify.Upsert(j)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *ReminderProcessor) ProcessExpired(uuidsToProcess []string) {
+	nRepo, rRepo := r.dbl.Lock()
+	defer func() { r.dbl.Unlock() }()
+
+	for _, j := range uuidsToProcess {
+		uid, ok := tools.NewUuidFromString(j)
+		if !ok {
+			log.Printf("Unable to parse reminder uuid '%s'", j)
+			continue
+		}
+
+		reminder, err := rRepo.Get(uid)
+		if err != nil {
+			log.Printf("Unable to read reminder uuid '%s': %v", uid, err)
+			continue
+		}
+
+		if reminder == nil {
+			log.Printf("Reminder uuid '%s' not found in repo", uid)
+			continue
+		}
+
+		err = ProcessOneUuid(nRepo, rRepo, reminder, false)
+		if err != nil {
+			log.Printf("Unable to reschedule reminder '%s': %v", j, err)
+		}
+	}
+}

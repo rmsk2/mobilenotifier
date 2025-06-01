@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"notifier/logic"
 	"notifier/repo"
 	"notifier/sms"
 	"notifier/tools"
@@ -78,7 +79,7 @@ func (n *ReminderController) HandlePost(w http.ResponseWriter, r *http.Request) 
 }
 
 // @Summary      Modify or create a reminder
-// @Description  Create a new or modify an existing reminder with the id specified in the path
+// @Description  Create a new or modify an existing reminder with the id specified in the path. This also regenerates all notifications currently associated with the reminder.
 // @Tags	     Reminder
 // @Accept       json
 // @Param        uuid   path  string  true  "UUID of reminder"
@@ -96,6 +97,7 @@ func (n *ReminderController) HandlePostUpsert(w http.ResponseWriter, r *http.Req
 		http.Error(w, "UUID not wellformed", http.StatusBadRequest)
 		return
 	}
+
 	n.HandleUpsert(w, r, uuid)
 }
 
@@ -152,12 +154,27 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		Recipients:  m.Recipients,
 	}
 
-	_, writeRepo := n.db.Lock()
+	nWriteRepo, writeRepo := n.db.Lock()
 	defer func() { n.db.Unlock() }()
+
+	err = repo.ClearNotifications(nWriteRepo, reminder.Id)
+	if err != nil {
+		n.log.Printf("error clearing possibly existing notifications: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
 
 	err = writeRepo.Upsert(&reminder)
 	if err != nil {
-		n.log.Printf("error creating new reminder: %v", err)
+		n.log.Printf("error creating/updating reminder: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	// ToDo: Attempt to cleanup DB if this fails
+	err = logic.ProcessNewUuid(nWriteRepo, writeRepo, &reminder)
+	if err != nil {
+		n.log.Printf("error creating notifications for new/updated reminder: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
@@ -171,7 +188,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 }
 
 // @Summary      Delete a reminder
-// @Description  Delete a reminder with the specified uuid
+// @Description  Delete a reminder with the specified uuid and all notifications associated with it
 // @Tags	     Reminder
 // @Param        uuid   path  string  true  "UUID of reminder"
 // @Success      200  {object} nil
@@ -188,12 +205,19 @@ func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_, writeRepo := n.db.Lock()
+	nWriteRepo, writeRepo := n.db.Lock()
 	defer func() { n.db.Unlock() }()
 
 	err := writeRepo.Delete(uuid)
 	if err != nil {
 		n.log.Printf("error deleting reminder: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	err = repo.ClearNotifications(nWriteRepo, uuid)
+	if err != nil {
+		n.log.Printf("error deleting notifications for reminder '%s': %v", uuid, err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}

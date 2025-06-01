@@ -108,21 +108,22 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	return true
 }
 
-func (w *warningGenerator) determineChildlessParents(affectedParents map[*tools.UUID]bool) []string {
+func (w *warningGenerator) determineChildlessParents(affectedParents map[string]bool) []string {
 	res := []string{}
 
 	readRepo, _ := w.db.RLock()
 	defer func() { w.db.RUnlock() }()
 
 	for i := range affectedParents {
-		count, err := readRepo.CountSiblings(i)
+		u, _ := tools.NewUuidFromString(i)
+		count, err := readRepo.CountSiblings(u)
 		if err != nil {
 			log.Printf("Problem: Unable to determine child count for parent '%s'. This could create a dead reminder", i)
 			continue
 		}
 
 		if count == 0 {
-			res = append(res, i.String())
+			res = append(res, i)
 		}
 	}
 
@@ -131,13 +132,13 @@ func (w *warningGenerator) determineChildlessParents(affectedParents map[*tools.
 
 func (w *warningGenerator) processTick(refTime time.Time) {
 	w.log.Printf("Ticking at %v", refTime)
-	affectedParents := map[*tools.UUID]bool{}
+	affectedParents := map[string]bool{}
 
 	expiredNotifications := w.collect(refTime)
 
 	for _, j := range expiredNotifications {
 		if w.sendAndDeleteOne(j) {
-			affectedParents[j.parent] = true
+			affectedParents[j.parent.String()] = true
 		}
 	}
 
@@ -146,5 +147,7 @@ func (w *warningGenerator) processTick(refTime time.Time) {
 		return
 	}
 
-	_ = w.determineChildlessParents(affectedParents)
+	reminderProc := NewReminderProcessor(w.db, w.log)
+	remindersToReschedule := w.determineChildlessParents(affectedParents)
+	reminderProc.ProcessExpired(remindersToReschedule)
 }

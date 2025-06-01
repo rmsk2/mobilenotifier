@@ -8,6 +8,7 @@ func NewDummySender() *dummySmsSender {
 	res := new(dummySmsSender)
 	res.recipientMap = map[string]string{
 		"martin": "SendSMS1",
+		"push":   "SendPush1",
 	}
 
 	return res

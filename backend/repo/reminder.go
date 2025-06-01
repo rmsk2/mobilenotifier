@@ -67,3 +67,22 @@ type ReminderRepoWrite interface {
 	Upsert(r *Reminder) error
 	Delete(u *tools.UUID) error
 }
+
+func ClearNotifications(repoNotificationWrite NotificationRepoWrite, parentId *tools.UUID) error {
+	uuids, err := repoNotificationWrite.Filter(func(n *Notification) bool {
+		return n.Parent.IsEqual(parentId)
+	})
+
+	if err != nil {
+		return err
+	}
+
+	for _, j := range uuids {
+		err := repoNotificationWrite.Delete(j)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
