@@ -282,7 +282,6 @@ type ReminderListResponse struct {
 // @Summary      Get all existing reminders
 // @Description  Get all existing reminders as a JSON list
 // @Tags	     Reminder
-// @Accept       json
 // @Success      200  {object} ReminderListResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
@@ -324,7 +323,6 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 // @Summary      Get basic information about existing reminders
 // @Description  Get basic information for existing reminders as a JSON list
 // @Tags	     Reminder
-// @Accept       json
 // @Success      200  {object} OverviewResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
