@@ -10,15 +10,22 @@ func oneShotRefTimeGen(r *repo.Reminder) time.Time {
 }
 
 func anniversaryRefTimeGen(r *repo.Reminder) time.Time {
-	// ToDo: Handle Feb 29
+	// Feb 29 is handled correctly by go, i.e. Feb 29 plus one year is Mar 01
 	h := r.Spec.Local()
 	now := time.Now()
 	refThisYear := time.Date(now.Year(), h.Month(), h.Day(), 0, 0, 0, 0, time.Local)
+	var offset int
 
-	if refThisYear.Compare(now) == -1 {
-		// In this year the anniversary is already in the past
-		refThisYear = time.Date(now.Year()+1, h.Month(), h.Day(), 0, 0, 0, 0, time.Local)
+	switch {
+	case refThisYear.Compare(now) == -1:
+		offset = 1
+	case refThisYear.Compare(now) == 0:
+		offset = 1
+	default:
+		offset = 0
 	}
+
+	refThisYear = refThisYear.AddDate(offset, 0, 0)
 
 	return refThisYear
 }
@@ -29,16 +36,17 @@ func weeklyRefTimeGen(r *repo.Reminder) time.Time {
 	var refThisWeek time.Time
 	var offset int
 
-	if h.Weekday() < now.Weekday() {
-		// In this week the day has already passed => nex week
+	switch {
+	case h.Weekday() == now.Weekday():
+		offset = 7
+	case h.Weekday() < now.Weekday():
 		offset = 7 - (int(now.Weekday()) - int(h.Weekday()))
-	} else {
-		// In this week the day will occur in the future
+	default:
 		offset = int(h.Weekday()) - int(now.Weekday())
 	}
 
 	now = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
-	refThisWeek = now.AddDate(0, 0, -int(offset))
+	refThisWeek = now.AddDate(0, 0, offset)
 
 	return refThisWeek
 }
