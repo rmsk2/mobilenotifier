@@ -5,14 +5,13 @@ import (
 	"time"
 )
 
-func oneShotRefTimeGen(r *repo.Reminder) time.Time {
+func oneShotRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	return r.Spec
 }
 
-func anniversaryRefTimeGen(r *repo.Reminder) time.Time {
+func anniversaryRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	// Feb 29 is handled correctly by go, i.e. Feb 29 plus one year is Mar 01
 	h := r.Spec.Local()
-	now := time.Now()
 	refThisYear := time.Date(now.Year(), h.Month(), h.Day(), 0, 0, 0, 0, time.Local)
 	var offset int
 
@@ -30,9 +29,8 @@ func anniversaryRefTimeGen(r *repo.Reminder) time.Time {
 	return refThisYear
 }
 
-func weeklyRefTimeGen(r *repo.Reminder) time.Time {
+func weeklyRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	h := r.Spec.Local()
-	now := time.Now()
 	var refThisWeek time.Time
 	var offset int
 

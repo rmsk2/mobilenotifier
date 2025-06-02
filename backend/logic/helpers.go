@@ -21,7 +21,7 @@ type NotificationGenerator interface {
 	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
 }
 
-type ReftimeGenerator func(*repo.Reminder) time.Time
+type ReftimeGenerator func(*repo.Reminder, time.Time) time.Time
 type OffsetGenerator func(time.Time) time.Time
 
 type GenericNotificationGenerator struct {
@@ -84,7 +84,7 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 	res := []*repo.Notification{}
 	times := []time.Time{}
 
-	refTime := g.genRefTime(r)
+	refTime := g.genRefTime(r, time.Now())
 
 	for _, t := range r.WarningAt {
 		times = append(times, g.offsetGens[t](refTime))
