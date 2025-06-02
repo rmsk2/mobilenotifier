@@ -25,6 +25,7 @@ func anniversaryRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	}
 
 	refThisYear = refThisYear.AddDate(offset, 0, 0)
+	refThisYear = time.Date(refThisYear.Year(), refThisYear.Month(), refThisYear.Day(), 12, 0, 0, 0, time.Local)
 
 	return refThisYear
 }
