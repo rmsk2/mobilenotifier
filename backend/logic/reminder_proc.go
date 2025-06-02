@@ -7,19 +7,14 @@ import (
 	"notifier/tools"
 )
 
-type NotificationGenerator interface {
-	IsReschudleNeeded(*repo.Reminder) bool
-	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
-}
-
 func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error) {
 	switch k {
 	case repo.OneShot:
-		return NewOneShotGenerator(), nil
+		return NewGenericNotificationGenerator(false, oneShotRefTimeGen), nil
 	case repo.Anniversary:
-		return nil, fmt.Errorf("unknown reminder type: %d", k)
+		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen), nil
 	case repo.WeeklyEvent:
-		return nil, fmt.Errorf("unknown reminder type: %d", k)
+		return NewGenericNotificationGenerator(true, weeklyRefTimeGen), nil
 	default:
 		return nil, fmt.Errorf("unknown reminder type: %d", k)
 	}
@@ -44,7 +39,7 @@ func ProcessOneUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.Rem
 		return err
 	}
 
-	if !(forceReschedule || proc.IsReschudleNeeded(reminder)) {
+	if !(forceReschedule || proc.IsRescheduleNeeded(reminder)) {
 		return repoReminder.Delete(reminder.Id)
 	}
 
