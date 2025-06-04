@@ -10,7 +10,6 @@ type WarningType int
 
 const (
 	Anniversary ReminderType = iota + 1
-	WeeklyEvent
 	OneShot
 )
 

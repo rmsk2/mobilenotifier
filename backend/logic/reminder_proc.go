@@ -13,8 +13,6 @@ func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error)
 		return NewGenericNotificationGenerator(false, oneShotRefTimeGen), nil
 	case repo.Anniversary:
 		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen), nil
-	case repo.WeeklyEvent:
-		return NewGenericNotificationGenerator(true, weeklyRefTimeGen), nil
 	default:
 		return nil, fmt.Errorf("unknown reminder type: %d", k)
 	}

@@ -44,6 +44,7 @@ func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *lo
 func (n *NotficationController) Add() {
 	http.HandleFunc("/notifier/api/notification", n.HandleList)
 	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", n.HandleDelete)
+	http.HandleFunc("/notifier/api/notification/siblings/{uuid}", n.HandleGetSiblings)
 	http.HandleFunc("/notifier/api/notification/{uuid}", n.HandleGet)
 }
 
@@ -76,43 +77,6 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 	}
 
 	n.log.Printf("Notification with id '%s' deleted ", uuid)
-}
-
-// @Summary      Get all existing notifications
-// @Description  Get all existing notifications as a JSON list
-// @Tags	     Notification
-// @Accept       json
-// @Success      200  {object} ListResponse
-// @Failure      400  {object} string
-// @Failure      500  {object} string
-// @Router       /notifier/api/notification [get]
-func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
-	readRepo, _ := n.db.RLock()
-	defer func() { n.db.RUnlock() }()
-
-	uuids, err := readRepo.Filter(func(*repo.Notification) bool { return true })
-	if err != nil {
-		n.log.Printf("error listing notification: %v", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	resp := ListResponse{
-		Uuids: uuids,
-	}
-
-	data, err := json.Marshal(&resp)
-	if err != nil {
-		n.log.Printf("error serializing response: %v", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	n.log.Println("Created list for all notifications")
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Cache-Control", "no-store")
-	w.Write([]byte(data))
 }
 
 // @Summary      Get a notification
@@ -169,4 +133,70 @@ func (n *NotficationController) HandleGet(w http.ResponseWriter, r *http.Request
 	w.Write([]byte(data))
 
 	n.log.Printf("Notification with id '%s' read ", uuid)
+}
+
+// @Summary      Get all existing notifications
+// @Description  Get all existing notifications as a JSON list
+// @Tags	     Notification
+// @Accept       json
+// @Success      200  {object} ListResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification [get]
+func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
+	n.HandleFilter(w, r, func(*repo.Notification) bool {
+		return true
+	})
+}
+
+// @Summary      Get the ids of all notifications belonging to a reminder
+// @Description  Get the ids of all notifications belonging to a reminder with the specified uuid
+// @Tags	     Notification
+// @Param        uuid   path  string  true  "UUID of notification"
+// @Success      200  {object} ListResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/notification/siblings/{uuid} [get]
+func (n *NotficationController) HandleGetSiblings(w http.ResponseWriter, r *http.Request) {
+	uuidRaw := r.PathValue("uuid")
+
+	uuid, ok := tools.NewUuidFromString(uuidRaw)
+	if !ok {
+		n.log.Printf("Unable to parse '%s' into uuid", uuidRaw)
+		http.Error(w, "UUID not wellformed", http.StatusBadRequest)
+		return
+	}
+
+	n.HandleFilter(w, r, func(notif *repo.Notification) bool {
+		return notif.Parent.IsEqual(uuid)
+	})
+}
+
+func (n *NotficationController) HandleFilter(w http.ResponseWriter, r *http.Request, filterFunc repo.NotificationPredicate) {
+	readRepo, _ := n.db.RLock()
+	defer func() { n.db.RUnlock() }()
+
+	uuids, err := readRepo.Filter(filterFunc)
+	if err != nil {
+		n.log.Printf("error listing notification: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	resp := ListResponse{
+		Uuids: uuids,
+	}
+
+	data, err := json.Marshal(&resp)
+	if err != nil {
+		n.log.Printf("error serializing response: %v", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	n.log.Println("Created filtered list of all notifications")
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Write([]byte(data))
 }

@@ -10,6 +10,8 @@ import (
 	"notifier/repo"
 	"notifier/sms"
 	"notifier/tools"
+	"sort"
+	"strconv"
 	"time"
 )
 
@@ -20,11 +22,6 @@ type ReminderData struct {
 	Spec        time.Time          `json:"warning_time"`
 	Description string             `json:"description"`
 	Recipients  []string           `json:"recipients"`
-}
-
-type ReminderResult struct {
-	ReminderData
-	Id *tools.UUID `json:"id"`
 }
 
 type ReminderResponse struct {
@@ -42,6 +39,16 @@ type ReminderOverview struct {
 	Id          *tools.UUID       `json:"id"`
 	Description string            `json:"description"`
 	Kind        repo.ReminderType `json:"kind"`
+	NextEvent   time.Time         `json:"next_occurrance"`
+}
+
+type ExtReminder struct {
+	Reminder  *repo.Reminder `json:"reminder"`
+	NextEvent time.Time      `json:"next_occurrance"`
+}
+
+type ReminderListResponse struct {
+	Reminders []*ExtReminder `json:"reminders"`
 }
 
 type OverviewResponse struct {
@@ -60,6 +67,7 @@ func (n *ReminderController) Add() {
 	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
 	http.HandleFunc("/notifier/api/reminder", n.HandleList)
 	http.HandleFunc("/notifier/api/reminder/views/basic", n.HandleOverview)
+	http.HandleFunc("/notifier/api/reminder/views/bymonth", n.HandleViewByMonth)
 	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", n.HandlePostUpsert)
 	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", n.HandleDelete)
 	http.HandleFunc("/notifier/api/reminder/{uuid}", n.HandleGet)
@@ -112,7 +120,39 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 	var m ReminderData
 	err = json.Unmarshal(body, &m)
 	if err != nil {
-		n.log.Printf("Unable to parse body: '%s'", string(body))
+		n.log.Printf("Unable to parse body '%s'. Error: %v", string(body), err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	if len(m.Recipients) == 0 {
+		n.log.Printf("Illegal number of recipients: %d", len(m.Recipients))
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	if len(m.WarningAt) == 0 {
+		n.log.Printf("Illegal number of warning types: %d", len(m.WarningAt))
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	for _, j := range m.WarningAt {
+		if (j < repo.MorningBefore) || (j > repo.SameDay) {
+			n.log.Printf("Illegal warning type: %d", j)
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+	}
+
+	if (repo.WarningType(m.Kind) < repo.WarningType(repo.Anniversary)) || (m.Kind > repo.OneShot) {
+		n.log.Printf("Illegal kind of reminder type: %d", m.Kind)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	if m.Description == "" {
+		n.log.Printf("Description is empty. This makes no sense")
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -281,30 +321,109 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 	n.log.Printf("reminder with id '%s' read from repo ", uuid)
 }
 
-type ReminderListResponse struct {
-	Reminders []*repo.Reminder `json:"reminders"`
-}
-
 // @Summary      Get all existing reminders
-// @Description  Get all existing reminders as a JSON list
+// @Description  Get all existing reminders as a JSON list. This list is sorted in ascending order with respect to next_occurance
 // @Tags	     Reminder
 // @Success      200  {object} ReminderListResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder [get]
 func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) {
+	n.HandleFiltered(w, r, func(*repo.Reminder) bool { return true }, time.Now())
+}
+
+// @Summary      Get all existing reminders for given month and year
+// @Description  Get all existing reminders for given month and year as a JSON list. This list is sorted in ascending order with respect to next_occurance
+// @Tags	     Reminder
+// @Param        month    query     int  true  "month to look at"
+// @Param        year    query     int  true  "year to look at"
+// @Success      200  {object} ReminderListResponse
+// @Failure      400  {object} string
+// @Failure      500  {object} string
+// @Router       /notifier/api/reminder/views/bymonth [get]
+func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("month") == "" {
+		n.log.Printf("Query parameter for month not found")
+		http.Error(w, "Illegal month", http.StatusBadRequest)
+		return
+	}
+
+	if r.URL.Query().Get("year") == "" {
+		n.log.Printf("Query parameter for year not found")
+		http.Error(w, "Illegal year", http.StatusBadRequest)
+		return
+	}
+
+	month, err := strconv.Atoi(r.URL.Query().Get("month"))
+	if err != nil {
+		n.log.Printf("error parsing month parameter: %v", err)
+		http.Error(w, "Illegal month", http.StatusBadRequest)
+		return
+	}
+
+	if (month < 1) || (month > 12) {
+		n.log.Printf("illegal month parameter: %d", month)
+		http.Error(w, "Illegal month", http.StatusBadRequest)
+		return
+	}
+
+	year, err := strconv.Atoi(r.URL.Query().Get("year"))
+	if err != nil {
+		n.log.Printf("error parsing year parameter: %v", err)
+		http.Error(w, "Illegal year", http.StatusBadRequest)
+		return
+	}
+
+	if year < 0 {
+		n.log.Printf("illegal year parameter: %d", month)
+		http.Error(w, "Illegal year", http.StatusBadRequest)
+		return
+	}
+
+	refTimeStart := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	oneMillisecond := time.Millisecond
+	refTimeStart = refTimeStart.Add(-oneMillisecond)
+
+	help := month - 1
+	help++
+	help = help % 12
+	help++
+	refTimeEnd := time.Date(year, time.Month(help), 1, 0, 0, 0, 0, time.Local)
+
+	timeFilter := func(r *repo.Reminder) bool {
+		t := logic.RefTimeMap[r.Kind](r, refTimeStart)
+		return (t.Compare(refTimeStart) != -1) && (t.Compare(refTimeEnd) != 1)
+	}
+
+	n.HandleFiltered(w, r, timeFilter, refTimeStart)
+}
+
+func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, refNow time.Time) {
 	_, readRepo := n.db.RLock()
 	defer func() { n.db.RUnlock() }()
 
-	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
+	allReminders, err := readRepo.Filter(filterFunc)
 	if err != nil {
 		n.log.Printf("error listing notification: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 
+	res := []*ExtReminder{}
+	for _, j := range allReminders {
+		i := &ExtReminder{
+			Reminder:  j,
+			NextEvent: logic.RefTimeMap[j.Kind](j, refNow),
+		}
+		res = append(res, i)
+	}
+
+	sort.SliceStable(res, func(i, j int) bool {
+		return res[i].NextEvent.Compare(res[j].NextEvent) == -1
+	})
+
 	resp := ReminderListResponse{
-		Reminders: allReminders,
+		Reminders: res,
 	}
 
 	data, err := json.Marshal(&resp)
@@ -322,15 +441,31 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 }
 
 // @Summary      Get basic information about existing reminders
-// @Description  Get basic information for existing reminders as a JSON list
+// @Description  Get basic information for existing reminders as a JSON list. The entries are sorted in ascending order with respect to next_occurrance.
 // @Tags	     Reminder
+// @Param        max_entries    query     int  true  "maximum number of entries to return"
 // @Success      200  {object} OverviewResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/views/basic [get]
 func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("max_entries") == "" {
+		n.log.Printf("Query parameter for maximum number of entries not found")
+		http.Error(w, "Illegal month", http.StatusBadRequest)
+		return
+	}
+
+	maxEntries, err := strconv.Atoi(r.URL.Query().Get("max_entries"))
+	if err != nil {
+		n.log.Printf("error parsing max_entries parameter: %v", err)
+		http.Error(w, "Illegal max_entries parameter", http.StatusBadRequest)
+		return
+	}
+
 	_, readRepo := n.db.RLock()
 	defer func() { n.db.RUnlock() }()
+
+	refTime := time.Now()
 
 	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
 	if err != nil {
@@ -345,12 +480,25 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 			Id:          j.Id,
 			Description: j.Description,
 			Kind:        j.Kind,
+			NextEvent:   logic.RefTimeMap[j.Kind](j, refTime),
 		}
 		responses = append(responses, &o)
 	}
 
+	sort.SliceStable(responses, func(i, j int) bool {
+		return responses[i].NextEvent.Compare(responses[j].NextEvent) == -1
+	})
+
+	var limit int
+
+	if (maxEntries <= 0) || (maxEntries > len(responses)) {
+		limit = len(responses)
+	} else {
+		limit = maxEntries
+	}
+
 	resp := OverviewResponse{
-		Reminders: responses,
+		Reminders: responses[:limit],
 	}
 
 	data, err := json.Marshal(&resp)

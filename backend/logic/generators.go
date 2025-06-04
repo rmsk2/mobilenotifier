@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type ReftimeGenerator func(*repo.Reminder, time.Time) time.Time
+
+var RefTimeMap map[repo.ReminderType]ReftimeGenerator = map[repo.ReminderType]ReftimeGenerator{
+	repo.Anniversary: anniversaryRefTimeGen,
+	repo.OneShot:     oneShotRefTimeGen,
+}
+
 func oneShotRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	return r.Spec
 }
@@ -25,7 +32,7 @@ func anniversaryRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 	}
 
 	refThisYear = refThisYear.AddDate(offset, 0, 0)
-	refThisYear = time.Date(refThisYear.Year(), refThisYear.Month(), refThisYear.Day(), 12, 0, 0, 0, time.Local)
+	refThisYear = time.Date(refThisYear.Year(), refThisYear.Month(), refThisYear.Day(), h.Hour(), h.Minute(), 0, 0, time.Local)
 
 	return refThisYear
 }
@@ -44,7 +51,7 @@ func weeklyRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
 		offset = int(h.Weekday()) - int(now.Weekday())
 	}
 
-	now = time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local)
+	now = time.Date(now.Year(), now.Month(), now.Day(), h.Hour(), h.Minute(), 0, 0, time.Local)
 	refThisWeek = now.AddDate(0, 0, offset)
 
 	return refThisWeek

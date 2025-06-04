@@ -24,7 +24,7 @@ func (i *dummySmsSender) CheckRecipient(r string) (bool, error) {
 }
 
 func (i *dummySmsSender) ListRecipients() ([]string, error) {
-	keys := make([]string, len(i.recipientMap))
+	keys := []string{}
 
 	for k := range i.recipientMap {
 		keys = append(keys, k)

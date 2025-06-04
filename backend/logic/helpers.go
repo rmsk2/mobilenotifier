@@ -21,7 +21,6 @@ type NotificationGenerator interface {
 	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
 }
 
-type ReftimeGenerator func(*repo.Reminder, time.Time) time.Time
 type OffsetGenerator func(time.Time) time.Time
 
 type GenericNotificationGenerator struct {

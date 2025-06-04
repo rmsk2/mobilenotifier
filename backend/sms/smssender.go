@@ -46,7 +46,7 @@ func (i *iftttSmsSender) CheckRecipient(r string) (bool, error) {
 }
 
 func (i *iftttSmsSender) ListRecipients() ([]string, error) {
-	keys := make([]string, len(i.recipientMap))
+	keys := []string{}
 
 	for k := range i.recipientMap {
 		keys = append(keys, k)
