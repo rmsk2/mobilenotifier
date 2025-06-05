@@ -105,7 +105,7 @@ func Test1(t *testing.T) {
 		t.Errorf("Wrong number of siblings: %d", c)
 	}
 
-	res, err := r.GetExpired(time.Now())
+	res, err := r.GetExpired(time.Now().UTC())
 	if err != nil {
 		t.Errorf("Get expired notfications failed: %v", err)
 		return
@@ -125,7 +125,7 @@ func Test1(t *testing.T) {
 		return
 	}
 
-	res, err = r.GetExpired(time.Now())
+	res, err = r.GetExpired(time.Now().UTC())
 	if err != nil {
 		t.Errorf("Get expired notfications failed: %v", err)
 		return

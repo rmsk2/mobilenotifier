@@ -17,7 +17,7 @@ func Test1(t *testing.T) {
 	t1 := SerTest{
 		Id1:  UUIDGen(),
 		Id2:  nil,
-		Egal: time.Now(),
+		Egal: time.Now().UTC(),
 	}
 
 	res, err := json.MarshalIndent(&t1, "", "  ")

@@ -329,7 +329,7 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder [get]
 func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) {
-	n.HandleFiltered(w, r, func(*repo.Reminder) bool { return true }, time.Now())
+	n.HandleFiltered(w, r, func(*repo.Reminder) bool { return true }, time.Now().UTC())
 }
 
 // @Summary      Get all existing reminders for given month and year
@@ -465,7 +465,7 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 	_, readRepo := n.db.RLock()
 	defer func() { n.db.RUnlock() }()
 
-	refTime := time.Now()
+	refTime := time.Now().UTC()
 
 	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
 	if err != nil {

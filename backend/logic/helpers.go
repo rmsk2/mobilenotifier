@@ -83,7 +83,7 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 	res := []*repo.Notification{}
 	times := []time.Time{}
 
-	refTime := g.genRefTime(r, time.Now())
+	refTime := g.genRefTime(r, time.Now().UTC())
 
 	for _, t := range r.WarningAt {
 		times = append(times, g.offsetGens[t](refTime))
