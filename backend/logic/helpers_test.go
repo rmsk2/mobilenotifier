@@ -13,7 +13,7 @@ func newTestReminder(ty repo.ReminderType, wa []repo.WarningType, recipients []s
 		Kind:        ty,
 		Param:       0,
 		WarningAt:   wa,
-		Spec:        time.Date(2025, time.June, 15, 12, 22, 15, 0, time.Local),
+		Spec:        time.Date(2025, time.June, 15, 12, 22, 15, 0, time.UTC),
 		Description: "Test",
 		Recipients:  recipients,
 	}

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "notifier/docs"
+	_ "time/tzdata"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -19,8 +20,15 @@ const envApiKey = "IFTTT_API_KEY"
 const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
+const envClientTimeZone = "MN_CLIENT_TZ"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
+
+var clientTimeZone *time.Location = nil
+
+func ClientTimeZone() *time.Location {
+	return clientTimeZone
+}
 
 func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -44,6 +52,22 @@ func run() int {
 	if !ok {
 		swaggerUrl = "http://localhost:5100/notifier/api/swagger/doc.json"
 	}
+
+	clientTimeZone = time.UTC
+
+	timeZoneStr, ok := os.LookupEnv(envClientTimeZone)
+	if !ok {
+		log.Printf("No time Zone set. Using UTC. This might not be what you want")
+	} else {
+		tz, err := time.LoadLocation(timeZoneStr)
+		if err != nil {
+			log.Printf("Wrong time zone: %v. Using UTC instead. This might not be what you want", err)
+		} else {
+			clientTimeZone = tz
+		}
+	}
+
+	log.Printf("Using client time zone '%s'", clientTimeZone)
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
