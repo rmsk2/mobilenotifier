@@ -13,7 +13,7 @@ var RefTimeMap map[repo.ReminderType]ReftimeGenerator = map[repo.ReminderType]Re
 }
 
 func oneShotRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
-	return r.Spec
+	return r.Spec.Local()
 }
 
 func anniversaryRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
