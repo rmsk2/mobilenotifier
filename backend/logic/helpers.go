@@ -6,16 +6,6 @@ import (
 	"time"
 )
 
-/*
-type Notification struct {
-	Id          *tools.UUID
-	Parent      *tools.UUID
-	WarningTime time.Time
-	Description string
-	Recipient   string
-}
-*/
-
 type NotificationGenerator interface {
 	IsRescheduleNeeded(*repo.Reminder) bool
 	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
