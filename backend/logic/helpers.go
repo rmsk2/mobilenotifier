@@ -11,7 +11,7 @@ type NotificationGenerator interface {
 	Reschedule(*repo.Reminder) ([]*repo.Notification, error)
 }
 
-type OffsetGenerator func(time.Time) time.Time
+type OffsetGenerator func(time.Time, int) time.Time
 
 type GenericNotificationGenerator struct {
 	rescheduleNeeded bool
@@ -24,28 +24,29 @@ func toYesterday(t time.Time) time.Time {
 	return help.AddDate(0, 0, -1).UTC()
 }
 
-func morningBefore(t time.Time) time.Time {
+func morningBefore(t time.Time, p int) time.Time {
 	t = toYesterday(t).In(tools.ClientTZ())
 	return time.Date(t.Year(), t.Month(), t.Day(), 9, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
-func noonBefore(t time.Time) time.Time {
+func noonBefore(t time.Time, p int) time.Time {
 	t = toYesterday(t).In(tools.ClientTZ())
 	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
-func eveningBefore(t time.Time) time.Time {
+func eveningBefore(t time.Time, p int) time.Time {
 	t = toYesterday(t).In(tools.ClientTZ())
 	return time.Date(t.Year(), t.Month(), t.Day(), 18, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
-func weekBefore(t time.Time) time.Time {
+func weekBefore(t time.Time, p int) time.Time {
 	t = t.In(tools.ClientTZ()).AddDate(0, 0, -7)
 	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
-func sameDay(t time.Time) time.Time {
-	return t
+func sameDay(t time.Time, p int) time.Time {
+	duration := time.Hour * time.Duration(p&31)
+	return t.Add(-duration)
 }
 
 func NewGenericNotificationGenerator(r bool, g ReftimeGenerator) *GenericNotificationGenerator {
@@ -77,7 +78,7 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 	refTime := g.genRefTime(r, time.Now().UTC())
 
 	for _, t := range r.WarningAt {
-		times = append(times, g.offsetGens[t](refTime))
+		times = append(times, g.offsetGens[t](refTime, r.Param))
 	}
 
 	for _, i := range r.Recipients {
