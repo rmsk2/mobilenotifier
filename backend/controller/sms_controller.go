@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"notifier/sms"
+	"notifier/tools"
 )
 
 type SmsMessage struct {
@@ -31,8 +32,8 @@ func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmS
 	}
 }
 
-func (s *SmSController) Add() {
-	http.HandleFunc("POST /notifier/api/send/{recipient}", s.Handle)
+func (s *SmSController) Add(secProv tools.AuthHandler) {
+	http.HandleFunc("POST /notifier/api/send/{recipient}", secProv.WithAuthentication(s.Handle))
 	http.HandleFunc("/notifier/api/send/recipients/all", s.HandleGetAllRecipients)
 }
 
@@ -41,8 +42,10 @@ func (s *SmSController) Add() {
 // @Tags	     SMS
 // @Param        recipient   path  string  true  "Recipient"
 // @Param        message_spec  body  SmsMessage true "Specification of message to send"
+// @Security     ApiKeyAuth
 // @Success      200  {object} nil
 // @Failure      400  {object} string
+// @Failure      401  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/send/{recipient} [post]
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {

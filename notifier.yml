@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: backend-config
 data:
-  DB_PATH: "/opt/data/res.txt"
+  DB_PATH: "/opt/data/notifier.db"
   SWAGGER_URL: "https://debshuttle/notifier/api/swagger/doc.json"
   MN_CLIENT_TZ: "Europe/Berlin"
 
@@ -46,6 +46,11 @@ spec:
             secretKeyRef:
               name: notifier-secret
               key: api_key
+        - name: NOTIFIER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: notifier-secret
+              key: notifier_api_key              
       volumes:
       - name: data-volume
         persistentVolumeClaim:

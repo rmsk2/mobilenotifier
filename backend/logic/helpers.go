@@ -30,27 +30,28 @@ type GenericNotificationGenerator struct {
 }
 
 func toYesterday(t time.Time) time.Time {
-	return t.AddDate(0, 0, -1)
+	help := t.In(tools.ClientTZ())
+	return help.AddDate(0, 0, -1).UTC()
 }
 
 func morningBefore(t time.Time) time.Time {
-	t = toYesterday(t)
-	return time.Date(t.Year(), t.Month(), t.Day(), 9, 0, 0, 0, time.UTC)
+	t = toYesterday(t).In(tools.ClientTZ())
+	return time.Date(t.Year(), t.Month(), t.Day(), 9, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
 func noonBefore(t time.Time) time.Time {
-	t = toYesterday(t)
-	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, time.UTC)
+	t = toYesterday(t).In(tools.ClientTZ())
+	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
 func eveningBefore(t time.Time) time.Time {
-	t = toYesterday(t)
-	return time.Date(t.Year(), t.Month(), t.Day(), 18, 0, 0, 0, time.UTC)
+	t = toYesterday(t).In(tools.ClientTZ())
+	return time.Date(t.Year(), t.Month(), t.Day(), 18, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
 func weekBefore(t time.Time) time.Time {
-	t = t.AddDate(0, 0, -7)
-	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, time.UTC)
+	t = t.In(tools.ClientTZ()).AddDate(0, 0, -7)
+	return time.Date(t.Year(), t.Month(), t.Day(), 12, 0, 0, 0, tools.ClientTZ()).UTC()
 }
 
 func sameDay(t time.Time) time.Time {

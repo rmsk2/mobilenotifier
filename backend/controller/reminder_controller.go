@@ -380,15 +380,15 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	refTimeStart := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	refTimeStart := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, tools.ClientTZ())
 	oneMillisecond := time.Millisecond
-	refTimeStart = refTimeStart.Add(-oneMillisecond)
+	refTimeStart = refTimeStart.Add(-oneMillisecond).UTC()
 
 	help := month - 1
 	help++
 	help = help % 12
 	help++
-	refTimeEnd := time.Date(year, time.Month(help), 1, 0, 0, 0, 0, time.UTC)
+	refTimeEnd := time.Date(year, time.Month(help), 1, 0, 0, 0, 0, tools.ClientTZ()).UTC()
 
 	timeFilter := func(r *repo.Reminder) bool {
 		t := logic.RefTimeMap[r.Kind](r, refTimeStart)
@@ -413,7 +413,7 @@ func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Reque
 	for _, j := range allReminders {
 		i := &ExtReminder{
 			Reminder:  j,
-			NextEvent: logic.RefTimeMap[j.Kind](j, refNow),
+			NextEvent: logic.RefTimeMap[j.Kind](j, refNow).In(tools.ClientTZ()),
 		}
 		res = append(res, i)
 	}
@@ -480,7 +480,7 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 			Id:          j.Id,
 			Description: j.Description,
 			Kind:        j.Kind,
-			NextEvent:   logic.RefTimeMap[j.Kind](j, refTime),
+			NextEvent:   logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ()),
 		}
 		responses = append(responses, &o)
 	}

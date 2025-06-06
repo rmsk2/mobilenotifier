@@ -7,6 +7,7 @@ import (
 	"notifier/logic"
 	"notifier/repo"
 	"notifier/sms"
+	"notifier/tools"
 	"os"
 	"time"
 
@@ -17,18 +18,14 @@ import (
 )
 
 const envApiKey = "IFTTT_API_KEY"
+const envNotifierApiKey = "NOTIFIER_API_KEY"
 const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
 const envClientTimeZone = "MN_CLIENT_TZ"
+const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
-
-var clientTimeZone *time.Location = nil
-
-func ClientTimeZone() *time.Location {
-	return clientTimeZone
-}
 
 func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -45,6 +42,10 @@ func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 	}
 }
 
+func createAuthHandler(l *log.Logger) tools.AuthHandler {
+	return tools.NewApiKeyProvider(os.Getenv(envNotifierApiKey), authHeaderName, l)
+}
+
 func run() int {
 	dbOpened := false
 
@@ -53,7 +54,7 @@ func run() int {
 		swaggerUrl = "http://localhost:5100/notifier/api/swagger/doc.json"
 	}
 
-	clientTimeZone = time.UTC
+	tools.SetClientTZ(time.UTC)
 
 	timeZoneStr, ok := os.LookupEnv(envClientTimeZone)
 	if !ok {
@@ -63,11 +64,11 @@ func run() int {
 		if err != nil {
 			log.Printf("Wrong time zone: %v. Using UTC instead. This might not be what you want", err)
 		} else {
-			clientTimeZone = tz
+			tools.SetClientTZ(tz)
 		}
 	}
 
-	log.Printf("Using client time zone '%s'", clientTimeZone)
+	log.Printf("Using client time zone '%s'", tools.ClientTZ())
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
@@ -85,15 +86,20 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
+	authHandler := createAuthHandler(createLogger())
+
 	smsSender, smsAddressBook := createSender()
 	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
-	smsController.Add()
+	smsController.Add(authHandler)
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
 	notificationController.Add()
 
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
 	reminderController.Add()
+
+	infoController := controller.NewGeneralController(createLogger())
+	infoController.Add()
 
 	t := time.NewTicker(60 * time.Second)
 	logic.StartWarner(dbl, smsSender, smsAddressBook, t, createLogger())
