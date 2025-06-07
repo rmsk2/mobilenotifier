@@ -53,14 +53,7 @@ func createAuthWrapper(as *tools.AuthSecret, l *log.Logger) tools.Wrapper {
 	return tools.NewApiKeyProvider(as, l)
 }
 
-func run() int {
-	dbOpened := false
-
-	swaggerUrl, ok := os.LookupEnv(envSwaggerUrl)
-	if !ok {
-		swaggerUrl = "http://localhost:5100/notifier/api/swagger/doc.json"
-	}
-
+func determineClientTZFromEnvironment() {
 	tools.SetClientTZ(time.UTC)
 
 	timeZoneStr, ok := os.LookupEnv(envClientTimeZone)
@@ -76,6 +69,21 @@ func run() int {
 	}
 
 	log.Printf("Using client time zone '%s'", tools.ClientTZ())
+}
+
+func determineSwaggerURL() string {
+	swaggerUrl, ok := os.LookupEnv(envSwaggerUrl)
+	if !ok {
+		swaggerUrl = "http://localhost:5100/notifier/api/swagger/doc.json"
+	}
+
+	return swaggerUrl
+}
+
+func run() int {
+	dbOpened := false
+
+	determineClientTZFromEnvironment()
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
@@ -108,8 +116,7 @@ func run() int {
 	infoController := controller.NewGeneralController(createLogger())
 	infoController.Add()
 
-	t := time.NewTicker(60 * time.Second)
-	logic.StartWarner(dbl, smsSender, smsAddressBook, t, createLogger())
+	logic.StartWarner(dbl, smsSender, smsAddressBook, time.NewTicker(60*time.Second), createLogger())
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
@@ -117,7 +124,7 @@ func run() int {
 		http.Handle("/notifier/app/", http.StripPrefix("/notifier/app/", http.FileServer(http.Dir(dirName))))
 	}
 
-	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL(swaggerUrl)))
+	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL(determineSwaggerURL())))
 
 	err = http.ListenAndServe(":5100", nil)
 	if err != nil {
