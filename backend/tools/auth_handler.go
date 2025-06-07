@@ -39,7 +39,7 @@ func (a *ApiKeyProvider) Wrap(handler func(http.ResponseWriter, *http.Request)) 
 	}
 }
 
-// Alternative usage with a higer portion of syntactic sugar.
+// Alternative usage with a higher portion of syntactic sugar.
 //
 //	Given the handler function 'handleFunc', the AuthSecret 'as' and a logger you can add authentication functionality to the handler by calling
 //
