@@ -5,33 +5,51 @@ import (
 	"net/http"
 )
 
-type AuthHandler interface {
-	WithAuthentication(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request)
+type AuthSecret struct {
+	Secret     string
+	HeaderName string
 }
 
-func NewApiKeyProvider(s string, h string, l *log.Logger) *ApiKeyProvider {
+type Wrapper interface {
+	Wrap(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request)
+}
+
+func NewApiKeyProvider(as *AuthSecret, l *log.Logger) *ApiKeyProvider {
 	return &ApiKeyProvider{
-		secret:     s,
-		headerName: h,
+		authSecret: as,
 		logger:     l,
 	}
 }
 
 type ApiKeyProvider struct {
-	secret     string
-	headerName string
+	authSecret *AuthSecret
 	logger     *log.Logger
 }
 
-func (a *ApiKeyProvider) WithAuthentication(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func (a *ApiKeyProvider) Wrap(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		apiKey := r.Header.Get(a.headerName)
-		if apiKey != a.secret {
+		apiKey := r.Header.Get(a.authSecret.HeaderName)
+		if apiKey != a.authSecret.Secret {
 			a.logger.Printf("Unable to authenticate client")
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return
 		}
 
 		handler(w, r)
+	}
+}
+
+type AuthHandler func(http.ResponseWriter, *http.Request)
+
+func (h AuthHandler) WithAuth(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		apiKey := r.Header.Get(authSecret.HeaderName)
+		if apiKey != authSecret.Secret {
+			logger.Printf("Unable to authenticate client")
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		h(w, r)
 	}
 }

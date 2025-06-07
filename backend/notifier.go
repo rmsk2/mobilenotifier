@@ -42,8 +42,15 @@ func createSender() (sms.SmsSender, sms.SmsAddressBook) {
 	}
 }
 
-func createAuthHandler(l *log.Logger) tools.AuthHandler {
-	return tools.NewApiKeyProvider(os.Getenv(envNotifierApiKey), authHeaderName, l)
+func createAuthSecret() *tools.AuthSecret {
+	return &tools.AuthSecret{
+		Secret:     os.Getenv(envNotifierApiKey),
+		HeaderName: authHeaderName,
+	}
+}
+
+func createAuthWrapper(as *tools.AuthSecret, l *log.Logger) tools.Wrapper {
+	return tools.NewApiKeyProvider(as, l)
 }
 
 func run() int {
@@ -86,11 +93,11 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
-	authHandler := createAuthHandler(createLogger())
+	authWrapper := createAuthWrapper(createAuthSecret(), createLogger())
 
 	smsSender, smsAddressBook := createSender()
 	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
-	smsController.Add(authHandler)
+	smsController.Add(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
 	notificationController.Add()
