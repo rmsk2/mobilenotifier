@@ -72,20 +72,20 @@ func (g *GenericNotificationGenerator) IsRescheduleNeeded(r *repo.Reminder) bool
 	return g.rescheduleNeeded
 }
 
-type OffsetTuple struct {
+type offsetTuple struct {
 	t      time.Time
 	prefix string
 }
 
 func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Notification, error) {
 	res := []*repo.Notification{}
-	times := []OffsetTuple{}
+	times := []offsetTuple{}
 
 	refTime := g.genRefTime(r, time.Now().UTC())
 
 	for _, t := range r.WarningAt {
 		ti, msgPrefix := g.offsetGens[t](refTime, r.Param)
-		h := OffsetTuple{
+		h := offsetTuple{
 			t:      ti,
 			prefix: msgPrefix,
 		}
