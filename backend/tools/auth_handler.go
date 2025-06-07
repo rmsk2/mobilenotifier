@@ -27,16 +27,7 @@ type ApiKeyProvider struct {
 }
 
 func (a *ApiKeyProvider) Wrap(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		apiKey := r.Header.Get(a.authSecret.HeaderName)
-		if apiKey != a.authSecret.Secret {
-			a.logger.Printf("Unable to authenticate client")
-			http.Error(w, "Authentication failed", http.StatusUnauthorized)
-			return
-		}
-
-		handler(w, r)
-	}
+	return WithAuthentication(handler).UsingParameters(*a.authSecret, a.logger)
 }
 
 // Alternative usage with a higher portion of syntactic sugar.
