@@ -39,9 +39,14 @@ func (a *ApiKeyProvider) Wrap(handler func(http.ResponseWriter, *http.Request)) 
 	}
 }
 
-type AuthHandler func(http.ResponseWriter, *http.Request)
+// Alternative usage with a higer portion of syntactic sugar.
+//
+//	Given the handler function 'handleFunc', the AuthSecret 'as' and a logger you can add authentication functionality to the handler by calling
+//
+// WithAuthentication(handleFunc).UsingParameters(as, logger)
+type WithAuthentication func(http.ResponseWriter, *http.Request)
 
-func (h AuthHandler) WithAuth(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
+func (h WithAuthentication) UsingParameters(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get(authSecret.HeaderName)
 		if apiKey != authSecret.Secret {
