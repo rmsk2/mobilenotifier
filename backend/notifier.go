@@ -49,10 +49,6 @@ func createAuthSecret() *tools.AuthSecret {
 	}
 }
 
-func createAuthWrapper(as *tools.AuthSecret, l *log.Logger) tools.Wrapper {
-	return tools.NewApiKeyProvider(as, l)
-}
-
 func determineClientTZFromEnvironment() {
 	tools.SetClientTZ(time.UTC)
 
@@ -101,7 +97,7 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
-	authWrapper := createAuthWrapper(createAuthSecret(), createLogger())
+	authWrapper := tools.NewAuthProvider[tools.WithApiKeyAuthentication](createAuthSecret(), createLogger())
 
 	smsSender, smsAddressBook := createSender()
 	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
