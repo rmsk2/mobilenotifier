@@ -41,9 +41,9 @@ func (a *AuthProvider[T]) Wrap(handler func(http.ResponseWriter, *http.Request))
 
 // Create a new type based on func(http.ResponseWriter, *http.Request) and a UsingParameters method for that type to add additional authentication
 // methods
-type WithApiKeyAuthentication func(http.ResponseWriter, *http.Request)
+type ApiKey func(http.ResponseWriter, *http.Request)
 
-func (h WithApiKeyAuthentication) UsingParameters(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
+func (h ApiKey) UsingParameters(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get(authSecret.HeaderName)
 		if apiKey != authSecret.Secret {

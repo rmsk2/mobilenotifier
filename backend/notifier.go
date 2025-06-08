@@ -99,7 +99,7 @@ func run() int {
 
 	smsSender, smsAddressBook := createSender()
 	smsLogger := createLogger()
-	authWrapper := tools.NewAuthProvider[tools.WithApiKeyAuthentication](createAuthSecret(), smsLogger)
+	authWrapper := tools.NewAuthProvider[tools.ApiKey](createAuthSecret(), smsLogger)
 	smsController := controller.NewSmsController(smsLogger, smsSender, smsAddressBook)
 	smsController.Add(authWrapper)
 
