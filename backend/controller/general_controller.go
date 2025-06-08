@@ -36,7 +36,7 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 	s.log.Printf("Returning API info")
 
 	resp := ApiInfoResult{
-		Version:  "0.9.0",
+		Version:  tools.VersionString,
 		TimeZone: tools.ClientTZ().String(),
 	}
 
