@@ -97,10 +97,10 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
-	authWrapper := tools.NewAuthProvider[tools.WithApiKeyAuthentication](createAuthSecret(), createLogger())
-
 	smsSender, smsAddressBook := createSender()
-	smsController := controller.NewSmsController(createLogger(), smsSender, smsAddressBook)
+	smsLogger := createLogger()
+	authWrapper := tools.NewAuthProvider[tools.WithApiKeyAuthentication](createAuthSecret(), smsLogger)
+	smsController := controller.NewSmsController(smsLogger, smsSender, smsAddressBook)
 	smsController.Add(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
