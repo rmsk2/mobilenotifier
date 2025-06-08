@@ -23,19 +23,19 @@ type WrapperConstraint interface {
 	ParamUser
 }
 
-func NewAuthProvider[T WrapperConstraint](as *AuthSecret, l *log.Logger) *AuthProvider[T] {
-	return &AuthProvider[T]{
+func NewAuthWrapper[T WrapperConstraint](as *AuthSecret, l *log.Logger) *AuthWrapper[T] {
+	return &AuthWrapper[T]{
 		authSecret: as,
 		logger:     l,
 	}
 }
 
-type AuthProvider[T WrapperConstraint] struct {
+type AuthWrapper[T WrapperConstraint] struct {
 	authSecret *AuthSecret
 	logger     *log.Logger
 }
 
-func (a *AuthProvider[T]) Wrap(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func (a *AuthWrapper[T]) Wrap(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return T(handler).UsingParameters(*a.authSecret, a.logger)
 }
 
