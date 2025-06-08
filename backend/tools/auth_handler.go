@@ -39,11 +39,8 @@ func (a *AuthProvider[T]) Wrap(handler func(http.ResponseWriter, *http.Request))
 	return T(handler).UsingParameters(*a.authSecret, a.logger)
 }
 
-// Alternative usage with a higher portion of syntactic sugar.
-//
-//	Given the handler function 'handleFunc', the AuthSecret 'as' and a logger you can add authentication functionality to the handler by calling
-//
-// WithApiKeyAuthentication(handleFunc).UsingParameters(as, logger)
+// Create a new type based on func(http.ResponseWriter, *http.Request) and a UsingParameters method for that type to add additional authentication
+// methods
 type WithApiKeyAuthentication func(http.ResponseWriter, *http.Request)
 
 func (h WithApiKeyAuthentication) UsingParameters(authSecret AuthSecret, logger *log.Logger) func(http.ResponseWriter, *http.Request) {
