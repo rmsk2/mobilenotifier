@@ -1,4 +1,9 @@
 <script>
+import AllEntries from './components/AllEntries.vue'
+import MonthlyEntries from './components/MonthlyEntries.vue'
+import Navigation from './components/Navigation.vue'
+import NewEntry from './components/NewEntry.vue'
+
 export default {
   data() {
     return {
@@ -16,7 +21,8 @@ export default {
           method: "post",
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Token': 'egal'
           },
           body: JSON.stringify({
             message: this.message
@@ -31,16 +37,20 @@ export default {
         })
         .catch(error =>  this.result = "Failure")
     }
-  }
+  },
+  components: {
+    AllEntries,
+    MonthlyEntries,
+    Navigation,
+    NewEntry
+  }  
 }
 
 </script>
 
 <template>
-  <textarea v-model="message" placeholder="Enter message"></textarea >
-  <p/>
-  <button @click="sendSms">Send SMS</button>
-  <p/>
-  <div> {{ result }}</div>  
-
+  <Navigation></Navigation>
+  <AllEntries></AllEntries>
+  <MonthlyEntries></MonthlyEntries>
+  <NewEntry></NewEntry>
 </template>
