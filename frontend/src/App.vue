@@ -3,15 +3,15 @@ import AllEntries from './components/AllEntries.vue'
 import MonthlyEntries from './components/MonthlyEntries.vue'
 import Navigation from './components/Navigation.vue'
 import NewEntry from './components/NewEntry.vue'
+import { monthSelected, newSelected, allSelected } from './components/globals';
 
 export default {
   data() {
     return {
-      count: 0,
-      result: "",
       apiUrlBase: import.meta.env.VITE_API_URL,
-      message: "",
-      recipient: "martin"
+      showMonthly: true,
+      showAll: false,
+      showNew: false
     }
   },
   methods: {
@@ -36,6 +36,26 @@ export default {
           }
         })
         .catch(error =>  this.result = "Failure")
+    },
+    makeAllComponentsInvisible() {
+      this.showAll = false;
+      this.showMonthly = false;
+      this.showNew = false;
+    },
+    showComponents(value) {
+      this.makeAllComponentsInvisible();
+
+      if (value === monthSelected) {
+        this.showMonthly = true;
+      }
+
+      if (value === allSelected) {
+        this.showAll = true;
+      }
+      
+      if (value === newSelected) {
+        this.showNew = true;
+      }      
     }
   },
   components: {
@@ -49,8 +69,12 @@ export default {
 </script>
 
 <template>
-  <Navigation></Navigation>
-  <AllEntries></AllEntries>
-  <MonthlyEntries></MonthlyEntries>
-  <NewEntry></NewEntry>
+  <section class="section-navitems">
+    <Navigation @select-nav="showComponents"></Navigation>
+  </section>
+  <section class="work-items">
+    <AllEntries v-if="showAll"></AllEntries>
+    <MonthlyEntries v-if="showMonthly"></MonthlyEntries>
+    <NewEntry v-if="showNew"></NewEntry>
+  </section>
 </template>

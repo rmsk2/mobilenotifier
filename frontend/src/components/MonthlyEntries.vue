@@ -9,6 +9,7 @@ export default {
 </script>
 
 <template>
-  <p/>
-  <h1>Monthly entries</h1>
+  <div id="div-monthly" class="work-entry">
+    <h1>Monthly entries</h1>
+  </div>
 </template>

@@ -9,6 +9,7 @@ export default {
 </script>
 
 <template>
-  <p/>
-  <h2>Edit entry</h2>
+  <div id="div-edit-entry" class="work-entry">
+    <h2>Edit entry</h2>
+  </div>
 </template>

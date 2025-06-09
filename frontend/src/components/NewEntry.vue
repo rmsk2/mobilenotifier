@@ -14,6 +14,8 @@ export default {
 </script>
 
 <template>
-  <h1>New Entry</h1>
-  <EditEntry></EditEntry>
+  <div id="div-new" class="work-entry">
+    <h1>New Entry</h1>
+    <EditEntry></EditEntry>
+  </div>
 </template>
