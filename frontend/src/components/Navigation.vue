@@ -21,8 +21,10 @@ export default {
 }
 </script>
 
-<template>  
-  <button id="nav_nmonth" class="navbutton" @click="emitEvents(10)">Alle Ereignisse im aktuellen Monat anzeigen</button>
-  <button id="nav_new" class="navbutton" @click="emitEvents(11)">Neues Ereignis anlegen</button>
-  <button id="nav_all" class="navbutton" @click="emitEvents(12)">Alle Ereignisse anzeigen</button>  
+<template>
+  <div class="navbar"> 
+    <button id="nav_nmonth" class="navbutton" @click="emitEvents(10)">Alle Ereignisse im aktuellen Monat anzeigen</button>
+    <button id="nav_new" class="navbutton" @click="emitEvents(11)">Neues Ereignis anlegen</button>
+    <button id="nav_all" class="navbutton" @click="emitEvents(12)">Alle Ereignisse anzeigen</button>  
+  </div>
 </template>
