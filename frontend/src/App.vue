@@ -11,36 +11,42 @@ export default {
       apiUrlBase: import.meta.env.VITE_API_URL,
       showMonthly: true,
       showAll: false,
-      showNew: false
+      showNew: false,
+      monthlyEntries: [{message: "Eins"}, {message: "Zwei"}],
+      message: "Dies ist ein Test",
+      result: ""
     }
   },
   methods: {
     sendSms() {
       this.result = "Sending ..."
-      fetch(this.apiUrlBase + "send/" + this.recipient, {
-          method: "post",
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Token': 'egal'
-          },
-          body: JSON.stringify({
-            message: this.message
-          })
+      fetch(this.apiUrlBase + "send/martin", {
+        method: "post",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Token': 'egal'
+        },
+        body: JSON.stringify({
+          message: this.message
         })
-        .then(response => {
-          if (response.ok) {
-            this.result = "Success"
-          } else {
-            this.result = `Failure (${response.status})`
-          }
-        })
-        .catch(error =>  this.result = "Failure")
+      })
+      .then(response => {
+        if (response.ok) {
+          this.result = "Success"
+        } else {
+          this.result = `Failure (${response.status})`
+        }
+      })
+      .catch(error =>  this.result = "Failure")      
     },
     makeAllComponentsInvisible() {
       this.showAll = false;
       this.showMonthly = false;
       this.showNew = false;
+    },
+    add() {
+      this.monthlyEntries.push({message: "Noch eins ..."})
     },
     showComponents(value) {
       this.makeAllComponentsInvisible();
@@ -72,9 +78,13 @@ export default {
   <section class="section-navitems">
     <Navigation @select-nav="showComponents"></Navigation>
   </section>
+  <button @click="add">Testweise hinzufügen</button>
+  <button @click="sendSms">Testnachricht senden</button>
+  <p/>
+  {{ result }}
   <section class="work-items">
     <AllEntries v-if="showAll"></AllEntries>
-    <MonthlyEntries v-if="showMonthly"></MonthlyEntries>
+    <MonthlyEntries :reminders="monthlyEntries" v-if="showMonthly"></MonthlyEntries>
     <NewEntry v-if="showNew"></NewEntry>
   </section>
 </template>
