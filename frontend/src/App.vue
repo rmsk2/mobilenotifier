@@ -4,42 +4,42 @@ import MonthlyEntries from './components/MonthlyEntries.vue'
 import Navigation from './components/Navigation.vue'
 import NewEntry from './components/NewEntry.vue'
 import { monthSelected, newSelected, allSelected } from './components/globals';
+import { ReminderAPI } from './components/reminderapi';
 
 export default {
   data() {
     return {
       apiUrlBase: import.meta.env.VITE_API_URL,
+      accessToken: "egal",
       showMonthly: true,
       showAll: false,
       showNew: false,
       monthlyEntries: [{message: "Eins"}, {message: "Zwei"}],
-      message: "Dies ist ein Test",
-      result: ""
+      result: "",
+      allRecipients: []
     }
   },
   methods: {
-    sendSms() {
-      this.result = "Sending ..."
-      fetch(this.apiUrlBase + "send/martin", {
-        method: "post",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-Token': 'egal'
-        },
-        body: JSON.stringify({
-          message: this.message
-        })
-      })
-      .then(response => {
-        if (response.ok) {
-          this.result = "Success"
-        } else {
-          this.result = `Failure (${response.status})`
-        }
-      })
-      .catch(error =>  this.result = "Failure")      
+    async sendSms2() {
+      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
+
+      let res = await api.sendSms("Dies ist ein Test", "martin")
+      if (res.error) {
+        this.result = res.data
+      } else {
+        this.result = "Success"
+      }
     },
+    async getRecipients() {
+      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
+
+      let res = await api.getRecipients()
+      if (res.error) {
+        return
+      }
+
+      this.allRecipients = res.data
+    },    
     makeAllComponentsInvisible() {
       this.showAll = false;
       this.showMonthly = false;
@@ -79,7 +79,12 @@ export default {
     <Navigation @select-nav="showComponents"></Navigation>
   </section>
   <button @click="add">Testweise hinzufügen</button>
-  <button @click="sendSms">Testnachricht senden</button>
+  <button @click="sendSms2">Testnachricht senden</button>
+  <button @click="getRecipients">Alle möglichen Empfänger abrufen</button>
+  <p/>
+  <li v-for="r in allRecipients">
+    {{ r }}
+  </li>
   <p/>
   {{ result }}
   <section class="work-items">
