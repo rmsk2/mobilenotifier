@@ -34,7 +34,7 @@ func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmS
 
 func (s *SmSController) Add(authWrapper tools.Wrapper) {
 	http.HandleFunc("POST /notifier/api/send/{recipient}", authWrapper.Wrap(s.Handle))
-	http.HandleFunc("/notifier/api/send/recipients/all", s.HandleGetAllRecipients)
+	http.HandleFunc("GET /notifier/api/send/recipients/all", s.HandleGetAllRecipients)
 }
 
 // @Summary      Send a text message to a recipient

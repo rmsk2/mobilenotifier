@@ -19,7 +19,7 @@ type ReminderData struct {
 	Kind        repo.ReminderType  `json:"kind"`
 	Param       int                `json:"param"`
 	WarningAt   []repo.WarningType `json:"warning_at"`
-	Spec        time.Time          `json:"warning_time"`
+	Spec        time.Time          `json:"spec"`
 	Description string             `json:"description"`
 	Recipients  []string           `json:"recipients"`
 }
@@ -65,12 +65,12 @@ func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Lo
 
 func (n *ReminderController) Add() {
 	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
-	http.HandleFunc("/notifier/api/reminder", n.HandleList)
-	http.HandleFunc("/notifier/api/reminder/views/basic", n.HandleOverview)
-	http.HandleFunc("/notifier/api/reminder/views/bymonth", n.HandleViewByMonth)
+	http.HandleFunc("GET /notifier/api/reminder", n.HandleList)
+	http.HandleFunc("GET /notifier/api/reminder/views/basic", n.HandleOverview)
+	http.HandleFunc("GET /notifier/api/reminder/views/bymonth", n.HandleViewByMonth)
 	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", n.HandlePostUpsert)
 	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", n.HandleDelete)
-	http.HandleFunc("/notifier/api/reminder/{uuid}", n.HandleGet)
+	http.HandleFunc("GET /notifier/api/reminder/{uuid}", n.HandleGet)
 }
 
 // @Summary      Create a new reminder

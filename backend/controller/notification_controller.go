@@ -42,10 +42,10 @@ func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *lo
 }
 
 func (n *NotficationController) Add() {
-	http.HandleFunc("/notifier/api/notification", n.HandleList)
+	http.HandleFunc("GET /notifier/api/notification", n.HandleList)
 	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", n.HandleDelete)
-	http.HandleFunc("/notifier/api/notification/siblings/{uuid}", n.HandleGetSiblings)
-	http.HandleFunc("/notifier/api/notification/{uuid}", n.HandleGet)
+	http.HandleFunc("GET /notifier/api/notification/siblings/{uuid}", n.HandleGetSiblings)
+	http.HandleFunc("GET /notifier/api/notification/{uuid}", n.HandleGet)
 }
 
 // @Summary      Delete a notification
