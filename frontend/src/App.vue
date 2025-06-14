@@ -177,7 +177,7 @@ export default {
       </EntryList>
     </div>
     <EditEntry v-if="showNew"
-      :isnew="editIsNew" :reminderid="editId"  :api="api" :recipients="allRecipients" :data="editData"
+      :isnew="editIsNew" :reminderid="editId"  :api="api" :allrecipients="allRecipients" :editdata="editData"
       @error-occurred="setErrorMessage">
     </EditEntry>
   </section>
