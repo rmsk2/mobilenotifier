@@ -1,19 +1,16 @@
 <script>
-import AllEntries from './components/AllEntries.vue'
 import ErrorBar from './components/ErrorBar.vue';
-import MonthlyEntries from './components/MonthlyEntries.vue'
+import EntryList from './components/EntryList.vue'
 import Navigation from './components/Navigation.vue'
-import NewEntry from './components/NewEntry.vue'
+import EditEntry from './components/EditEntry.vue';
 import { monthSelected, newSelected, allSelected } from './components/globals';
-import { ReminderAPI, ReminderData } from './components/reminderapi';
-import { reminderAnniversary, reminderOneShot } from './components/reminderapi';
-import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './components/reminderapi';
+import { ReminderAPI, Reminder } from './components/reminderapi';
+import { reminderOneShot } from './components/reminderapi';
+
 
 export default {
   data() {
     return {
-      apiUrlBase: import.meta.env.VITE_API_URL,
-      accessToken: "egal",
       showMonthly: true,
       showAll: false,
       showNew: false,
@@ -21,69 +18,47 @@ export default {
       entriesInMonth: [],
       result: "",
       allRecipients: [],
-      reminderId: "",
-      reminderData: null
+      currentComponent: monthSelected,
+      monthToSearch: new Date().getMonth() + 1,
+      yearToSearch: new Date().getFullYear(),
+      editIsNew: false,
+      api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
+      editId: null,
+      editData: "kacke"
     }
   },
   methods: {
-    async createNew() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
-
-      let t = new Date();
-      t = new Date(t.getTime() + (2 * 60 * 60 * 1000));
-
-      let r = new ReminderData(reminderOneShot, 0, [warningEveningBefore, warningSameDay], t, "Dies ist ein Test", this.allRecipients);
-
-      let res = await api.createNewReminder(r);
+    async deleteReminder(id) {
+      let res = await this.api.deleteReminder(id);
       if (res.error) {
-        this.setErrorMessage("Kann Eintrag nicht anlegen");
+        this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
+        return
       }
 
-      this.reminderData= res.data
+      await this.redraw()
     },
-    async getReminder() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken);
-
-      let res = await api.readReminder(this.reminderId);
-      this.reminderData = res;
+    async redraw() {
+      await this.showComponents(this.currentComponent)
     },
-    async modifyReminder() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken);
-
-      let res = await api.readReminder(this.reminderId);
+    async editReminder(info) {
+      let res = await this.api.readReminder(info.id)
       if (res.error) {
+        this.setErrorMessage("Kann Ereignis nicht laden")
         return
       }
 
       if (!res.data.found) {
+        this.setErrorMessage("Ereignis-ID nicht vorhanden")
         return
       }
 
-      let oldData = res.data.data
-      let id = oldData.id
-      let remData = new ReminderData(oldData.kind, oldData.param + 1, oldData.warning_at, oldData.spec, oldData.description, oldData.recipients)
-
-      res = await api.updateReminder(remData, id)
-      this.reminderData = res;
-    },
-    async deleteReminder() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken);
-
-      let res = await api.deleteReminder(this.reminderId);
-      this.reminderData = res;
-    },
-    async sendSms2() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
-
-      let res = await api.sendSms("Dies ist ein Test", "martin")
-      if (res.error) {
-        this.setErrorMessage("Versand fehlgeschlagen");
-      }
+      this.editIsNew = info.isnew
+      this.editId = info.id
+      this.editData = res.data.data
+      this.showComponents(newSelected)
     },
     async getRecipients() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
-
-      let res = await api.getRecipients()
+      let res = await this.api.getRecipients()
       if (res.error) {
         this.setErrorMessage("Kann Empfängerliste nicht abrufen")
         this.allRecipients = [];
@@ -97,16 +72,14 @@ export default {
     },
     setErrorMessage(msg) {
       this.result = msg
-    },    
+    },
     makeAllComponentsInvisible() {
       this.showAll = false;
       this.showMonthly = false;
       this.showNew = false;
     },
     async getOverview() {
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
-
-      let res = await api.getOverview();      
+      let res = await this.api.getOverview();      
       if (res.error) {
         this.setErrorMessage("Kann Übersicht nicht abrufen");
         this.overviewEntries = [];
@@ -116,13 +89,7 @@ export default {
       this.overviewEntries = res.data;
     },
     async getEventsInMonth() {
-      let now = new Date();
-      let api = new ReminderAPI(this.apiUrlBase, this.accessToken)
-
-      let m = now.getMonth() + 1
-      let y = now.getFullYear()
-
-      let res = await api.getEventsInMonth(m, y);
+      let res = await this.api.getEventsInMonth(this.monthToSearch, this.yearToSearch);
       
       if (res.error) {
         this.setErrorMessage("Kann Ereignisse nicht abrufen");
@@ -132,7 +99,18 @@ export default {
       
       this.entriesInMonth = res.data;      
     },
+    async switchComponents(value) {
+      if (value == newSelected) {
+        this.editId = null;
+        this.editIsNew = true;
+        let now = new Date()
+        this.editData = new Reminder(null, reminderOneShot, 0, [], now, "Neues Ereignis", []);
+      }      
+
+      await this.showComponents(value)
+    },
     async showComponents(value) {
+      this.currentComponent = value
       this.makeAllComponentsInvisible();
       this.result = ""
 
@@ -152,10 +130,9 @@ export default {
     }
   },
   components: {
-    AllEntries,
-    MonthlyEntries,
+    EntryList,
     Navigation,
-    NewEntry,
+    EditEntry,
     ErrorBar
   },
   async beforeMount() {
@@ -168,21 +145,41 @@ export default {
 
 <template>
   <section class="section-navitems">
-    <Navigation @select-nav="showComponents"></Navigation>
+    <Navigation @select-nav="switchComponents"></Navigation>
   </section>
-  <input type="text" v-model="reminderId" size="40"></input>
-  <p/>
-  <button @click="getReminder">Ereignis abrufen</button>
-  <button @click="deleteReminder">Ereignis löschen</button>
-  <button @click="createNew">Neues Ereignis anlegen</button>
-  <button @click="modifyReminder">Ereignis modifizieren</button>
-  <p/>
-  {{ reminderData }}
+
   <p/>
   <section class="work-items">
-    <AllEntries :reminders="overviewEntries" v-if="showAll"></AllEntries>
-    <MonthlyEntries :reminders="entriesInMonth" v-if="showMonthly"></MonthlyEntries>
-    <NewEntry v-if="showNew"></NewEntry>    
+    <EntryList :reminders="overviewEntries" v-if="showAll" headline="Alle Einträge"
+      @edit-id="editReminder" 
+      @delete-id="deleteReminder">
+    </EntryList>
+    <div v-if="showMonthly">
+      <select name="months" v-model="monthToSearch" id="selectmonth">
+        <option value="1">Januar</option>
+        <option value="2">Februar</option>
+        <option value="3">März</option>
+        <option value="4">April</option>
+        <option value="5">Mai</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Dezember</option>
+      </select>  
+      <input type="number" v-model="yearToSearch" name="yearentry" id="yearentry">
+      <button @click="redraw">Erneut suchen</button>
+      <EntryList :reminders="entriesInMonth"  headline="Einträge im gewählten Monat"
+        @edit-id="editReminder"
+        @delete-id="deleteReminder">
+      </EntryList>
+    </div>
+    <EditEntry v-if="showNew"
+      :isnew="editIsNew" :reminderid="editId"  :api="api" :recipients="allRecipients" :data="editData"
+      @error-occurred="setErrorMessage">
+    </EditEntry>
   </section>
   <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>
 </template>

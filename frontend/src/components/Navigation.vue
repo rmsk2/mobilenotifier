@@ -23,7 +23,7 @@ export default {
 
 <template>
   <div class="navbar"> 
-    <button id="nav_nmonth" class="navbutton" @click="emitMonth">Alle Ereignisse im aktuellen Monat anzeigen</button>
+    <button id="nav_nmonth" class="navbutton" @click="emitMonth">Alle Ereignisse im gewählten Monat anzeigen</button>
     <button id="nav_new" class="navbutton" @click="emitNew">Neues Ereignis anlegen</button>
     <button id="nav_all" class="navbutton" @click="emitAll">Alle Ereignisse anzeigen</button>  
   </div>

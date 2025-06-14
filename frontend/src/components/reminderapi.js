@@ -21,11 +21,17 @@ class ReminderResponse {
     }
 }
 
-class ReminderOverview {
-    constructor(id, description, kind, nextEvent) {
+class SmallReminder {
+    constructor(id, description, kind) {
         this.id = id;
         this.description = description;
         this.kind = kind;
+    }    
+}
+
+class ReminderOverview {
+    constructor(id, description, kind, nextEvent) {
+        this.reminder = new SmallReminder(id, description, kind)
         this.next_occurrance = nextEvent
     }    
 }

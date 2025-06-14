@@ -35,11 +35,15 @@ type ReminderController struct {
 	log         *log.Logger
 }
 
-type ReminderOverview struct {
+type SmallReminder struct {
 	Id          *tools.UUID       `json:"id"`
 	Description string            `json:"description"`
 	Kind        repo.ReminderType `json:"kind"`
-	NextEvent   time.Time         `json:"next_occurrance"`
+}
+
+type ReminderOverview struct {
+	Reminder  *SmallReminder `json:"reminder"`
+	NextEvent time.Time      `json:"next_occurrance"`
 }
 
 type ExtReminder struct {
@@ -337,7 +341,7 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 // @Tags	     Reminder
 // @Param        month    query     int  true  "month to look at"
 // @Param        year    query     int  true  "year to look at"
-// @Success      200  {object} ReminderListResponse
+// @Success      200  {object} OverviewResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/views/bymonth [get]
@@ -395,7 +399,7 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 		return (t.Compare(refTimeStart) != -1) && (t.Compare(refTimeEnd) != 1)
 	}
 
-	n.HandleFiltered(w, r, timeFilter, refTimeStart)
+	n.HandleFilteredOverview(w, r, timeFilter, 0, refTimeStart)
 }
 
 func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, refNow time.Time) {
@@ -462,12 +466,15 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	filterFunc := func(*repo.Reminder) bool { return true }
+	n.HandleFilteredOverview(w, r, filterFunc, maxEntries, time.Now().UTC())
+}
+
+func (n *ReminderController) HandleFilteredOverview(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, maxEntries int, refTime time.Time) {
 	_, readRepo := n.db.RLock()
 	defer func() { n.db.RUnlock() }()
 
-	refTime := time.Now().UTC()
-
-	allReminders, err := readRepo.Filter(func(*repo.Reminder) bool { return true })
+	allReminders, err := readRepo.Filter(filterFunc)
 	if err != nil {
 		n.log.Printf("error listing reminders: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -476,11 +483,14 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 
 	responses := []*ReminderOverview{}
 	for _, j := range allReminders {
-		o := ReminderOverview{
+		sr := SmallReminder{
 			Id:          j.Id,
 			Description: j.Description,
 			Kind:        j.Kind,
-			NextEvent:   logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ()),
+		}
+		o := ReminderOverview{
+			Reminder:  &sr,
+			NextEvent: logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ()),
 		}
 		responses = append(responses, &o)
 	}
