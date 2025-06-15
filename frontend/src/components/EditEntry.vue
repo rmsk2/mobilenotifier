@@ -63,7 +63,24 @@ export default {
     createNew() {
       return this.id === null
     },
+    validate() {
+      if (this.warningAt.length == 0) {
+        return {ok: false, msg: "Keine Warnung eingetragen"}
+      }
+      
+      if (this.recipients.length == 0) {
+        return {ok: false, msg: "Keine Empfänger angegeben"}
+      }
+
+      return {ok: true, msg: ""}
+    },
     async saveData() {
+      let valRes = this.validate();
+      if (!valRes.ok) {
+        this.$emit('error-occurred', valRes.msg);
+        return;
+      }
+
       this.makeNumeric()
 
       let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes, this.seconds)
@@ -108,8 +125,8 @@ export default {
 
 <template>
   <div id="div-edit-entry" class="work-entry">
-    <h2 v-if="createNew()">Ereignis erstellen</h2>
-    <h2 v-else>Ereignis bearbeiten</h2>
+    <h2 v-if="createNew()">Neues Ereignis erstellen</h2>
+    <h2 v-else>Bestehendes Ereignis bearbeiten</h2>
 
     <label for="eventtime">Wann findet das Ereignis statt:</label>
     <div id="eventtime" name="eventtime">
