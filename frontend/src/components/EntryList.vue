@@ -1,4 +1,5 @@
 <script>
+import { reminderAnniversary } from './reminderapi';
 
 export default {
   data() {
@@ -25,14 +26,18 @@ export default {
 
       console.log(this.reminders);
 
-      for (let i in this.reminders) {
-        let e = this.reminders[i];
-
+      for (let e of this.reminders) {
         let t = e.reminder.description;
         let d = new Date(e.next_occurrance);
         let td = d.toLocaleDateString("de-DE", options);
         let tt = d.toLocaleTimeString();
-        res.push({id: e.reminder.id, textDate: td, textTime: tt, text: t});
+        let cl = "list-not-anniversary";
+
+        if (e.reminder.kind === reminderAnniversary) {
+          cl = "list-anniversary";
+        }
+
+        res.push({id: e.reminder.id, textDate: td, textTime: tt, text: t, cls: cl});
       }
       
       return res;
@@ -52,9 +57,9 @@ export default {
         <th>Bearbeiten</th>
       </tr>
       <tr v-for="item in formattedEvents">
-        <td>{{ item.textDate }}</td> 
-        <td>{{ item.textTime }}</td> 
-        <td>{{ item.text }}</td> 
+        <td :class="item.cls">{{ item.textDate }}</td> 
+        <td :class="item.cls">{{ item.textTime }}</td> 
+        <td :class="item.cls">{{ item.text }}</td> 
         <td>
           <button  @click="emitDelete(item.id)">Del</button>
           <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>

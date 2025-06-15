@@ -388,11 +388,15 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 	oneMillisecond := time.Millisecond
 	refTimeStart = refTimeStart.Add(-oneMillisecond).UTC()
 
-	help := month - 1
-	help++
-	help = help % 12
-	help++
-	refTimeEnd := time.Date(year, time.Month(help), 1, 0, 0, 0, 0, tools.ClientTZ()).UTC()
+	helpMonth := month + 1
+	helpYear := year
+
+	if helpMonth == 13 {
+		helpMonth = 1
+		helpYear++
+	}
+
+	refTimeEnd := time.Date(helpYear, time.Month(helpMonth), 1, 0, 0, 0, 0, tools.ClientTZ()).UTC()
 
 	timeFilter := func(r *repo.Reminder) bool {
 		t := logic.RefTimeMap[r.Kind](r, refTimeStart)
