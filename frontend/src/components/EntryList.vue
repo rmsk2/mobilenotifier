@@ -22,9 +22,7 @@ export default {
   computed: {
     formattedEvents() {
       let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      let res = []      
-
-      console.log(this.reminders);
+      let res = []
 
       for (let e of this.reminders) {
         let t = e.reminder.description;

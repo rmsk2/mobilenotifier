@@ -9,7 +9,7 @@ const warningSameDay = 5
 
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
-    ExtReminder, ReminderListResponse, OverviewResponse, getDefaultReminder,
+    ExtReminder, ReminderListResponse, OverviewResponse, ApiInfoResult, getDefaultReminder,
     reminderAnniversary, reminderOneShot,
     warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay
  };
@@ -78,7 +78,14 @@ class APIResult {
     constructor(wasError, data) {
         this.error = wasError;
         this.data = data;
-    }    
+    }
+}
+
+class ApiInfoResult {
+    constructor(version, timeZone) {
+        this.version_info = version;
+        this.time_zone = timeZone;
+    }
 }
 
 function getDefaultReminder(recipient) {
@@ -286,4 +293,28 @@ class ReminderAPI {
             return new APIResult(true, error);
         }        
     }
+
+    async getApiInfo() {
+        try
+        {
+            let apiUrl = `${this.URL}general/info`;
+            
+            let response = await fetch(apiUrl, {
+                method: "get",
+                headers: {
+                    'Accept': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                return new APIResult(true, `${response.status}`);
+            }
+
+            let apiInfo = await response.json();            
+
+            return new APIResult(false, apiInfo)
+        } catch(error) {
+            return new APIResult(true, error);
+        }        
+    }    
 }

@@ -3,7 +3,8 @@ import ErrorBar from './components/ErrorBar.vue';
 import EntryList from './components/EntryList.vue'
 import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
-import { monthSelected, newSelected, allSelected } from './components/globals';
+import About from './components/About.vue';
+import { monthSelected, newSelected, allSelected, aboutSelected } from './components/globals';
 import { ReminderAPI, getDefaultReminder } from './components/reminderapi';
 
 
@@ -13,6 +14,7 @@ export default {
       showMonthly: true,
       showAll: false,
       showNew: false,
+      showAbout: false,
       overviewEntries: [],
       entriesInMonth: [],
       result: "",
@@ -21,7 +23,7 @@ export default {
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
-      editData: "kacke"
+      editData: "kacke",
     }
   },
   methods: {
@@ -61,6 +63,16 @@ export default {
       }
 
       this.allRecipients = res.data
+    },
+    async getApiInfo() {
+      let res = await this.api.getApiInfo()
+      if (res.error) {
+        this.setErrorMessage("Kann API info nicht abrufen")
+        return
+      }
+
+      this.apiVersion = res.data.version_info;
+      this.apiTimeZone = res.data.time_zone;
     },
     resetErrors() {
       this.result = ""
@@ -105,6 +117,7 @@ export default {
         this.showMonthly = true;
         this.showAll = false;
         this.showNew = false;
+        this.showAbout = false;
       }
 
       if (value === allSelected) {
@@ -112,25 +125,36 @@ export default {
         this.showAll = true;
         this.showMonthly = false;
         this.showNew = false;
+        this.showAbout = false;
       }
       
       if (value === newSelected) {
         this.showNew = true;
         this.showMonthly = false;
         this.showAll = false;
-      }      
+        this.showAbout = false;
+      }
+
+      if (value === aboutSelected) {
+        this.showNew = false;
+        this.showMonthly = false;
+        this.showAll = false;
+        this.showAbout = true;
+      }
     }
   },
   components: {
     EntryList,
     Navigation,
     EditEntry,
-    ErrorBar
+    ErrorBar,
+    About
   },
   async beforeMount() {
-    await this.getRecipients()
-    await this.showComponents(monthSelected)
-  }
+    await this.getApiInfo();
+    await this.getRecipients();
+    await this.showComponents(monthSelected);
+  },  
 }
 
 </script>
@@ -171,6 +195,9 @@ export default {
       :api="api" :allrecipients="allRecipients" :editdata="editData"
       @error-occurred="setErrorMessage">
     </EditEntry>
+    <About v-if="showAbout" 
+      :clienttz="apiTimeZone" :versioninfo="apiVersion">
+    </About>
   </section>
   <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>
 </template>
