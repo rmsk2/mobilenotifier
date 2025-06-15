@@ -369,6 +369,6 @@ export default {
     <label for="param">Vorlauf in Stunden bei Warnung am gleichen Tag:</label>
     <input type="number" id="param" name="param" v-model="param"></input>
     <p/>
-    <button @click="saveData">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Eintrag löschen</button>
+    <button @click="saveData">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
   </div>
 </template>
