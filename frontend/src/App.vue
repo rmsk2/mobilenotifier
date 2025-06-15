@@ -11,10 +11,6 @@ import { ReminderAPI, getDefaultReminder } from './components/reminderapi';
 export default {
   data() {
     return {
-      showMonthly: true,
-      showAll: false,
-      showNew: false,
-      showAbout: false,
       overviewEntries: [],
       entriesInMonth: [],
       result: "",
@@ -108,38 +104,31 @@ export default {
 
       await this.showComponents(value)
     },
+    testCurrentComponent(refVal) {
+      return this.currentComponent === refVal;
+    },
+    testAll() {
+      return this.testCurrentComponent(allSelected);
+    },
+    testAbout() {
+      return this.testCurrentComponent(aboutSelected);
+    },
+    testNew() {
+      return this.testCurrentComponent(newSelected);
+    },
+    testMonth() {
+      return this.testCurrentComponent(monthSelected);
+    },
     async showComponents(value) {
       this.currentComponent = value
       this.result = "";
 
       if (value === monthSelected) {
         await this.getEventsInMonth()
-        this.showMonthly = true;
-        this.showAll = false;
-        this.showNew = false;
-        this.showAbout = false;
       }
 
       if (value === allSelected) {
-        await this.getOverview()        
-        this.showAll = true;
-        this.showMonthly = false;
-        this.showNew = false;
-        this.showAbout = false;
-      }
-      
-      if (value === newSelected) {
-        this.showNew = true;
-        this.showMonthly = false;
-        this.showAll = false;
-        this.showAbout = false;
-      }
-
-      if (value === aboutSelected) {
-        this.showNew = false;
-        this.showMonthly = false;
-        this.showAll = false;
-        this.showAbout = true;
+        await this.getOverview()
       }
     }
   },
@@ -166,11 +155,11 @@ export default {
 
   <p/>
   <section class="work-items">
-    <EntryList :reminders="overviewEntries" v-if="showAll" headline="Alle Ereignisse"
+    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse"
       @edit-id="editReminder" 
       @delete-id="deleteReminder">
     </EntryList>
-    <div v-if="showMonthly">
+    <div v-if="testMonth()">
       <select name="months" v-model="monthToSearch" @change="redraw" id="selectmonth">
         <option value="1">Januar</option>
         <option value="2">Februar</option>
@@ -191,11 +180,11 @@ export default {
         @delete-id="deleteReminder">
       </EntryList>
     </div>
-    <EditEntry v-if="showNew"
+    <EditEntry v-if="testNew()"
       :api="api" :allrecipients="allRecipients" :editdata="editData"
       @error-occurred="setErrorMessage">
     </EditEntry>
-    <About v-if="showAbout" 
+    <About v-if="testAbout()" 
       :clienttz="apiTimeZone" :versioninfo="apiVersion">
     </About>
   </section>
