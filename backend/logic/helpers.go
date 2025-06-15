@@ -94,10 +94,11 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 
 	for _, i := range r.Recipients {
 		for _, j := range times {
+			eventLocalTime := r.Spec.In(tools.ClientTZ())
 			n := new(repo.Notification)
 			n.Id = tools.UUIDGen()
 			n.Parent = r.Id
-			n.Description = fmt.Sprintf("%s %02d:%02d %s", j.prefix, r.Spec.Hour(), r.Spec.Minute(), r.Description)
+			n.Description = fmt.Sprintf("%s %02d:%02d %s", j.prefix, eventLocalTime.Hour(), eventLocalTime.Minute(), r.Description)
 			n.WarningTime = j.t
 			n.Recipient = i
 
