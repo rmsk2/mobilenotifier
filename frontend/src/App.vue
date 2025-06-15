@@ -4,8 +4,7 @@ import EntryList from './components/EntryList.vue'
 import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
 import { monthSelected, newSelected, allSelected } from './components/globals';
-import { ReminderAPI, Reminder } from './components/reminderapi';
-import { reminderOneShot } from './components/reminderapi';
+import { ReminderAPI, getDefaultReminder } from './components/reminderapi';
 
 
 export default {
@@ -21,9 +20,7 @@ export default {
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
-      editIsNew: false,
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
-      editId: null,
       editData: "kacke"
     }
   },
@@ -52,8 +49,6 @@ export default {
         return
       }
 
-      this.editIsNew = info.isnew
-      this.editId = info.id
       this.editData = res.data.data
       this.showComponents(newSelected)
     },
@@ -100,11 +95,8 @@ export default {
       this.entriesInMonth = res.data;      
     },
     async switchComponents(value) {
-      if (value == newSelected) {
-        this.editId = null;
-        this.editIsNew = true;
-        let now = new Date()
-        this.editData = new Reminder(null, reminderOneShot, 0, [], now, "Neues Ereignis", []);
+      if (value == newSelected) {        
+        this.editData = getDefaultReminder(this.allRecipients[0]);
       }      
 
       await this.showComponents(value)
@@ -112,7 +104,7 @@ export default {
     async showComponents(value) {
       this.currentComponent = value
       this.makeAllComponentsInvisible();
-      this.result = ""
+      this.result = "";
 
       if (value === monthSelected) {
         await this.getEventsInMonth()
@@ -177,7 +169,7 @@ export default {
       </EntryList>
     </div>
     <EditEntry v-if="showNew"
-      :isnew="editIsNew" :reminderid="editId"  :api="api" :allrecipients="allRecipients" :editdata="editData"
+      :api="api" :allrecipients="allRecipients" :editdata="editData"
       @error-occurred="setErrorMessage">
     </EditEntry>
   </section>

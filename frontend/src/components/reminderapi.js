@@ -9,7 +9,7 @@ const warningSameDay = 5
 
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
-    ExtReminder, ReminderListResponse, OverviewResponse,
+    ExtReminder, ReminderListResponse, OverviewResponse, getDefaultReminder,
     reminderAnniversary, reminderOneShot,
     warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay
  };
@@ -79,6 +79,11 @@ class APIResult {
         this.error = wasError;
         this.data = data;
     }    
+}
+
+function getDefaultReminder(recipient) {
+    let now = new Date();
+    return new Reminder(null, reminderOneShot, 0, [warningSameDay], now, "Neues Ereignis", [recipient]);
 }
 
 class ReminderAPI {

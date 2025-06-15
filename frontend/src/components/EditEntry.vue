@@ -1,11 +1,21 @@
 <script>
 import { reminderAnniversary, ReminderData, reminderOneShot } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
+import { getDefaultReminder } from './reminderapi';
 
 
 export default {
   data() {
     return {
+      reminderOneShot: reminderOneShot,
+      reminderAnniversary: reminderAnniversary,
+      warningMorningBefore: warningMorningBefore,
+      warningNoonBefore: warningNoonBefore,
+      warningEveningBefore: warningEveningBefore,
+      warningWeekBefore: warningWeekBefore,
+      warningSameDay: warningSameDay,
+
+
       id: this.editdata.id,
       kind: this.editdata.kind,
       param: this.editdata.param,
@@ -29,7 +39,7 @@ export default {
         immediate: true
     }
   },  
-  props: ['editdata', 'reminderid', 'api', 'isnew', 'allrecipients'],
+  props: ['editdata', 'api', 'allrecipients'],
   emits: ['error-occurred'],
   methods: {
     makeNumeric() {
@@ -43,10 +53,15 @@ export default {
     async deleteEntry() {
       let res = this.api.deleteReminder(this.id)
       if (res.error) {  
-        this.$emit('error-occurred', "Daten konten nicht gelöscht werden")
-      } else {
-        this.$emit('error-occurred', "Daten gelöscht")
-      }      
+        this.$emit('error-occurred', "Daten konten nicht gelöscht werden");
+        return;
+      } 
+      
+      this.$emit('error-occurred', "Daten gelöscht")
+      this.copyData(getDefaultReminder(this.allrecipients[0]))
+    },
+    createNew() {
+      return this.id === null
     },
     async saveData() {
       this.makeNumeric()
@@ -57,7 +72,7 @@ export default {
       let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.recipients)
       let res = null
 
-      if (this.isnew) {
+      if (this.createNew()) {
         res = await this.api.createNewReminder(remData)
       } else {
         res = await this.api.updateReminder(remData, this.id)
@@ -65,10 +80,11 @@ export default {
 
       if (res.error) {  
         this.$emit('error-occurred', "Daten konten nicht gespeichert werden")
-      } else {
-        this.$emit('error-occurred', "Daten gespeichert")
-      }
-      
+        return
+      } 
+
+      this.$emit('error-occurred', "Daten gespeichert")
+      this.id = res.data.id;
     },
     copyData(from) {
       let d = new Date(from.spec);
@@ -92,7 +108,7 @@ export default {
 
 <template>
   <div id="div-edit-entry" class="work-entry">
-    <h2 v-if="isnew">Ereignis erstellen</h2>
+    <h2 v-if="createNew()">Ereignis erstellen</h2>
     <h2 v-else>Ereignis bearbeiten</h2>
 
     <label for="eventtime">Wann findet das Ereignis statt:</label>
@@ -310,18 +326,18 @@ export default {
 
     <label for="kindselect">Art des Ereignisses:</label>
     <select name="kindselect" v-model="kind" id="kindselect">
-      <option value="2">Einmaliges Ereignis</option>
-      <option value="1">Jährlich widerkehrendes Ereignis</option>
+      <option :value="reminderOneShot">Einmaliges Ereignis</option>
+      <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
     </select> 
     <p/>
 
     <label for="warningtypes">Gewünschte Vorwarnung:</label>
     <div id="warningtypes" name="warningtypes">
-      <input type="checkbox" v-model="warningAt" name="warningAt" value="1" />Am Morgen des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" value="2" />Am Mittag des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" value="3" />Am Abend des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" value="4" />Eine Woche vor dem Ereignis<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" value="5" />Am Tag des Ereignisses<br/>
+      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningMorningBefore" />Am Morgen des vorigen Tages<br/>
+      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningNoonBefore" />Am Mittag des vorigen Tages<br/>
+      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningEveningBefore" />Am Abend des vorigen Tages<br/>
+      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningWeekBefore" />Eine Woche vor dem Ereignis<br/>
+      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningSameDay" />Am Tag des Ereignisses<br/>
     </div>
     <p/>
 
@@ -336,6 +352,6 @@ export default {
     <label for="param">Vorlauf in Stunden bei Warnung am gleichen Tag:</label>
     <input type="number" id="param" name="param" v-model="param"></input>
     <p/>
-    <button @click="saveData">Daten speichern</button>
+    <button @click="saveData">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Eintrag löschen</button>
   </div>
 </template>
