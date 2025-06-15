@@ -13,6 +13,9 @@ export default {
     },
     emitDelete(id) {
       this.$emit('delete-id', id);
+    },
+    eventsAvailable() {
+      return this.reminders.length !== 0;
     }
   },
   computed: {
@@ -27,9 +30,9 @@ export default {
 
         let t = e.reminder.description;
         let d = new Date(e.next_occurrance);
-        let dt = d.toLocaleDateString("de-DE", options);
+        let td = d.toLocaleDateString("de-DE", options);
         let tt = d.toLocaleTimeString();
-        res.push({id: e.reminder.id, text: `${dt} um ${tt} Uhr - ${t}`});
+        res.push({id: e.reminder.id, textDate: td, textTime: tt, text: t});
       }
       
       return res;
@@ -41,10 +44,25 @@ export default {
 <template>
   <div id="div-entry-list" class="work-entry">
     <h1>{{ headline }}</h1>
-      <li v-for="item in formattedEvents">
-        {{ item.text }} 
-        <button  @click="emitDelete(item.id)">Del</button>
-        <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>
-      </li>    
+    <table id="table-found-events" class="list-events" v-if="eventsAvailable()">
+      <tr>
+        <th>Am</th>
+        <th>Um</th>
+        <th>Ereignis</th>
+        <th>Bearbeiten</th>
+      </tr>
+      <tr v-for="item in formattedEvents">
+        <td>{{ item.textDate }}</td> 
+        <td>{{ item.textTime }}</td> 
+        <td>{{ item.text }}</td> 
+        <td>
+          <button  @click="emitDelete(item.id)">Del</button>
+          <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>
+        </td>
+      </tr>
+    </table>
+    <div id="no-found-events" class="text-no-events" v-if="!eventsAvailable()">
+      Keine Ereignisse gefunden
+    </div>
   </div>
 </template>
