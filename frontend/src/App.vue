@@ -142,12 +142,12 @@ export default {
 
   <p/>
   <section class="work-items">
-    <EntryList :reminders="overviewEntries" v-if="showAll" headline="Alle Einträge"
+    <EntryList :reminders="overviewEntries" v-if="showAll" headline="Alle Ereignisse"
       @edit-id="editReminder" 
       @delete-id="deleteReminder">
     </EntryList>
     <div v-if="showMonthly">
-      <select name="months" v-model="monthToSearch" id="selectmonth">
+      <select name="months" v-model="monthToSearch" @change="redraw" id="selectmonth">
         <option value="1">Januar</option>
         <option value="2">Februar</option>
         <option value="3">März</option>
@@ -161,9 +161,8 @@ export default {
         <option value="11">November</option>
         <option value="12">Dezember</option>
       </select>  
-      <input type="number" v-model="yearToSearch" name="yearentry" id="yearentry">
-      <button @click="redraw">Erneut suchen</button>
-      <EntryList :reminders="entriesInMonth"  headline="Einträge im gewählten Monat"
+      <input type="number" v-model="yearToSearch" @change="redraw" name="yearentry" id="yearentry">
+      <EntryList :reminders="entriesInMonth"  headline="Ereignisse im gewählten Monat"
         @edit-id="editReminder"
         @delete-id="deleteReminder">
       </EntryList>
