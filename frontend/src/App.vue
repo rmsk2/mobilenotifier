@@ -68,11 +68,6 @@ export default {
     setErrorMessage(msg) {
       this.result = msg
     },
-    makeAllComponentsInvisible() {
-      this.showAll = false;
-      this.showMonthly = false;
-      this.showNew = false;
-    },
     async getOverview() {
       let res = await this.api.getOverview();      
       if (res.error) {
@@ -103,21 +98,26 @@ export default {
     },
     async showComponents(value) {
       this.currentComponent = value
-      this.makeAllComponentsInvisible();
       this.result = "";
 
       if (value === monthSelected) {
         await this.getEventsInMonth()
         this.showMonthly = true;
+        this.showAll = false;
+        this.showNew = false;
       }
 
       if (value === allSelected) {
         await this.getOverview()        
         this.showAll = true;
+        this.showMonthly = false;
+        this.showNew = false;
       }
       
       if (value === newSelected) {
         this.showNew = true;
+        this.showMonthly = false;
+        this.showAll = false;
       }      
     }
   },
