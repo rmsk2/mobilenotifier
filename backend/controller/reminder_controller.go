@@ -400,7 +400,7 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 
 	timeFilter := func(r *repo.Reminder) bool {
 		t := logic.RefTimeMap[r.Kind](r, refTimeStart)
-		return (t.Compare(refTimeStart) != -1) && (t.Compare(refTimeEnd) != 1)
+		return (t.Compare(refTimeStart) != -1) && (t.Compare(refTimeEnd) == -1)
 	}
 
 	n.HandleFilteredOverview(w, r, timeFilter, 0, refTimeStart)
