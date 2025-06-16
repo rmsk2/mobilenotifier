@@ -28,7 +28,7 @@ export default {
         let t = e.reminder.description;
         let d = new Date(e.next_occurrance);
         let td = d.toLocaleDateString("de-DE", options);
-        let tt = d.toLocaleTimeString();
+        let tt = d.toLocaleTimeString().substring(0, 5);
         let cl = "list-not-anniversary";
 
         if (e.reminder.kind === reminderAnniversary) {

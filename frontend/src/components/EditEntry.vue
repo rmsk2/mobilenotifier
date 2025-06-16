@@ -27,7 +27,6 @@ export default {
       year: new Date(this.editdata.spec).getFullYear(),
       hours: new Date(this.editdata.spec).getHours(),
       minutes: new Date(this.editdata.spec).getMinutes(),
-      seconds: new Date(this.editdata.spec).getSeconds(),
       day: new Date(this.editdata.spec).getDate(),
     }
   },
@@ -91,7 +90,7 @@ export default {
 
       this.makeNumeric()
 
-      let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes, this.seconds)
+      let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes,0)
       let utcDate = new Date(h.toISOString())
       
       let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.recipients)
@@ -125,7 +124,6 @@ export default {
       this.year = d.getFullYear();
       this.hours = d.getHours();
       this.minutes = d.getMinutes();
-      this.seconds = d.getSeconds();
     }
   }
 }
@@ -140,222 +138,170 @@ export default {
       <legend>
         <h4>Basisdaten des Ereignisses</h4>
       </legend>
-      <label for="eventtime">Wann findet das Ereignis statt:</label>
-      <div id="eventtime" name="eventtime">
-        
-        <select name="dayselect" v-model="day" id="dayselect">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="15">15</option>
-          <option value="16">16</option>
-          <option value="17">17</option>
-          <option value="18">18</option>
-          <option value="19">19</option>
-          <option value="20">20</option>
-          <option value="21">21</option>
-          <option value="22">22</option>
-          <option value="23">23</option>
-          <option value="24">24</option>
-          <option value="25">25</option>
-          <option value="26">26</option>
-          <option value="27">27</option>
-          <option value="28">28</option>
-          <option value="29">29</option>
-          <option value="30">30</option>
-          <option value="31">31</option>
-        </select>  
+      <table class="edit-entry-table">
+        <tr>
+          <td>Zeitpunkt</td>
+          <td>
+            <div id="eventtime" name="eventtime">              
+              <select name="dayselect" v-model="day" id="dayselect">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+              </select>  
 
-        <select name="monthselect" v-model="month" id="monthselect">
-          <option value="1">Januar</option>
-          <option value="2">Februar</option>
-          <option value="3">März</option>
-          <option value="4">April</option>
-          <option value="5">Mai</option>
-          <option value="6">Juni</option>
-          <option value="7">Juli</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">Oktober</option>
-          <option value="11">November</option>
-          <option value="12">Dezember</option>
-        </select>
+              <select name="monthselect" v-model="month" id="monthselect">
+                <option value="1">Januar</option>
+                <option value="2">Februar</option>
+                <option value="3">März</option>
+                <option value="4">April</option>
+                <option value="5">Mai</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Dezember</option>
+              </select>
 
-        <input type="number" size="6" id="yearin" name="yearin" v-model="year"></input>
+              <input type="number" size="6" id="yearin" name="yearin" v-model="year"></input>
 
-        <select name="hourselect" v-model="hours" id="hourselect">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="15">15</option>
-          <option value="16">16</option>
-          <option value="17">17</option>
-          <option value="18">18</option>
-          <option value="19">19</option>
-          <option value="20">20</option>
-          <option value="21">21</option>
-          <option value="22">22</option>
-          <option value="23">23</option>
-        </select>
+              <select name="hourselect" v-model="hours" id="hourselect">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+              </select>
 
-        <select name="minuteselect" v-model="minutes" id="minuteselect">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="15">15</option>
-          <option value="16">16</option>
-          <option value="17">17</option>
-          <option value="18">18</option>
-          <option value="19">19</option>
-          <option value="20">20</option>
-          <option value="21">21</option>
-          <option value="22">22</option>
-          <option value="23">23</option>
-          <option value="24">24</option>
-          <option value="25">25</option>
-          <option value="26">26</option>
-          <option value="27">27</option>
-          <option value="28">28</option>
-          <option value="29">29</option>
-          <option value="30">30</option>
-          <option value="31">31</option>
-          <option value="32">32</option>
-          <option value="33">33</option>
-          <option value="34">34</option>
-          <option value="35">35</option>
-          <option value="36">36</option>
-          <option value="37">37</option>
-          <option value="38">38</option>
-          <option value="39">39</option>
-          <option value="40">40</option>
-          <option value="41">41</option>
-          <option value="42">42</option>
-          <option value="43">43</option>
-          <option value="44">44</option>
-          <option value="45">45</option>
-          <option value="46">46</option>
-          <option value="47">47</option>
-          <option value="48">48</option>
-          <option value="49">49</option>
-          <option value="50">50</option>
-          <option value="51">51</option>
-          <option value="52">52</option>
-          <option value="53">53</option>
-          <option value="54">54</option>
-          <option value="55">55</option>
-          <option value="56">56</option>
-          <option value="57">57</option>
-          <option value="58">58</option>
-          <option value="59">59</option>
-        </select>
-
-        <select name="secondsselect" v-model="seconds" id="secondsselect">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="15">15</option>
-          <option value="16">16</option>
-          <option value="17">17</option>
-          <option value="18">18</option>
-          <option value="19">19</option>
-          <option value="20">20</option>
-          <option value="21">21</option>
-          <option value="22">22</option>
-          <option value="23">23</option>
-          <option value="24">24</option>
-          <option value="25">25</option>
-          <option value="26">26</option>
-          <option value="27">27</option>
-          <option value="28">28</option>
-          <option value="29">29</option>
-          <option value="30">30</option>
-          <option value="31">31</option>
-          <option value="32">32</option>
-          <option value="33">33</option>
-          <option value="34">34</option>
-          <option value="35">35</option>
-          <option value="36">36</option>
-          <option value="37">37</option>
-          <option value="38">38</option>
-          <option value="39">39</option>
-          <option value="40">40</option>
-          <option value="41">41</option>
-          <option value="42">42</option>
-          <option value="43">43</option>
-          <option value="44">44</option>
-          <option value="45">45</option>
-          <option value="46">46</option>
-          <option value="47">47</option>
-          <option value="48">48</option>
-          <option value="49">49</option>
-          <option value="50">50</option>
-          <option value="51">51</option>
-          <option value="52">52</option>
-          <option value="53">53</option>
-          <option value="54">54</option>
-          <option value="55">55</option>
-          <option value="56">56</option>
-          <option value="57">57</option>
-          <option value="58">58</option>
-          <option value="59">59</option>
-        </select>
-      </div>
-
-      <label for="desc">Beschreibung:</label>
-      <input type="text" id="desc" name="desc" size="80" v-model="description"></input><br>
-
-      <label for="kindselect">Art des Ereignisses:</label>
-      <select name="kindselect" v-model="kind" id="kindselect">
-        <option :value="reminderOneShot">Einmaliges Ereignis</option>
-        <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
-      </select> 
+              <select name="minuteselect" v-model="minutes" id="minuteselect">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+                <option value="34">34</option>
+                <option value="35">35</option>
+                <option value="36">36</option>
+                <option value="37">37</option>
+                <option value="38">38</option>
+                <option value="39">39</option>
+                <option value="40">40</option>
+                <option value="41">41</option>
+                <option value="42">42</option>
+                <option value="43">43</option>
+                <option value="44">44</option>
+                <option value="45">45</option>
+                <option value="46">46</option>
+                <option value="47">47</option>
+                <option value="48">48</option>
+                <option value="49">49</option>
+                <option value="50">50</option>
+                <option value="51">51</option>
+                <option value="52">52</option>
+                <option value="53">53</option>
+                <option value="54">54</option>
+                <option value="55">55</option>
+                <option value="56">56</option>
+                <option value="57">57</option>
+                <option value="58">58</option>
+                <option value="59">59</option>
+              </select>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Beschreibung</td>
+          <td>
+            <input type="text" id="desc" name="desc" size="80" v-model="description"></input><br>
+          </td>
+        </tr>
+        <tr>
+          <td>Art des Ereignisses</td>
+          <td>
+            <select name="kindselect" v-model="kind" id="kindselect">
+              <option :value="reminderOneShot">Einmaliges Ereignis</option>
+              <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
+            </select>
+          </td>
+        </tr>
+      </table>
     </fieldset>
 
     <fieldset id="warningtypes" name="warningtypes">
