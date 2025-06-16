@@ -37,6 +37,6 @@ export default {
 
 <template>
   <div id="div-error-bar" class="error-bar">
-    {{ usermessage }}<p/>
+    {{ usermessage }}
   </div>
 </template>

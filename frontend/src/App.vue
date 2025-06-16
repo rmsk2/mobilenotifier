@@ -150,10 +150,27 @@ export default {
 
 <template>
   <section class="section-navitems">
-    <Navigation @select-nav="switchComponents"></Navigation>
+    <table>
+      <tr>
+      <th width="12%"></th>
+      <th></th>
+      </tr> 
+      <tr>
+        <td colspan="2">
+          <Navigation @select-nav="switchComponents"></Navigation>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Hinweise:
+        </td>
+        <td >
+          <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>
+        </td>
+      </tr>
+    </table>
   </section>
 
-  <p/>
   <section class="work-items">
     <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse"
       @edit-id="editReminder" 
@@ -188,5 +205,4 @@ export default {
       :clienttz="apiTimeZone" :versioninfo="apiVersion">
     </About>
   </section>
-  <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>
 </template>

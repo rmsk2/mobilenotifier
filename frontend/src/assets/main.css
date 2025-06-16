@@ -3,3 +3,16 @@
 td.list-anniversary {
     background-color: #e6e8eb;
 }
+
+/* The navigation bar */
+.section-navitems {  
+  background-color: #e6e8eb;
+  overflow: hidden;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+.work-items {
+  margin-top: 80px;
+}
