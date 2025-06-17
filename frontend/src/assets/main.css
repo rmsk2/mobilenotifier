@@ -1,12 +1,12 @@
 @import './base.css';
 
 td.list-anniversary {
-    background-color: #e6e8eb;
+    background-color: var(--light-grey);
 }
 
 /* The navigation bar */
 .section-navitems {  
-  background-color: #e6e8eb;
+  background-color: var(--light-grey);
   overflow: hidden;
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
