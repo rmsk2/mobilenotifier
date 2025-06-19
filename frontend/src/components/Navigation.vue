@@ -46,9 +46,9 @@ export default {
 
 <template>
   <div class="navbar"> 
-    <button id="nav_nmonth" class="navbutton" :class="{active: idPressed === monthSelected}" @click="emitMonth">Ereignisse im gewählten Monat anzeigen</button>
-    <button id="nav_new" class="navbutton" :class="{active: idPressed === newSelected}" @click="emitNew">Ereignis anlegen/bearbeiten</button>
-    <button id="nav_all" class="navbutton" :class="{active: idPressed === allSelected}" @click="emitAll">Alle Ereignisse anzeigen</button>
+    <button id="nav_nmonth" class="navbutton" :class="{active: idPressed === monthSelected}" @click="emitMonth">Pro Monat anzeigen</button>
+    <button id="nav_new" class="navbutton" :class="{active: idPressed === newSelected}" @click="emitNew">Neu anlegen/bearbeiten</button>
+    <button id="nav_all" class="navbutton" :class="{active: idPressed === allSelected}" @click="emitAll">Alle anzeigen</button>
     <button id="nav_about" class="navbutton" :class="{active: idPressed === aboutSelected}" @click="emitAbout">Über diese Anwendung</button>  
   </div>
 </template>
