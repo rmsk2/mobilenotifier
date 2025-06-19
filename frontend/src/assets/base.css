@@ -1,5 +1,6 @@
-/* color palette from <https://github.com/vuejs/theme> */
 
 :root {
   --light-grey: #e6e8eb;
+  --menu-active: #FFFFFF;
+  --list-yearly-highlight: #e6e8eb;
 }

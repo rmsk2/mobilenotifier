@@ -1,7 +1,42 @@
 @import './base.css';
 
-td.list-anniversary {
-    background-color: var(--light-grey);
+* {
+  padding: 10;
+  margin: 10;
+  box-sizing: border-box;
+}
+
+/* set font for specified elements */
+html,
+label {
+  font-family: "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+/* set font for specified elements */
+button,
+input,
+select {
+  font-family: "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+}
+
+/* -------------------------------------- */
+/* Main menu */
+
+.navbutton {
+  float: left;
+  margin: 3px;
+  border-radius: 3px;
+  border: 1px Solid Black;
+  font-size: 18px;
+}
+
+/* Show selected menu item in different colour */
+.navbutton.active {
+  background-color: var(--menu-active);
 }
 
 /* The navigation bar */
@@ -13,6 +48,53 @@ td.list-anniversary {
   width: 100%; /* Full width */
 }
 
+/* Make room after navbar */
 .work-items {
   margin-top: 80px;
 }
+
+/* Main menu */
+/* -------------------------------------- */
+
+/* Add distance between fieldsets in edit component*/
+fieldset {
+  margin-bottom: 15px;
+}
+
+/* -------------------------------------- */
+/* Event list*/
+
+/* Show yearly events in different color */
+td.list-anniversary {
+  background-color: var(--list-yearly-highlight);
+}
+
+/* Draw external borders and column borders. No border between rows*/
+.table-list-events {
+  border-top: 1px Solid Black;
+  border-left: 1px Solid Black;
+  border-bottom: 1px Solid Black;
+  border-spacing: 0;
+}
+
+.table-list-events-elem {
+  border-right: 1px Solid Black;
+}
+
+.table-list-events-header {
+  border-right: 1px Solid Black;
+  border-bottom: 1px Solid Black;
+}
+
+/* do a bit of spacing around text in cells */
+.list-text {
+  padding: 5px;
+}
+
+/* Center buttons in last column */
+.table-list-buttons {
+  text-align: center;
+}
+
+/* Event list*/
+/* -------------------------------------- */

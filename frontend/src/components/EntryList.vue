@@ -47,18 +47,18 @@ export default {
 <template>
   <div id="div-entry-list" class="work-entry">
     <h1>{{ headline }}</h1>
-    <table id="table-found-events" class="list-events" v-if="eventsAvailable()">
-      <tr>
-        <th>Am</th>
-        <th>Um</th>
-        <th>Ereignis</th>
-        <th>Bearbeiten</th>
+    <table id="table-found-events" class="table-list-events" v-if="eventsAvailable()">
+      <tr class="table-list-events-row">
+        <th class="table-list-events-header">Am</th>
+        <th class="table-list-events-header">Um</th>
+        <th class="table-list-events-header">Ereignis</th>
+        <th class="table-list-events-header">Bearbeiten</th>
       </tr>
-      <tr v-for="item in formattedEvents">
-        <td :class="item.cls">{{ item.textDate }}</td> 
-        <td :class="item.cls">{{ item.textTime }}</td> 
-        <td :class="item.cls">{{ item.text }}</td> 
-        <td>
+      <tr class="table-list-events-row" v-for="item in formattedEvents">
+        <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.textDate }}</span></td> 
+        <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.textTime }}</span></td> 
+        <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.text }}</span></td> 
+        <td class="table-list-events-elem table-list-buttons" :class="item.cls">
           <button  @click="emitDelete(item.id)">Del</button>
           <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>
         </td>

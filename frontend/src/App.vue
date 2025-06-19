@@ -157,7 +157,7 @@ export default {
       </tr> 
       <tr>
         <td colspan="2">
-          <Navigation @select-nav="switchComponents"></Navigation>
+          <Navigation @select-nav="switchComponents" :currentstate="currentComponent"></Navigation>
         </td>
       </tr>
       <tr>

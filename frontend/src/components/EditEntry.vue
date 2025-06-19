@@ -136,7 +136,7 @@ export default {
 
     <fieldset>
       <legend>
-        <h4>Basisdaten des Ereignisses</h4>
+        <b>Basisdaten des Ereignisses</b>
       </legend>
       <table class="edit-entry-table">
         <tr>
@@ -306,7 +306,7 @@ export default {
 
     <fieldset id="warningtypes" name="warningtypes">
       <legend>
-        <h4>Gewünschte Vorwarnung</h4>
+        <b>Gewünschte Vorwarnung</b>
       </legend>
       <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningMorningBefore" />Am Morgen des vorigen Tages<br/>
       <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningNoonBefore" />Am Mittag des vorigen Tages<br/>
@@ -319,7 +319,7 @@ export default {
 
     <fieldset>
       <legend>
-        <h4>Wer soll gewarnt werden</h4>
+        <b>Wer soll gewarnt werden</b>
       </legend>
       <div v-for="r in allrecipients">
         <input  type="checkbox" v-model="recipients" name="selrecipients" :value="r">{{ r }}</input>
