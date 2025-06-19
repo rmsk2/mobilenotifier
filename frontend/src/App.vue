@@ -162,7 +162,7 @@ export default {
       </tr>
       <tr>
         <td>
-          <span class="message-text">Hinweise:</span>
+          Hinweise:
         </td>
         <td >
           <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>

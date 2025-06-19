@@ -58,7 +58,7 @@ export default {
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.textDate }}</span></td> 
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.textTime }}</span></td> 
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.text }}</span></td> 
-        <td class="table-list-events-elem table-list-buttons" :class="item.cls">
+        <td class="table-list-events-elem table-list-buttons">
           <button  @click="emitDelete(item.id)">Del</button>
           <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>
         </td>

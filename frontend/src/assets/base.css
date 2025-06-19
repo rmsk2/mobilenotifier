@@ -1,6 +1,19 @@
 
 :root {
+  /* available colours*/
   --light-grey: #e6e8eb;
-  --menu-active: #FFFFFF;
-  --list-yearly-highlight: #e6e8eb;
+  --global-white: #FFFFFF;
+  --global-blue: #37bbf0;
+  --global-green: #00FF00;
+  --global-blue2: #96d8fd;
+
+  /* Logical colours*/
+  --global-background: var(--global-white);
+  --global-highlight: var(--light-grey);
+
+  /* derived colours*/
+  --nav-bar-background: var(--global-highlight);
+  --menu-active: var(--global-background);
+  --menu-inactive: var(--nav-bar-background);
+  --list-yearly-highlight: var(--global-highlight);
 }

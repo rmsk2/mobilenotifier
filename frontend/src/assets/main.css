@@ -41,7 +41,7 @@ select {
 
 /* The navigation bar */
 .section-navitems {  
-  background-color: var(--light-grey);
+  background-color: var(--nav-bar-background);
   overflow: hidden;
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
@@ -59,6 +59,10 @@ select {
 /* Add distance between fieldsets in edit component*/
 fieldset {
   margin-bottom: 15px;
+}
+
+.message-text {
+  background-color: var(--global-background);
 }
 
 /* -------------------------------------- */
