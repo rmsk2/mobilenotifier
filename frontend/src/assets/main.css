@@ -39,6 +39,10 @@ select {
   background-color: var(--menu-active);
 }
 
+.navbutton.active:hover {
+  background-color: var(--global-hover);
+}
+
 /* The navigation bar */
 .section-navitems {  
   background-color: var(--nav-bar-background);

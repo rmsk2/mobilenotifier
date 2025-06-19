@@ -2,6 +2,7 @@
 :root {
   /* available colours*/
   --light-grey: #e6e8eb;
+  --dark-grey: #cac5c5;
   --global-white: #FFFFFF;
   --global-blue: #37bbf0;
   --global-green: #00FF00;
@@ -10,6 +11,7 @@
   /* Logical colours*/
   --global-background: var(--global-white);
   --global-highlight: var(--light-grey);
+  --global-hover: var(--dark-grey);
 
   /* derived colours*/
   --nav-bar-background: var(--global-highlight);
