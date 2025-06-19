@@ -1,7 +1,10 @@
 <script>
+import { versionString } from './globals';
+
 export default {
   data() {
     return {
+      webUIVersion: versionString
     }
   },
   props: ['versioninfo', 'clienttz'],
@@ -16,14 +19,18 @@ export default {
     </div>
     <p/>
     <table class="about-table">
-        <tr>
-            <td>API-Version</td>
-            <td>{{ versioninfo }}</td>
-        </tr>
-        <tr>
-            <td>Zeitzone des Clients</td>
-            <td>{{ clienttz }}</td>
-        </tr>
+      <tr>
+        <td>WebUI-Version</td>
+        <td>{{ webUIVersion }}</td>
+      </tr>
+      <tr>
+        <td>API-Version</td>
+        <td>{{ versioninfo }}</td>
+      </tr>
+      <tr>
+        <td>Zeitzone des Clients</td>
+        <td>{{ clienttz }}</td>
+      </tr>
     </table>    
   </div>
 </template>
