@@ -99,6 +99,10 @@ class ReminderAPI {
         this.Token = accessToken
     }
 
+    getURL() {
+        return this.URL;
+    }
+
     async createNewReminder(reminderData) {
         try
         {

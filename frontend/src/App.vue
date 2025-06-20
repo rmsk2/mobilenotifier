@@ -18,6 +18,7 @@ export default {
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
+      apiURL: import.meta.env.VITE_API_URL,
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       editData: "kacke",
     }
@@ -202,7 +203,7 @@ export default {
       @error-occurred="setErrorMessage">
     </EditEntry>
     <About v-if="testAbout()" 
-      :clienttz="apiTimeZone" :versioninfo="apiVersion">
+      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL">
     </About>
   </section>
 </template>

@@ -6,12 +6,13 @@
   --global-white: #FFFFFF;
   --global-blue: #37bbf0;
   --global-green: #00FF00;
-  --global-blue2: #96d8fd;
+  --global-light-blue: #d3eaff;
 
   /* Logical colours*/
   --global-background: var(--global-white);
   --global-highlight: var(--light-grey);
   --global-hover: var(--dark-grey);
+  --global-table-header: var(--global-light-blue);
 
   /* derived colours*/
   --nav-bar-background: var(--global-highlight);

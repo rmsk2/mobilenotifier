@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"notifier/sms"
 	"notifier/tools"
+	"sort"
 )
 
 type SmsMessage struct {
@@ -105,6 +106,8 @@ func (s *SmSController) HandleGetAllRecipients(w http.ResponseWriter, r *http.Re
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
+
+	sort.Strings(recipients)
 
 	resp := RecipientList{
 		AllRecipients: recipients,

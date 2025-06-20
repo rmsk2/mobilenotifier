@@ -62,7 +62,7 @@ fieldset {
 }
 
 .message-text {
-  background-color: var(--global-background);
+  background-color: var(--global-table-header);
 }
 
 /* -------------------------------------- */
@@ -88,6 +88,7 @@ td.list-anniversary {
 .table-list-events-header {
   border-right: 1px Solid Black;
   border-bottom: 1px Solid Black;
+  background-color: var(--global-table-header);
 }
 
 /* do a bit of spacing around text in cells */

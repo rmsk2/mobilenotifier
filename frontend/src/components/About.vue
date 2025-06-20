@@ -7,7 +7,12 @@ export default {
       webUIVersion: versionString
     }
   },
-  props: ['versioninfo', 'clienttz'],
+  props: ['versioninfo', 'clienttz', 'apilink'],
+  computed: {
+    swaggerUrl() {
+      return `${this.apilink}swagger/index.html`;
+    }
+  }
 }
 </script>
 
@@ -22,6 +27,10 @@ export default {
       <tr>
         <td>WebUI-Version</td>
         <td>{{ webUIVersion }}</td>
+      </tr>
+      <tr>
+        <td>Swagger-URL</td>
+        <td><a :href="swaggerUrl">{{swaggerUrl}}</a></td>
       </tr>
       <tr>
         <td>API-Version</td>
