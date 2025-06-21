@@ -9,13 +9,13 @@ func NewDummySender() *dummySmsSender {
 
 	martin := Recipient{
 		DisplayName: displayMartin,
-		Id:          "0D69B617-12D0-4491-ADD8-D103CF3925A1",
+		Id:          idMartin,
 		Address:     "SendSMS1",
 	}
 
 	push := Recipient{
 		DisplayName: displayPush,
-		Id:          "F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16",
+		Id:          idPush,
 		Address:     "SendPush1",
 	}
 
