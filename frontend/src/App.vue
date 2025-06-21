@@ -20,7 +20,7 @@ export default {
       yearToSearch: new Date().getFullYear(),
       apiURL: import.meta.env.VITE_API_URL,
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
-      editData: "kacke",
+      editData: "",
     }
   },
   methods: {
