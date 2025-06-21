@@ -9,7 +9,7 @@ import (
 )
 
 const lenMessageMax = 160
-const displayMartin = "Martin"
+const displayMartin = "Martin via SMS"
 const displayPush = "Pushmessage"
 const idMartin = "0D69B617-12D0-4491-ADD8-D103CF3925A1"
 const idPush = "F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16"
@@ -36,9 +36,7 @@ type SmsSender interface {
 	Send(recipient string, message string) error
 }
 
-func NewIftttSender(apiKey string) *iftttSmsSender {
-	res := new(iftttSmsSender)
-
+func makeRecipientMap() map[string]Recipient {
 	martin := Recipient{
 		DisplayName: displayMartin,
 		Id:          idMartin,
@@ -51,11 +49,31 @@ func NewIftttSender(apiKey string) *iftttSmsSender {
 		Address:     addrPush,
 	}
 
-	res.recipientMap = map[string]Recipient{
+	res := map[string]Recipient{
 		idMartin: martin,
 		idPush:   push,
 	}
 
+	return res
+}
+
+func listRecipientsOnMap(recipientMap map[string]Recipient) []RecipientInfo {
+	info := []RecipientInfo{}
+
+	for k := range recipientMap {
+		i := RecipientInfo{
+			Id:          k,
+			DisplayName: recipientMap[k].DisplayName,
+		}
+		info = append(info, i)
+	}
+
+	return info
+}
+
+func NewIftttSender(apiKey string) *iftttSmsSender {
+	res := new(iftttSmsSender)
+	res.recipientMap = makeRecipientMap()
 	res.apiKey = apiKey
 
 	return res
@@ -76,17 +94,7 @@ func (i *iftttSmsSender) CheckRecipient(id string) (bool, error) {
 }
 
 func (i *iftttSmsSender) ListRecipients() ([]RecipientInfo, error) {
-	info := []RecipientInfo{}
-
-	for k := range i.recipientMap {
-		i := RecipientInfo{
-			Id:          k,
-			DisplayName: i.recipientMap[k].DisplayName,
-		}
-		info = append(info, i)
-	}
-
-	return info, nil
+	return listRecipientsOnMap(i.recipientMap), nil
 }
 
 func (i *iftttSmsSender) Send(resipientId string, message string) error {

@@ -6,24 +6,7 @@ import (
 
 func NewDummySender() *dummySmsSender {
 	res := new(dummySmsSender)
-
-	martin := Recipient{
-		DisplayName: displayMartin,
-		Id:          idMartin,
-		Address:     addrSMS,
-	}
-
-	push := Recipient{
-		DisplayName: displayPush,
-		Id:          idPush,
-		Address:     addrPush,
-	}
-
-	res.recipientMap = map[string]Recipient{
-		idMartin: martin,
-		idPush:   push,
-	}
-
+	res.recipientMap = makeRecipientMap()
 	return res
 }
 
@@ -37,17 +20,7 @@ func (i *dummySmsSender) CheckRecipient(id string) (bool, error) {
 }
 
 func (i *dummySmsSender) ListRecipients() ([]RecipientInfo, error) {
-	info := []RecipientInfo{}
-
-	for k := range i.recipientMap {
-		i := RecipientInfo{
-			Id:          k,
-			DisplayName: i.recipientMap[k].DisplayName,
-		}
-		info = append(info, i)
-	}
-
-	return info, nil
+	return listRecipientsOnMap(i.recipientMap), nil
 }
 
 func (i *dummySmsSender) Send(recipientId string, message string) error {
