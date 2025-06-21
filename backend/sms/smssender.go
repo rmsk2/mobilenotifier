@@ -9,6 +9,8 @@ import (
 )
 
 const lenMessageMax = 160
+const displayMartin = "Martin"
+const displayPush = "Pushmessage"
 
 type Recipient struct {
 	DisplayName string `json:"display_name"`
@@ -34,13 +36,13 @@ func NewIftttSender(apiKey string) *iftttSmsSender {
 	res := new(iftttSmsSender)
 
 	martin := Recipient{
-		DisplayName: "martin",
+		DisplayName: displayMartin,
 		Id:          "0D69B617-12D0-4491-ADD8-D103CF3925A1",
 		Address:     "SendSMS1",
 	}
 
 	push := Recipient{
-		DisplayName: "push",
+		DisplayName: displayPush,
 		Id:          "F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16",
 		Address:     "SendPush1",
 	}
