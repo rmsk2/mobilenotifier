@@ -20,8 +20,8 @@ func NewDummySender() *dummySmsSender {
 	}
 
 	res.recipientMap = map[string]Recipient{
-		"0D69B617-12D0-4491-ADD8-D103CF3925A1": martin,
-		"F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16": push,
+		idMartin: martin,
+		idPush:   push,
 	}
 
 	return res
