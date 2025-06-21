@@ -25,20 +25,24 @@ export default {
     <p/>
     <table class="about-table">
       <tr>
-        <td>WebUI-Version</td>
-        <td>{{ webUIVersion }}</td>
+        <th class="table-about-header"><span class="about-text">Info</span></th>
+        <th class="table-about-header"><span class="about-text">Wert</span></th>
       </tr>
       <tr>
-        <td>Swagger-URL</td>
-        <td><a :href="swaggerUrl">{{swaggerUrl}}</a></td>
+        <td class="table-about-elem"><span class="about-text">WebUI-Version</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ webUIVersion }}</span></td>
       </tr>
       <tr>
-        <td>API-Version</td>
-        <td>{{ versioninfo }}</td>
+        <td class="table-about-elem"><span class="about-text">Swagger-URL</span></td>
+        <td class="table-about-elem"><span class="about-text"><a :href="swaggerUrl">{{swaggerUrl}}</a></span></td>
       </tr>
       <tr>
-        <td>Zeitzone des Clients</td>
-        <td>{{ clienttz }}</td>
+        <td class="table-about-elem"><span class="about-text">API-Version</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ versioninfo }}</span></td>
+      </tr>
+      <tr>
+        <td class="table-about-elem"><span class="about-text">Zeitzone des Clients im Backend</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ clienttz }}</span></td>
       </tr>
     </table>    
   </div>

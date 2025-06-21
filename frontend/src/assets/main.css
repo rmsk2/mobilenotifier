@@ -74,6 +74,7 @@ td.list-anniversary {
 }
 
 /* Draw external borders and column borders. No border between rows*/
+.about-table,
 .table-list-events {
   border-top: 1px Solid Black;
   border-left: 1px Solid Black;
@@ -81,10 +82,12 @@ td.list-anniversary {
   border-spacing: 0;
 }
 
+.table-about-elem,
 .table-list-events-elem {
   border-right: 1px Solid Black;
 }
 
+.table-about-header,
 .table-list-events-header {
   border-right: 1px Solid Black;
   border-bottom: 1px Solid Black;
@@ -92,6 +95,7 @@ td.list-anniversary {
 }
 
 /* do a bit of spacing around text in cells */
+.about-text,
 .list-text {
   padding: 5px;
 }
