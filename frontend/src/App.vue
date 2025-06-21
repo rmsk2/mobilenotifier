@@ -23,6 +23,7 @@ export default {
       apiURL: import.meta.env.VITE_API_URL,
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       editData: "",
+      reminderCount: 0
     }
   },
   methods: {
@@ -86,6 +87,7 @@ export default {
 
       this.apiVersion = res.data.version_info;
       this.apiTimeZone = res.data.time_zone;
+      this.reminderCount = res.data.reminder_count;
     },
     resetErrors() {
       this.result = ""
@@ -165,6 +167,10 @@ export default {
       if (value === allSelected) {
         await this.getOverview()
       }
+
+      if (value === aboutSelected) {
+        await this.getApiInfo()
+      }
     }
   },
   components: {
@@ -239,7 +245,7 @@ export default {
       @error-occurred="setErrorMessage">
     </EditEntry>
     <About v-if="testAbout()" 
-      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL">
+      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL" :elemcount="reminderCount">
     </About>
   </section>
 </template>

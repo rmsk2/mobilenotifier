@@ -4,15 +4,24 @@ import { versionString } from './globals';
 export default {
   data() {
     return {
-      webUIVersion: versionString
+      webUIVersion: versionString,
+      reminderCount: 0
     }
   },
-  props: ['versioninfo', 'clienttz', 'apilink'],
+  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount'],
   computed: {
     swaggerUrl() {
       return `${this.apilink}swagger/index.html`;
     }
-  }
+  },
+  watch: {
+    elemcount: {
+        handler(newVal){
+          this.reminderCount = newVal;
+        },
+        immediate: true
+    }
+  },
 }
 </script>
 
@@ -43,6 +52,10 @@ export default {
       <tr>
         <td class="table-about-elem"><span class="about-text">Zeitzone des Clients im Backend</span></td>
         <td class="table-about-elem"><span class="about-text">{{ clienttz }}</span></td>
+      </tr>
+      <tr>
+        <td class="table-about-elem"><span class="about-text">Anzahl Erinnerungen</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ reminderCount }}</span></td>
       </tr>
     </table>    
   </div>

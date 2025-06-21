@@ -4,26 +4,42 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"notifier/repo"
 	"notifier/tools"
 )
 
 type ApiInfoResult struct {
 	Version  string `json:"version_info"`
 	TimeZone string `json:"time_zone"`
+	Count    int    `json:"reminder_count"`
 }
 
 type GeneralController struct {
 	log *log.Logger
+	dbl repo.DBSerializer
 }
 
-func NewGeneralController(l *log.Logger) *GeneralController {
+func NewGeneralController(s repo.DBSerializer, l *log.Logger) *GeneralController {
 	return &GeneralController{
 		log: l,
+		dbl: s,
 	}
 }
 
 func (s *GeneralController) Add() {
 	http.HandleFunc("/notifier/api/general/info", s.HandleInfo)
+}
+
+func countReminders(dbl repo.DBSerializer) int {
+	_, readRepo := dbl.RLock()
+	defer func() { dbl.RUnlock() }()
+
+	count, err := repo.CountEntries(readRepo)
+	if err != nil {
+		count = 0
+	}
+
+	return count
 }
 
 // @Summary      Get info about API
@@ -38,6 +54,7 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 	resp := ApiInfoResult{
 		Version:  tools.VersionString,
 		TimeZone: tools.ClientTZ().String(),
+		Count:    countReminders(s.dbl),
 	}
 
 	data, err := json.Marshal(&resp)

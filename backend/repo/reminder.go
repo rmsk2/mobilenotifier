@@ -85,3 +85,17 @@ func ClearNotifications(repoNotificationWrite NotificationRepoWrite, parentId *t
 
 	return nil
 }
+
+func CountEntries(repo ReminderRepoRead) (int, error) {
+	var elementCount int = 0
+	_, err := repo.Filter(func(r *Reminder) bool {
+		elementCount++
+		return false
+	})
+
+	if err != nil {
+		return -1, err
+	}
+
+	return elementCount, nil
+}

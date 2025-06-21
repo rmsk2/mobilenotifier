@@ -109,7 +109,7 @@ func run() int {
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
 	reminderController.Add()
 
-	infoController := controller.NewGeneralController(createLogger())
+	infoController := controller.NewGeneralController(dbl, createLogger())
 	infoController.Add()
 
 	logic.StartWarner(dbl, smsSender, smsAddressBook, time.NewTicker(60*time.Second), createLogger())

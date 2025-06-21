@@ -1,3 +1,3 @@
 package tools
 
-const VersionString = "0.9.7"
+const VersionString = "0.9.8"
