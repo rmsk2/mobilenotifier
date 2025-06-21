@@ -87,6 +87,24 @@ export default {
 
       this.overviewEntries = res.data;
     },
+    async incMonth() {
+      if (this.monthToSearch == 12) {
+        this.monthToSearch = 1;
+        this.yearToSearch++;
+      } else {
+        this.monthToSearch++;
+      }
+      await this.getEventsInMonth();
+    },
+    async decMonth() {
+      if (this.monthToSearch == 1) {
+        this.monthToSearch = 12;
+        this.yearToSearch--;
+      } else {
+        this.monthToSearch--;
+      }
+      await this.getEventsInMonth();
+    },
     async getEventsInMonth() {
       let res = await this.api.getEventsInMonth(this.monthToSearch, this.yearToSearch);
       
@@ -193,6 +211,8 @@ export default {
         <option value="12">Dezember</option>
       </select>  
       <input type="number" v-model="yearToSearch" @change="redraw" name="yearentry" id="yearentry">
+      <button id="nextmonth" @click="incMonth">Nächster Monat</button>
+      <button id="prevmonth" @click="decMonth">Voriger Monat</button>
       <EntryList :reminders="entriesInMonth"  headline="Ereignisse im gewählten Monat"
         @edit-id="editReminder"
         @delete-id="deleteReminder">
