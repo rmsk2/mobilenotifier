@@ -10,13 +10,13 @@ func NewDummySender() *dummySmsSender {
 	martin := Recipient{
 		DisplayName: displayMartin,
 		Id:          idMartin,
-		Address:     "SendSMS1",
+		Address:     addrSMS,
 	}
 
 	push := Recipient{
 		DisplayName: displayPush,
 		Id:          idPush,
-		Address:     "SendPush1",
+		Address:     addrPush,
 	}
 
 	res.recipientMap = map[string]Recipient{

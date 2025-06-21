@@ -13,6 +13,8 @@ const displayMartin = "Martin"
 const displayPush = "Pushmessage"
 const idMartin = "0D69B617-12D0-4491-ADD8-D103CF3925A1"
 const idPush = "F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16"
+const addrSMS = "SendSMS1"
+const addrPush = "SendPush1"
 
 type Recipient struct {
 	DisplayName string `json:"display_name"`
@@ -40,13 +42,13 @@ func NewIftttSender(apiKey string) *iftttSmsSender {
 	martin := Recipient{
 		DisplayName: displayMartin,
 		Id:          idMartin,
-		Address:     "SendSMS1",
+		Address:     addrSMS,
 	}
 
 	push := Recipient{
 		DisplayName: displayPush,
 		Id:          idPush,
-		Address:     "SendPush1",
+		Address:     addrPush,
 	}
 
 	res.recipientMap = map[string]Recipient{
