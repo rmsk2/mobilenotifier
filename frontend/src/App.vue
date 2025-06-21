@@ -15,6 +15,8 @@ export default {
       entriesInMonth: [],
       result: "",
       allRecipients: [],
+      displayNameToId: {},
+      idToDisplayName: {},
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
@@ -56,10 +58,24 @@ export default {
       if (res.error) {
         this.setErrorMessage("Kann Empfängerliste nicht abrufen")
         this.allRecipients = [];
+        this.displayNameToId = {};
+        this.idToDisplayName = {};
         return
       }
 
-      this.allRecipients = res.data
+      let displayNames = []
+      let toIdHelp = {};
+      let toNameHelp = {};
+
+      for (let i of res.data) {
+        displayNames.push(i.display_name)
+        toIdHelp[i.display_name] = i.id;
+        toNameHelp[i.id] = i.display_name;
+      }
+
+      this.allRecipients = displayNames
+      this.idToDisplayName = toNameHelp;
+      this.displayNameToId = toIdHelp;
     },
     async getApiInfo() {
       let res = await this.api.getApiInfo()
@@ -118,7 +134,7 @@ export default {
     },
     async switchComponents(value) {
       if (value == newSelected) {        
-        this.editData = getDefaultReminder(this.allRecipients[0]);
+        this.editData = getDefaultReminder(this.displayNameToId[this.allRecipients[0]]);
       }      
 
       await this.showComponents(value)
@@ -219,7 +235,7 @@ export default {
       </EntryList>
     </div>
     <EditEntry v-if="testNew()"
-      :api="api" :allrecipients="allRecipients" :editdata="editData"
+      :api="api" :allrecipients="allRecipients" :editdata="editData" :nametoid="displayNameToId" :idtoname="idToDisplayName"
       @error-occurred="setErrorMessage">
     </EditEntry>
     <About v-if="testAbout()" 

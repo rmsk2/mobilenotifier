@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"notifier/sms"
 	"notifier/tools"
-	"sort"
+	"slices"
+	"strings"
 )
 
 type SmsMessage struct {
@@ -22,7 +23,7 @@ type SmSController struct {
 }
 
 type RecipientList struct {
-	AllRecipients []string `json:"all_recipients"`
+	AllRecipients []sms.RecipientInfo `json:"all_recipients"`
 }
 
 func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmSController {
@@ -107,7 +108,9 @@ func (s *SmSController) HandleGetAllRecipients(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	sort.Strings(recipients)
+	slices.SortFunc(recipients, func(a, b sms.RecipientInfo) int {
+		return strings.Compare(a.DisplayName, b.DisplayName)
+	})
 
 	resp := RecipientList{
 		AllRecipients: recipients,

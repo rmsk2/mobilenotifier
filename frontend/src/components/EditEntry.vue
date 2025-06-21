@@ -38,7 +38,7 @@ export default {
         immediate: true
     }
   },  
-  props: ['editdata', 'api', 'allrecipients'],
+  props: ['editdata', 'api', 'allrecipients', 'nametoid', 'idtoname'],
   emits: ['error-occurred'],
   methods: {
     makeNumeric() {
@@ -61,6 +61,24 @@ export default {
     },
     createNew() {
       return this.id === null
+    },
+    namesToIds(recipientNames) {
+      let res = [];
+
+      for (let i of recipientNames) {
+        res.push(this.nametoid[i]);
+      }
+
+      return res
+    },
+    idsToNames(recipientIds) {
+      let res = [];
+
+      for (let i of recipientIds) {
+        res.push(this.idtoname[i]);
+      }
+
+      return res;
     },
     validate() {
       if (this.warningAt.length == 0) {
@@ -93,7 +111,7 @@ export default {
       let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes,0)
       let utcDate = new Date(h.toISOString())
       
-      let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.recipients)
+      let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.namesToIds(this.recipients))
       let res = null
 
       if (this.createNew()) {
@@ -118,7 +136,7 @@ export default {
       this.warningAt = from.warning_at;
       this.timeOfEvent = d;
       this.description = from.description;
-      this.recipients = from.recipients;
+      this.recipients = this.idsToNames(from.recipients);
       this.day = d.getDate();
       this.month = d.getMonth() + 1;
       this.year = d.getFullYear();

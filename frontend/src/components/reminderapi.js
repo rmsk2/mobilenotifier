@@ -9,7 +9,7 @@ const warningSameDay = 5
 
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
-    ExtReminder, ReminderListResponse, OverviewResponse, ApiInfoResult, getDefaultReminder,
+    ExtReminder, ReminderListResponse, OverviewResponse, ApiInfoResult, RecipientInfo, getDefaultReminder,
     reminderAnniversary, reminderOneShot,
     warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay
  };
@@ -85,6 +85,13 @@ class ApiInfoResult {
     constructor(version, timeZone) {
         this.version_info = version;
         this.time_zone = timeZone;
+    }
+}
+
+class RecipientInfo {
+    constructor(displayName, id) {
+        this.display_name = displayName;
+        this.id = id;
     }
 }
 
