@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+type AddMetricsEvent func(int)
+
 type expiryInfo struct {
 	uuid        *tools.UUID
 	parent      *tools.UUID
@@ -16,20 +18,22 @@ type expiryInfo struct {
 }
 
 type warningGenerator struct {
-	db       repo.DBSerializer
-	sender   sms.SmsSender
-	addrBook sms.SmsAddressBook
-	ticker   *time.Ticker
-	log      *log.Logger
+	db             repo.DBSerializer
+	sender         sms.SmsSender
+	addrBook       sms.SmsAddressBook
+	ticker         *time.Ticker
+	log            *log.Logger
+	metricCallback AddMetricsEvent
 }
 
-func StartWarner(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger) {
+func StartWarner(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) {
 	warner := warningGenerator{
-		db:       l,
-		sender:   sender,
-		addrBook: addrBook,
-		ticker:   t,
-		log:      lg,
+		db:             l,
+		sender:         sender,
+		addrBook:       addrBook,
+		ticker:         t,
+		log:            lg,
+		metricCallback: m,
 	}
 
 	go func() {
@@ -96,6 +100,10 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	}
 
 	w.log.Printf("Message sent to '%s' for notification '%s'", info.recipient, info.uuid)
+
+	if w.metricCallback != nil {
+		w.metricCallback(tools.NotificationSent)
+	}
 
 	err = writeRepo.Delete(info.uuid)
 	if err != nil {

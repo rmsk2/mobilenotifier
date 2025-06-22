@@ -5,10 +5,11 @@ export default {
   data() {
     return {
       webUIVersion: versionString,
-      reminderCount: 0
+      reminderCount: 0,
+      notificationCount: 0
     }
   },
-  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount'],
+  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'notificationcount'],
   computed: {
     swaggerUrl() {
       return `${this.apilink}swagger/index.html`;
@@ -20,7 +21,13 @@ export default {
           this.reminderCount = newVal;
         },
         immediate: true
-    }
+    },
+    notificationcount: {
+        handler(newVal){
+          this.notificationCount = newVal;
+        },
+        immediate: true
+    }    
   },
 }
 </script>
@@ -54,9 +61,13 @@ export default {
         <td class="table-about-elem"><span class="about-text">{{ clienttz }}</span></td>
       </tr>
       <tr>
-        <td class="table-about-elem"><span class="about-text">Anzahl Erinnerungen</span></td>
+        <td class="table-about-elem"><span class="about-text">Anzahl Ereignisse</span></td>
         <td class="table-about-elem"><span class="about-text">{{ reminderCount }}</span></td>
       </tr>
+      <tr>
+        <td class="table-about-elem"><span class="about-text">Anzahl Benachrichtigungen</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ notificationCount }}</span></td>
+      </tr>      
     </table>    
   </div>
 </template>

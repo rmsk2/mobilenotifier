@@ -97,6 +97,10 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
+	metricCollector := tools.NewMetricsCollector()
+	metricCollector.Start()
+	defer func() { metricCollector.Stop() }()
+
 	smsSender, smsAddressBook := createSender()
 	smsLogger := createLogger()
 	authWrapper := tools.NewAuthWrapper[tools.ApiKey](createAuthSecret(), smsLogger)
@@ -109,10 +113,10 @@ func run() int {
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
 	reminderController.Add()
 
-	infoController := controller.NewGeneralController(dbl, createLogger())
+	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
 	infoController.Add()
 
-	logic.StartWarner(dbl, smsSender, smsAddressBook, time.NewTicker(60*time.Second), createLogger())
+	logic.StartWarner(dbl, smsSender, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
