@@ -33,7 +33,7 @@ func (m *MetricsCollector) eventLoop() {
 		switch val {
 		case NotificationSent:
 			m.metrics.NumNotificationsSent++
-		case MetricsCommand:
+		case CommandSendMetrics:
 			res := Metrics{
 				NumNotificationsSent: m.metrics.NumNotificationsSent,
 			}
