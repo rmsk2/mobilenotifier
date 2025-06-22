@@ -29,14 +29,7 @@ func NewMetricsCollector() *MetricsCollector {
 }
 
 func (m *MetricsCollector) eventLoop() {
-	ok := true
-
-	for ok {
-		var val int
-		val, ok = <-m.receiverChannel
-		if !ok {
-			continue
-		}
+	for val := range m.receiverChannel {
 		switch val {
 		case NotificationSent:
 			m.metrics.NumNotificationsSent++
