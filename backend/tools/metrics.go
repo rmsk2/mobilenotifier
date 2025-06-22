@@ -8,29 +8,32 @@ type Metrics struct {
 	NumNotificationsSent int
 }
 
-type MetricsCollector struct {
-	metrics         *Metrics
-	receiverChannel chan int
-	resultChannel   chan Metrics
-}
-
 func NewMetrics() *Metrics {
 	return &Metrics{
 		NumNotificationsSent: 0,
 	}
 }
 
+type MetricsInstruction struct {
+	Command         int
+	ResponseChannel chan Metrics
+}
+
+type MetricsCollector struct {
+	metrics         *Metrics
+	receiverChannel chan MetricsInstruction
+}
+
 func NewMetricsCollector() *MetricsCollector {
 	return &MetricsCollector{
 		metrics:         NewMetrics(),
-		receiverChannel: make(chan int),
-		resultChannel:   make(chan Metrics),
+		receiverChannel: make(chan MetricsInstruction),
 	}
 }
 
 func (m *MetricsCollector) eventLoop() {
 	for val := range m.receiverChannel {
-		switch val {
+		switch val.Command {
 		case NotificationSent:
 			m.metrics.NumNotificationsSent++
 		case CommandSendMetrics:
@@ -39,7 +42,7 @@ func (m *MetricsCollector) eventLoop() {
 			}
 
 			sendFunc := func(metric Metrics) {
-				m.resultChannel <- metric
+				val.ResponseChannel <- metric
 			}
 
 			go sendFunc(res)
@@ -55,13 +58,18 @@ func (m *MetricsCollector) Start() {
 
 func (m *MetricsCollector) Stop() {
 	close(m.receiverChannel)
-	close(m.resultChannel)
 }
 
 func (m *MetricsCollector) GetMetrics() Metrics {
-	m.receiverChannel <- CommandSendMetrics
+	responseChannel := make(chan Metrics)
+	defer func() { close(responseChannel) }()
 
-	res, ok := <-m.resultChannel
+	m.receiverChannel <- MetricsInstruction{
+		Command:         CommandSendMetrics,
+		ResponseChannel: responseChannel,
+	}
+
+	res, ok := <-responseChannel
 	if !ok {
 		return *NewMetrics()
 	}
@@ -71,7 +79,10 @@ func (m *MetricsCollector) GetMetrics() Metrics {
 
 func (m *MetricsCollector) AddEvent(eventID int) {
 	sendFunc := func(d int) {
-		m.receiverChannel <- d
+		m.receiverChannel <- MetricsInstruction{
+			Command:         d,
+			ResponseChannel: nil,
+		}
 	}
 
 	go sendFunc(eventID)
