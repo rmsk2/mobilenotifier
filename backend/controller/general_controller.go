@@ -58,7 +58,7 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 		Version:           tools.VersionString,
 		TimeZone:          tools.ClientTZ().String(),
 		Count:             countReminders(s.dbl),
-		NotificationsSent: s.metricCollector.NumNotificationsSent,
+		NotificationsSent: s.metricCollector.GetMetrics().NumNotificationsSent,
 	}
 
 	data, err := json.Marshal(&resp)
