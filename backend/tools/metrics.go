@@ -20,6 +20,9 @@ func (m *MetricsCollector) eventLoop() {
 	for ok {
 		var val int
 		val, ok = <-m.receiverChannel
+		if !ok {
+			continue
+		}
 		if val == NotificationSent {
 			m.NumNotificationsSent++
 		}
