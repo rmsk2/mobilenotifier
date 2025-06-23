@@ -1,53 +1,58 @@
 package tools
 
-const NotificationSent = 0
-const MetricsCommand = 65536
-const CommandSendMetrics = MetricsCommand + 0
-
-type Metrics struct {
-	NumNotificationsSent int
-}
-
-func NewMetrics() *Metrics {
-	return &Metrics{
-		NumNotificationsSent: 0,
-	}
-}
+const NotificationSent = "notification_count"
+const CommandSendMetrics = "CMD_SEND"
 
 type MetricsInstruction struct {
-	Command         int
-	ResponseChannel chan Metrics
+	Command         string
+	ResponseChannel chan map[string]int
 }
 
 type MetricsCollector struct {
-	metrics         *Metrics
+	metrics         map[string]int
 	receiverChannel chan MetricsInstruction
 }
 
 func NewMetricsCollector() *MetricsCollector {
-	return &MetricsCollector{
-		metrics:         NewMetrics(),
+	res := &MetricsCollector{
+		metrics:         map[string]int{},
 		receiverChannel: make(chan MetricsInstruction),
 	}
+
+	res.metrics[NotificationSent] = 0
+
+	return res
+}
+
+func copyMap(in map[string]int) map[string]int {
+	res := map[string]int{}
+
+	for i, j := range in {
+		res[i] = j
+	}
+
+	return res
 }
 
 func (m *MetricsCollector) eventLoop() {
 	for val := range m.receiverChannel {
 		switch val.Command {
-		case NotificationSent:
-			m.metrics.NumNotificationsSent++
 		case CommandSendMetrics:
-			res := Metrics{
-				NumNotificationsSent: m.metrics.NumNotificationsSent,
-			}
+			res := copyMap(m.metrics)
 
-			sendFunc := func(metric Metrics) {
+			sendFunc := func(metric map[string]int) {
 				val.ResponseChannel <- metric
 			}
 
 			go sendFunc(res)
 		default:
-			/* Ignore */
+			v, ok := m.metrics[val.Command]
+			if ok {
+				v++
+				m.metrics[val.Command] = v
+			} else {
+				m.metrics[val.Command] = 1
+			}
 		}
 	}
 }
@@ -60,8 +65,8 @@ func (m *MetricsCollector) Stop() {
 	close(m.receiverChannel)
 }
 
-func (m *MetricsCollector) GetMetrics() Metrics {
-	responseChannel := make(chan Metrics)
+func (m *MetricsCollector) GetMetrics() map[string]int {
+	responseChannel := make(chan map[string]int)
 	defer func() { close(responseChannel) }()
 
 	m.receiverChannel <- MetricsInstruction{
@@ -71,14 +76,14 @@ func (m *MetricsCollector) GetMetrics() Metrics {
 
 	res, ok := <-responseChannel
 	if !ok {
-		return *NewMetrics()
+		return map[string]int{}
 	}
 
 	return res
 }
 
-func (m *MetricsCollector) AddEvent(eventID int) {
-	sendFunc := func(d int) {
+func (m *MetricsCollector) AddEvent(eventID string) {
+	sendFunc := func(d string) {
 		m.receiverChannel <- MetricsInstruction{
 			Command:         d,
 			ResponseChannel: nil,

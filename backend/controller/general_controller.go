@@ -9,10 +9,10 @@ import (
 )
 
 type ApiInfoResult struct {
-	Version           string `json:"version_info"`
-	TimeZone          string `json:"time_zone"`
-	Count             int    `json:"reminder_count"`
-	NotificationsSent int    `json:"notification_count"`
+	Version  string         `json:"version_info"`
+	TimeZone string         `json:"time_zone"`
+	Count    int            `json:"reminder_count"`
+	Metrics  map[string]int `json:"metrics"`
 }
 
 type GeneralController struct {
@@ -55,10 +55,10 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 	s.log.Printf("Returning API info")
 
 	resp := ApiInfoResult{
-		Version:           tools.VersionString,
-		TimeZone:          tools.ClientTZ().String(),
-		Count:             countReminders(s.dbl),
-		NotificationsSent: s.metricCollector.GetMetrics().NumNotificationsSent,
+		Version:  tools.VersionString,
+		TimeZone: tools.ClientTZ().String(),
+		Count:    countReminders(s.dbl),
+		Metrics:  s.metricCollector.GetMetrics(),
 	}
 
 	data, err := json.Marshal(&resp)

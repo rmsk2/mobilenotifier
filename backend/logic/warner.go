@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type AddMetricsEvent func(int)
+type AddMetricsEvent func(string)
 
 type expiryInfo struct {
 	uuid        *tools.UUID

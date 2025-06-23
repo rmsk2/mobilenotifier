@@ -89,7 +89,7 @@ export default {
       this.apiVersion = res.data.version_info;
       this.apiTimeZone = res.data.time_zone;
       this.reminderCount = res.data.reminder_count;
-      this.notificationCount = res.data.notification_count;
+      this.notificationCount = res.data.metrics.notification_count;
     },
     resetErrors() {
       this.result = ""
