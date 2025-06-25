@@ -24,7 +24,7 @@ export default {
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       editData: "",
       reminderCount: 0,
-      notificationCount: 0
+      metrics: {}
     }
   },
   methods: {
@@ -82,20 +82,20 @@ export default {
     async getApiInfo() {
       let res = await this.api.getApiInfo()
       if (res.error) {
-        this.setErrorMessage("Kann API info nicht abrufen")
-        return
+        this.setErrorMessage("Kann API info nicht abrufen");
+        return;
       }
 
       this.apiVersion = res.data.version_info;
       this.apiTimeZone = res.data.time_zone;
       this.reminderCount = res.data.reminder_count;
-      this.notificationCount = res.data.metrics.notification_count;
+      this.metrics = res.data.metrics;
     },
     resetErrors() {
-      this.result = ""
+      this.result = "";
     },
     setErrorMessage(msg) {
-      this.result = msg
+      this.result = msg;
     },
     async getOverview() {
       let res = await this.api.getOverview();      
@@ -247,7 +247,7 @@ export default {
       @error-occurred="setErrorMessage">
     </EditEntry>
     <About v-if="testAbout()" 
-      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL" :elemcount="reminderCount" :notificationcount="notificationCount">
+      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL" :elemcount="reminderCount" :metrics="metrics">
     </About>
   </section>
 </template>

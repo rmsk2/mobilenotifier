@@ -1,5 +1,7 @@
 package tools
 
+import "golang.org/x/exp/maps"
+
 const NotificationSent = "notification_count"
 const CommandSendMetrics = "CMD_SEND"
 
@@ -24,21 +26,11 @@ func NewMetricsCollector() *MetricsCollector {
 	return res
 }
 
-func copyMap(in map[string]int) map[string]int {
-	res := map[string]int{}
-
-	for i, j := range in {
-		res[i] = j
-	}
-
-	return res
-}
-
 func (m *MetricsCollector) eventLoop() {
 	for val := range m.receiverChannel {
 		switch val.Command {
 		case CommandSendMetrics:
-			res := copyMap(m.metrics)
+			res := maps.Clone(m.metrics)
 
 			sendFunc := func(metric map[string]int) {
 				val.ResponseChannel <- metric

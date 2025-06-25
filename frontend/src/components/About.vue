@@ -9,7 +9,7 @@ export default {
       notificationCount: 0
     }
   },
-  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'notificationcount'],
+  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'metrics'],
   computed: {
     swaggerUrl() {
       return `${this.apilink}swagger/index.html`;
@@ -22,7 +22,7 @@ export default {
         },
         immediate: true
     },
-    notificationcount: {
+    metrics: {
         handler(newVal){
           this.notificationCount = newVal;
         },
@@ -66,7 +66,7 @@ export default {
       </tr>
       <tr>
         <td class="table-about-elem"><span class="about-text">Anzahl Benachrichtigungen</span></td>
-        <td class="table-about-elem"><span class="about-text">{{ notificationCount }}</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ metrics.notification_count }}</span></td>
       </tr>      
     </table>    
   </div>
