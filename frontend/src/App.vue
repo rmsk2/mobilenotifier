@@ -29,17 +29,6 @@ export default {
     }
   },
   methods: {
-    async deleteReminderAndSwitch2(id, newPage) {
-      if (confirm("Ereignis wirklich löschen?")) {
-        let res = await this.api.deleteReminder(id);
-        if (res.error) {
-          this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
-          return
-        }
-
-        await this.switchComponents(newPage)
-      }
-    },
     async deleteReminder(id) {
       await this.deleteReminderAndSwitch(id, this.currentComponent)
     },
