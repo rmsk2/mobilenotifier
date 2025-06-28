@@ -1,7 +1,6 @@
 <script>
 import { reminderAnniversary, ReminderData, reminderOneShot } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
-import { getDefaultReminder } from './reminderapi';
 
 
 export default {
@@ -39,7 +38,7 @@ export default {
     }
   },  
   props: ['editdata', 'api', 'allrecipients', 'nametoid', 'idtoname'],
-  emits: ['error-occurred'],
+  emits: ['error-occurred', 'delete-id'],
   methods: {
     makeNumeric() {
       let h = []
@@ -50,16 +49,7 @@ export default {
       this.kind = Number(this.kind)
     },
     async deleteEntry() {
-      if (confirm("Ereignis wirklich löschen?")) {
-        let res = this.api.deleteReminder(this.id)
-        if (res.error) {
-          this.$emit('error-occurred', "Daten konten nicht gelöscht werden");
-          return;
-        }
-
-        this.$emit('error-occurred', "Daten gelöscht")
-        this.copyData(getDefaultReminder(this.nametoid[this.allrecipients[0]]))
-      }
+      this.$emit('delete-id', this.id)
     },
     createNew() {
       return this.id === null

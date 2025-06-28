@@ -2,7 +2,7 @@ const monthSelected = 1;
 const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
-const versionString = "0.5.12";
+const versionString = "0.5.13";
 
 export { 
     monthSelected, newSelected, allSelected, aboutSelected, versionString

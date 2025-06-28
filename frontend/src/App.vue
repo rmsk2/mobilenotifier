@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    async deleteReminder(id) {
+    async deleteReminderAndSwitch(id, newPage) {
       if (confirm("Ereignis wirklich löschen?")) {
         let res = await this.api.deleteReminder(id);
         if (res.error) {
@@ -36,8 +36,14 @@ export default {
           return
         }
 
-        await this.redraw()
+        await this.switchComponents(newPage)
       }
+    },
+    async deleteReminder(id) {
+      await this.deleteReminderAndSwitch(id, this.currentComponent)
+    },
+    async deleteAndSwitchToNew(id) {
+      await this.deleteReminderAndSwitch(id, newSelected)
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
@@ -246,7 +252,7 @@ export default {
     </div>
     <EditEntry v-if="testNew()"
       :api="api" :allrecipients="allRecipients" :editdata="editData" :nametoid="displayNameToId" :idtoname="idToDisplayName"
-      @error-occurred="setErrorMessage">
+      @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew">
     </EditEntry>
     <About v-if="testAbout()" 
       :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL" :elemcount="reminderCount" :metrics="metrics">
