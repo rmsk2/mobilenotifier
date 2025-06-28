@@ -6,6 +6,7 @@ import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
 import { monthSelected, newSelected, allSelected, aboutSelected } from './components/globals';
 import { ReminderAPI, getDefaultReminder } from './components/reminderapi';
+import ConfirmationDialog from './components/ConfirmationDialog.vue';
 
 
 export default {
@@ -28,8 +29,16 @@ export default {
     }
   },
   methods: {
+    async deleteReminder(id) {
+      await this.deleteReminderAndSwitch(id, this.currentComponent)
+    },
+    async deleteAndSwitchToNew(id) {
+      await this.deleteReminderAndSwitch(id, newSelected)
+    },
     async deleteReminderAndSwitch(id, newPage) {
-      if (confirm("Ereignis wirklich löschen?")) {
+      const ok = await this.$refs.confirmationDialog.show('MobileNotifier', 'Soll das Ereignis wirklich gelöscht werden?', 'Löschen')
+
+      if (ok) {
         let res = await this.api.deleteReminder(id);
         if (res.error) {
           this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
@@ -38,12 +47,6 @@ export default {
 
         await this.switchComponents(newPage)
       }
-    },
-    async deleteReminder(id) {
-      await this.deleteReminderAndSwitch(id, this.currentComponent)
-    },
-    async deleteAndSwitchToNew(id) {
-      await this.deleteReminderAndSwitch(id, newSelected)
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
@@ -106,7 +109,7 @@ export default {
       this.result = msg;
     },
     async getOverview() {
-      let res = await this.api.getOverview();      
+      let res = await this.api.getOverview();
       if (res.error) {
         this.setErrorMessage("Kann Übersicht nicht abrufen");
         this.overviewEntries = [];
@@ -135,19 +138,19 @@ export default {
     },
     async getEventsInMonth() {
       let res = await this.api.getEventsInMonth(this.monthToSearch, this.yearToSearch);
-      
+
       if (res.error) {
         this.setErrorMessage("Kann Ereignisse nicht abrufen");
         this.entriesInMonth = [];
         return
       }
-      
-      this.entriesInMonth = res.data;      
+
+      this.entriesInMonth = res.data;
     },
     async switchComponents(value) {
-      if (value == newSelected) {        
+      if (value == newSelected) {
         this.editData = getDefaultReminder(this.displayNameToId[this.allRecipients[0]]);
-      }      
+      }
 
       await this.showComponents(value)
     },
@@ -188,13 +191,14 @@ export default {
     Navigation,
     EditEntry,
     ErrorBar,
-    About
+    About,
+    ConfirmationDialog
   },
   async beforeMount() {
     await this.getApiInfo();
     await this.getRecipients();
     await this.showComponents(monthSelected);
-  },  
+  },
 }
 
 </script>
@@ -203,9 +207,9 @@ export default {
   <section class="section-navitems">
     <table>
       <tr>
-      <th width="12%"></th>
-      <th></th>
-      </tr> 
+        <th width="12%"></th>
+        <th></th>
+      </tr>
       <tr>
         <td colspan="2">
           <Navigation @select-nav="switchComponents" :currentstate="currentComponent"></Navigation>
@@ -215,7 +219,7 @@ export default {
         <td>
           Hinweise:
         </td>
-        <td >
+        <td>
           <ErrorBar @reset-error="resetErrors" :usermessage="result" interval="2000"></ErrorBar>
         </td>
       </tr>
@@ -223,8 +227,7 @@ export default {
   </section>
 
   <section class="work-items">
-    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse"
-      @edit-id="editReminder" 
+    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse" @edit-id="editReminder"
       @delete-id="deleteReminder">
     </EntryList>
     <div v-if="testMonth()">
@@ -241,21 +244,21 @@ export default {
         <option value="10">Oktober</option>
         <option value="11">November</option>
         <option value="12">Dezember</option>
-      </select>  
+      </select>
       <input type="number" v-model="yearToSearch" @change="redraw" name="yearentry" id="yearentry">
       <button id="nextmonth" @click="incMonth">Nächster Monat</button>
       <button id="prevmonth" @click="decMonth">Voriger Monat</button>
-      <EntryList :reminders="entriesInMonth"  headline="Ereignisse im gewählten Monat"
-        @edit-id="editReminder"
+      <EntryList :reminders="entriesInMonth" headline="Ereignisse im gewählten Monat" @edit-id="editReminder"
         @delete-id="deleteReminder">
       </EntryList>
     </div>
-    <EditEntry v-if="testNew()"
-      :api="api" :allrecipients="allRecipients" :editdata="editData" :nametoid="displayNameToId" :idtoname="idToDisplayName"
-      @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew">
+    <EditEntry v-if="testNew()" :api="api" :allrecipients="allRecipients" :editdata="editData"
+      :nametoid="displayNameToId" :idtoname="idToDisplayName" @error-occurred="setErrorMessage"
+      @delete-id="deleteAndSwitchToNew">
     </EditEntry>
-    <About v-if="testAbout()" 
-      :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL" :elemcount="reminderCount" :metrics="metrics">
+    <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
+      :elemcount="reminderCount" :metrics="metrics">
     </About>
+    <ConfirmationDialog ref="confirmationDialog"></ConfirmationDialog>
   </section>
 </template>
