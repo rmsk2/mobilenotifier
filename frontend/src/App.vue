@@ -29,13 +29,15 @@ export default {
   },
   methods: {
     async deleteReminder(id) {
-      let res = await this.api.deleteReminder(id);
-      if (res.error) {
-        this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
-        return
-      }
+      if (confirm("Ereignis wirklich löschen?")) {
+        let res = await this.api.deleteReminder(id);
+        if (res.error) {
+          this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
+          return
+        }
 
-      await this.redraw()
+        await this.redraw()
+      }
     },
     async redraw() {
       await this.showComponents(this.currentComponent)

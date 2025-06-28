@@ -50,14 +50,16 @@ export default {
       this.kind = Number(this.kind)
     },
     async deleteEntry() {
-      let res = this.api.deleteReminder(this.id)
-      if (res.error) {  
-        this.$emit('error-occurred', "Daten konten nicht gelöscht werden");
-        return;
-      } 
-      
-      this.$emit('error-occurred', "Daten gelöscht")
-      this.copyData(getDefaultReminder(this.allrecipients[0]))
+      if (confirm("Ereignis wirklich löschen?")) {
+        let res = this.api.deleteReminder(this.id)
+        if (res.error) {
+          this.$emit('error-occurred', "Daten konten nicht gelöscht werden");
+          return;
+        }
+
+        this.$emit('error-occurred', "Daten gelöscht")
+        this.copyData(getDefaultReminder(this.nametoid[this.allrecipients[0]]))
+      }
     },
     createNew() {
       return this.id === null
