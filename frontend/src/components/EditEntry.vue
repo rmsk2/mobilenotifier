@@ -89,6 +89,16 @@ export default {
         return {ok: false, msg: "Die Beschreibung passt in keine SMS"}
       }
 
+      if ((this.month == 2) && (this.day > 29)) {
+        return {ok: false, msg: `Es gibt keinen ${this.day}.ten Februar`}
+      }
+
+      console.log(this.month, this.day)
+      let shortMonths = new Set(["4", "6", "9", "11"]);
+      if (shortMonths.has(this.month.toString()) && (this.day > 30)) {
+        return {ok: false, msg: `Es gibt keinen ${this.day}.ten in diesem Monat`}
+      }
+
       return {ok: true, msg: ""}
     },
     async saveData() {
@@ -99,7 +109,7 @@ export default {
       }
 
       this.makeNumeric()
-      let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes,0)
+      let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes, 0)
       let utcDate = new Date(h.toISOString())      
       let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.namesToIds(this.recipients))
 
