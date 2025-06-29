@@ -247,8 +247,8 @@ export default {
   </section>
 
   <section class="work-items">
-    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse" @edit-id="editReminder"
-      @delete-id="deleteReminder">
+    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse" 
+      @edit-id="editReminder" @delete-id="deleteReminder">
     </EntryList>
     <div v-if="testMonth()">
       <select name="months" v-model="monthToSearch" @change="redraw" id="selectmonth">
@@ -268,13 +268,13 @@ export default {
       <input type="number" v-model="yearToSearch" @change="redraw" name="yearentry" id="yearentry">
       <button id="nextmonth" @click="incMonth">Nächster Monat</button>
       <button id="prevmonth" @click="decMonth">Voriger Monat</button>
-      <EntryList :reminders="entriesInMonth" headline="Ereignisse im gewählten Monat" @edit-id="editReminder"
-        @delete-id="deleteReminder">
+      <EntryList :reminders="entriesInMonth" headline="Ereignisse im gewählten Monat" 
+        @edit-id="editReminder" @delete-id="deleteReminder">
       </EntryList>
     </div>
     <EditEntry v-if="testNew()" :allrecipients="allRecipients" :editdata="editData"
-      :nametoid="displayNameToId" :idtoname="idToDisplayName" @error-occurred="setErrorMessage"
-      @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
+      :nametoid="displayNameToId" :idtoname="idToDisplayName"
+      @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
