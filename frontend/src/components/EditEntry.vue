@@ -37,8 +37,8 @@ export default {
         immediate: true
     }
   },  
-  props: ['editdata', 'api', 'allrecipients', 'nametoid', 'idtoname'],
-  emits: ['error-occurred', 'delete-id'],
+  props: ['editdata', 'allrecipients', 'nametoid', 'idtoname'],
+  emits: ['error-occurred', 'delete-id', 'save-data'],
   methods: {
     makeNumeric() {
       let h = []
@@ -99,26 +99,11 @@ export default {
       }
 
       this.makeNumeric()
-
       let h = new Date(this.year, this.month-1, this.day, this.hours, this.minutes,0)
-      let utcDate = new Date(h.toISOString())
-      
+      let utcDate = new Date(h.toISOString())      
       let remData = new ReminderData(this.kind, this.param, this.warningAt, utcDate, this.description, this.namesToIds(this.recipients))
-      let res = null
 
-      if (this.createNew()) {
-        res = await this.api.createNewReminder(remData)
-      } else {
-        res = await this.api.updateReminder(remData, this.id)
-      }
-
-      if (res.error) {  
-        this.$emit('error-occurred', "Daten konten nicht gespeichert werden")
-        return
-      } 
-
-      this.$emit('error-occurred', "Daten gespeichert")
-      this.id = res.data;
+      this.$emit('save-data', {id: this.id, reminderData: remData})
     },
     copyData(from) {
       let d = new Date(from.spec);

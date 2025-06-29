@@ -5,7 +5,7 @@ import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
 import { monthSelected, newSelected, allSelected, aboutSelected } from './components/globals';
-import { ReminderAPI, getDefaultReminder } from './components/reminderapi';
+import { ReminderAPI, getDefaultReminder, Reminder } from './components/reminderapi';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 
 
@@ -47,6 +47,26 @@ export default {
 
         await this.switchComponents(newPage)
       }
+    },
+    async saveReminder(saveData) { 
+      let h = saveData.reminderData
+      let apiResult = null
+      let savedId = ""
+
+      if (saveData.id === null) {
+        apiResult = await this.api.createNewReminder(h)
+      } else {
+        apiResult = await this.api.updateReminder(h, saveData.id)
+      }
+
+      if (apiResult.error) {  
+        this.setErrorMessage("Daten konten nicht gespeichert werden")
+        return
+      }
+            
+      savedId = apiResult.data
+      this.editData = new Reminder(savedId, h.kind, h.param, h.warning_at, h.spec, h.description, h.recipients)
+      this.setErrorMessage("Daten gespeichert")
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
@@ -252,9 +272,9 @@ export default {
         @delete-id="deleteReminder">
       </EntryList>
     </div>
-    <EditEntry v-if="testNew()" :api="api" :allrecipients="allRecipients" :editdata="editData"
+    <EditEntry v-if="testNew()" :allrecipients="allRecipients" :editdata="editData"
       :nametoid="displayNameToId" :idtoname="idToDisplayName" @error-occurred="setErrorMessage"
-      @delete-id="deleteAndSwitchToNew">
+      @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
