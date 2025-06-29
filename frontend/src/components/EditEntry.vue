@@ -1,7 +1,7 @@
 <script>
 import { reminderAnniversary, ReminderData, reminderOneShot } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
-
+import { DeleteNotification } from './globals';
 
 
 function isLeapYear(year)
@@ -57,7 +57,7 @@ export default {
       this.kind = Number(this.kind)
     },
     async deleteEntry() {
-      this.$emit('delete-id', this.id)
+      this.$emit('delete-id',  new DeleteNotification(this.id, this.description))
     },
     createNew() {
       return this.id === null
@@ -105,7 +105,6 @@ export default {
         return {ok: false, msg: `${this.year} ist kein Schaltjahr`}
       }
 
-      console.log(this.month, this.day)
       let shortMonths = new Set(["4", "6", "9", "11"]);
       if (shortMonths.has(this.month.toString()) && (this.day > 30)) {
         return {ok: false, msg: `Es gibt keinen ${this.day}.ten in diesem Monat`}

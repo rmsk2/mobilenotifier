@@ -1,5 +1,6 @@
 <script>
 import { reminderAnniversary } from './reminderapi';
+import { DeleteNotification } from './globals';
 
 export default {
   data() {
@@ -17,6 +18,9 @@ export default {
     },
     eventsAvailable() {
       return this.reminders.length !== 0;
+    },
+    makeNotification(id, description) {
+      return new DeleteNotification(id, description)
     }
   },
   computed: {
@@ -59,7 +63,7 @@ export default {
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.textTime }}</span></td> 
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.text }}</span></td> 
         <td class="table-list-events-elem table-list-buttons">
-          <button  @click="emitDelete(item.id)">Del</button>
+          <button  @click="emitDelete(makeNotification(item.id, item.text))">Del</button>
           <button  @click="emitEdit({isnew: false, id: item.id})">Edit</button>
         </td>
       </tr>

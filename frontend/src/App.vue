@@ -29,17 +29,17 @@ export default {
     }
   },
   methods: {
-    async deleteReminder(id) {
-      await this.deleteReminderAndSwitch(id, this.currentComponent)
+    async deleteReminder(delNotification) {
+      await this.deleteReminderAndSwitch(delNotification, this.currentComponent)
     },
-    async deleteAndSwitchToNew(id) {
-      await this.deleteReminderAndSwitch(id, newSelected)
+    async deleteAndSwitchToNew(delNotification) {
+      await this.deleteReminderAndSwitch(delNotification, newSelected)
     },
-    async deleteReminderAndSwitch(id, newPage) {
-      const ok = await this.$refs.confirmationDialog.show('MobileNotifier', 'Soll das Ereignis wirklich gelöscht werden?', 'Löschen')
+    async deleteReminderAndSwitch(delNotification, newPage) {
+      const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${delNotification.description}" gelöscht werden?`, 'Löschen')
 
       if (ok) {
-        let res = await this.api.deleteReminder(id);
+        let res = await this.api.deleteReminder(delNotification.id);
         if (res.error) {
           this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
           return
