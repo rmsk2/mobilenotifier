@@ -107,3 +107,9 @@ td.list-anniversary {
 
 /* Event list*/
 /* -------------------------------------- */
+
+.conf-header {
+  background-color: var(--global-table-header);
+  padding-left: 5px;
+  padding-right: 5px;
+}

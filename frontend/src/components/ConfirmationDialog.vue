@@ -42,7 +42,7 @@ export default {
 
 <template>
   <popup-modal ref="popup">
-    <h2 style="margin-top: 0">{{ title }}</h2>
+    <h3 style="margin-top: 0" class="conf-header">{{ title }}</h3>
     <p>{{ message }}</p>
     <div class="confirm-btns">
       <button @click="cancel">{{ cancelButton }}</button>
