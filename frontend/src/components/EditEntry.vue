@@ -3,6 +3,14 @@ import { reminderAnniversary, ReminderData, reminderOneShot } from './reminderap
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
 
 
+
+function isLeapYear(year)
+{
+  return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+}
+
+
+
 export default {
   data() {
     return {
@@ -91,6 +99,10 @@ export default {
 
       if ((this.month == 2) && (this.day > 29)) {
         return {ok: false, msg: `Es gibt keinen ${this.day}.ten Februar`}
+      }
+
+      if ((this.month == 2) && !isLeapYear(this.year) && (this.day > 28)) {
+        return {ok: false, msg: `${this.year} ist kein Schaltjahr`}
       }
 
       console.log(this.month, this.day)
