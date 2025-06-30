@@ -75,7 +75,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	writeRepo, _ := w.db.Lock()
 	defer func() { w.db.Unlock() }()
 
-	ok, address, err := w.addrBook.CheckRecipientExt(info.recipient)
+	ok, address, err := w.addrBook.CheckRecipient(info.recipient)
 	if err != nil {
 		w.log.Printf("Unable to determine validity of recipient '%s': %v", info.recipient, err)
 		return false

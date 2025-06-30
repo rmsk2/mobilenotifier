@@ -26,10 +26,9 @@ type RecipientInfo struct {
 }
 
 type SmsAddressBook interface {
-	CheckRecipient(r string) (bool, error)
 	ListRecipients() ([]RecipientInfo, error)
 	GetSender(addrType string) SmsSender
-	CheckRecipientExt(r string) (bool, string, error)
+	CheckRecipient(r string) (bool, string, error)
 }
 
 type AddressBook struct {
@@ -99,12 +98,12 @@ func (a *AddressBook) AddSender(addrType string, s SmsSender) {
 	a.senders[addrType] = s
 }
 
-func (a *AddressBook) CheckRecipient(r string) (bool, error) {
-	_, ok := a.recipientMap[r]
-	return ok, nil
-}
+// func (a *AddressBook) CheckRecipient(r string) (bool, error) {
+// 	_, ok := a.recipientMap[r]
+// 	return ok, nil
+// }
 
-func (a *AddressBook) CheckRecipientExt(r string) (bool, string, error) {
+func (a *AddressBook) CheckRecipient(r string) (bool, string, error) {
 	recipient, ok := a.recipientMap[r]
 	if !ok {
 		return false, "", fmt.Errorf("recipient '%s' is unknown", r)

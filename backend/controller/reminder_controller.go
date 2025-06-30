@@ -162,7 +162,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 	}
 
 	for _, j := range m.Recipients {
-		ok, err := n.addressBook.CheckRecipient(j)
+		ok, _, err := n.addressBook.CheckRecipient(j)
 		if err != nil {
 			n.log.Printf("error accessing recipient info: %v", err)
 			http.Error(w, "Internal error", http.StatusInternalServerError)

@@ -50,7 +50,7 @@ func (s *SmSController) Add(authWrapper tools.Wrapper) {
 // @Router       /notifier/api/send/{recipient} [post]
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
-	ok, address, err := s.addressBook.CheckRecipientExt(recipient)
+	ok, address, err := s.addressBook.CheckRecipient(recipient)
 
 	if err != nil {
 		s.log.Printf("error accessing recipient info: %v", err)
