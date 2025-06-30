@@ -98,11 +98,6 @@ func (a *AddressBook) AddSender(addrType string, s SmsSender) {
 	a.senders[addrType] = s
 }
 
-// func (a *AddressBook) CheckRecipient(r string) (bool, error) {
-// 	_, ok := a.recipientMap[r]
-// 	return ok, nil
-// }
-
 func (a *AddressBook) CheckRecipient(r string) (bool, string, error) {
 	recipient, ok := a.recipientMap[r]
 	if !ok {
