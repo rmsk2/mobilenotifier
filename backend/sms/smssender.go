@@ -9,71 +9,13 @@ import (
 )
 
 const lenMessageMax = 160
-const displayMartin = "Martin via SMS"
-const displayPush = "Pushmessage"
-const idMartin = "0D69B617-12D0-4491-ADD8-D103CF3925A1"
-const idPush = "F55C84F3-A2C7-46DD-AF06-27AFF7FCCC16"
-const addrSMS = "SendSMS1"
-const addrPush = "SendPush1"
-
-type Recipient struct {
-	DisplayName string `json:"display_name"`
-	Id          string `json:"id"`
-	Address     string `json:"address"`
-}
-
-type RecipientInfo struct {
-	Id          string `json:"id"`
-	DisplayName string `json:"display_name"`
-}
-
-type SmsAddressBook interface {
-	CheckRecipient(r string) (bool, error)
-	ListRecipients() ([]RecipientInfo, error)
-}
 
 type SmsSender interface {
-	Send(recipient string, message string) error
-}
-
-func makeRecipientMap() map[string]Recipient {
-	martin := Recipient{
-		DisplayName: displayMartin,
-		Id:          idMartin,
-		Address:     addrSMS,
-	}
-
-	push := Recipient{
-		DisplayName: displayPush,
-		Id:          idPush,
-		Address:     addrPush,
-	}
-
-	res := map[string]Recipient{
-		idMartin: martin,
-		idPush:   push,
-	}
-
-	return res
-}
-
-func listRecipientsOnMap(recipientMap map[string]Recipient) []RecipientInfo {
-	info := []RecipientInfo{}
-
-	for k := range recipientMap {
-		i := RecipientInfo{
-			Id:          k,
-			DisplayName: recipientMap[k].DisplayName,
-		}
-		info = append(info, i)
-	}
-
-	return info
+	Send(recipientAddress string, message string) error
 }
 
 func NewIftttSender(apiKey string) *iftttSmsSender {
 	res := new(iftttSmsSender)
-	res.recipientMap = makeRecipientMap()
 	res.apiKey = apiKey
 
 	return res
@@ -84,26 +26,11 @@ type ifftBody struct {
 }
 
 type iftttSmsSender struct {
-	recipientMap map[string]Recipient
-	apiKey       string
+	apiKey string
 }
 
-func (i *iftttSmsSender) CheckRecipient(id string) (bool, error) {
-	_, ok := i.recipientMap[id]
-	return ok, nil
-}
-
-func (i *iftttSmsSender) ListRecipients() ([]RecipientInfo, error) {
-	return listRecipientsOnMap(i.recipientMap), nil
-}
-
-func (i *iftttSmsSender) Send(resipientId string, message string) error {
-	v, ok := i.recipientMap[resipientId]
-	if !ok {
-		return fmt.Errorf("recipientid %s is unknown", resipientId)
-	}
-
-	requestURL := fmt.Sprintf("https://maker.ifttt.com/trigger/%s/with/key/%s", v.Address, i.apiKey)
+func (i *iftttSmsSender) Send(recipientAddress string, message string) error {
+	requestURL := fmt.Sprintf("https://maker.ifttt.com/trigger/%s/with/key/%s", recipientAddress, i.apiKey)
 
 	if len([]rune(message)) > lenMessageMax {
 		temp := message

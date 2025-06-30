@@ -19,17 +19,15 @@ type expiryInfo struct {
 
 type warningGenerator struct {
 	db             repo.DBSerializer
-	sender         sms.SmsSender
 	addrBook       sms.SmsAddressBook
 	ticker         *time.Ticker
 	log            *log.Logger
 	metricCallback AddMetricsEvent
 }
 
-func StartWarner(l repo.DBSerializer, sender sms.SmsSender, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) {
+func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) {
 	warner := warningGenerator{
 		db:             l,
-		sender:         sender,
 		addrBook:       addrBook,
 		ticker:         t,
 		log:            lg,
@@ -77,7 +75,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	writeRepo, _ := w.db.Lock()
 	defer func() { w.db.Unlock() }()
 
-	ok, err := w.addrBook.CheckRecipient(info.recipient)
+	ok, address, err := w.addrBook.CheckRecipientExt(info.recipient)
 	if err != nil {
 		w.log.Printf("Unable to determine validity of recipient '%s': %v", info.recipient, err)
 		return false
@@ -93,7 +91,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 		return true
 	}
 
-	err = w.sender.Send(info.recipient, info.description)
+	err = w.addrBook.GetSender(info.recipient).Send(address, info.description)
 	if err != nil {
 		w.log.Printf("Unable to send SMS to '%s' for notification '%s': %v", info.recipient, info.uuid, err)
 		return false

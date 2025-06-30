@@ -18,7 +18,6 @@ type SmsMessage struct {
 
 type SmSController struct {
 	log         *log.Logger
-	txt         sms.SmsSender
 	addressBook sms.SmsAddressBook
 }
 
@@ -26,10 +25,9 @@ type RecipientList struct {
 	AllRecipients []sms.RecipientInfo `json:"all_recipients"`
 }
 
-func NewSmsController(l *log.Logger, t sms.SmsSender, a sms.SmsAddressBook) *SmSController {
+func NewSmsController(l *log.Logger, a sms.SmsAddressBook) *SmSController {
 	return &SmSController{
 		log:         l,
-		txt:         t,
 		addressBook: a,
 	}
 }
@@ -52,7 +50,7 @@ func (s *SmSController) Add(authWrapper tools.Wrapper) {
 // @Router       /notifier/api/send/{recipient} [post]
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipient := r.PathValue("recipient")
-	ok, err := s.addressBook.CheckRecipient(recipient)
+	ok, address, err := s.addressBook.CheckRecipientExt(recipient)
 
 	if err != nil {
 		s.log.Printf("error accessing recipient info: %v", err)
@@ -84,7 +82,7 @@ func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.txt.Send(recipient, m.Message)
+	err = s.addressBook.GetSender(recipient).Send(address, m.Message)
 	if err != nil {
 		s.log.Printf("Sending SMS failed: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)

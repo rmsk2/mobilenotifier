@@ -31,15 +31,26 @@ func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
 
-func createSender() (sms.SmsSender, sms.SmsAddressBook) {
+func createAddressBook() sms.SmsAddressBook {
+	addrBook := sms.NewAddressBook()
+
 	apiKey, ok := os.LookupEnv(envApiKey)
 	if !ok {
 		dummy := sms.NewDummySender()
-		return dummy, dummy
+		addrBook.AddSender(sms.TypeSMS, dummy)
 	} else {
 		ifft := sms.NewIftttSender(apiKey)
-		return ifft, ifft
+		addrBook.AddSender(sms.TypeSMS, ifft)
 	}
+
+	addrBook.SetDefaultType(sms.TypeSMS)
+
+	//mailSender := sms.NewMailNotifier("mailserver", 587, "sender", "senderpw")
+	//addrBook.AddSender(sms.TypeMail, mailSender)
+
+	sms.AddMailRecipients(addrBook)
+
+	return addrBook
 }
 
 func createAuthSecret() *tools.AuthSecret {
@@ -101,10 +112,10 @@ func run() int {
 	metricCollector.Start()
 	defer func() { metricCollector.Stop() }()
 
-	smsSender, smsAddressBook := createSender()
+	smsAddressBook := createAddressBook()
 	smsLogger := createLogger()
 	authWrapper := tools.NewAuthWrapper[tools.ApiKey](createAuthSecret(), smsLogger)
-	smsController := controller.NewSmsController(smsLogger, smsSender, smsAddressBook)
+	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
 	smsController.Add(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
@@ -116,7 +127,7 @@ func run() int {
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
 	infoController.Add()
 
-	logic.StartWarner(dbl, smsSender, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
+	logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
