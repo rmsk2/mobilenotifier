@@ -45,9 +45,11 @@ func createAddressBook() sms.SmsAddressBook {
 
 	addrBook.SetDefaultType(sms.TypeSMS)
 
-	//mailSender := sms.NewMailNotifier("mailserver", 587, "sender", "senderpw")
-	//addrBook.AddSender(sms.TypeMail, mailSender)
-	//sms.AddMailRecipients(addrBook)
+	mailSender, err := sms.NewMailNotifierFromEnvironment()
+	if err == nil {
+		addrBook.AddSender(sms.TypeMail, mailSender)
+		sms.AddMailRecipients(addrBook)
+	}
 
 	return addrBook
 }

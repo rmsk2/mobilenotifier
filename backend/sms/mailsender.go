@@ -3,6 +3,8 @@ package sms
 import (
 	"fmt"
 	"net/smtp"
+	"os"
+	"strconv"
 )
 
 type mailNotifier struct {
@@ -11,6 +13,50 @@ type mailNotifier struct {
 	SenderAdress string
 	Password     string
 	Subject      string
+}
+
+const envMailServer = "MN_MAIL_SERVER"
+const envServerPort = "MN_MAIL_SERVER_PORT"
+const envSenderAddress = "MN_MAIL_SENDER_ADDR"
+const envServerPassword = "MN_MAIL_SENDER_PW"
+const envMartinMail = "MN_MAIL_RECIPIENT"
+
+var mailMartin string = "niemand@nix.de"
+
+func NewMailNotifierFromEnvironment() (*mailNotifier, error) {
+	mailServer, ok := os.LookupEnv(envMailServer)
+	if !ok {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	mailPort, ok := os.LookupEnv(envServerPort)
+	if !ok {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	port, err := strconv.ParseUint(mailPort, 10, 16)
+	if err != nil {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	port16 := (uint16)(port)
+
+	senderAddr, ok := os.LookupEnv(envSenderAddress)
+	if !ok {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	password, ok := os.LookupEnv(envServerPassword)
+	if !ok {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	mailMartin, ok = os.LookupEnv(envMartinMail)
+	if !ok {
+		return nil, fmt.Errorf("no mailer config found")
+	}
+
+	return NewMailNotifier(mailServer, port16, senderAddr, password), nil
 }
 
 func NewMailNotifier(h string, p uint16, s string, pw string) *mailNotifier {
@@ -27,13 +73,12 @@ func NewMailNotifier(h string, p uint16, s string, pw string) *mailNotifier {
 
 const displayMartinMail = "Martin via Mail"
 const idMartinMail = "0E69B617-12D0-4491-ADD8-D103CF3925A1"
-const addrMail = "recipient"
 
 func AddMailRecipients(a *AddressBook) {
 	martin := Recipient{
 		DisplayName: displayMartinMail,
 		Id:          idMartinMail,
-		Address:     addrMail,
+		Address:     mailMartin,
 		AddrType:    TypeMail,
 	}
 
