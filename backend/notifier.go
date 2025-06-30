@@ -49,6 +49,9 @@ func createAddressBook() sms.SmsAddressBook {
 	if err == nil {
 		addrBook.AddSender(sms.TypeMail, mailSender)
 		sms.AddMailRecipients(addrBook)
+		log.Println("Mail notifier added")
+	} else {
+		log.Printf("Mail notifier not added: %v", err)
 	}
 
 	return addrBook
