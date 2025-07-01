@@ -7,6 +7,8 @@ data:
   DB_PATH: "/opt/data/notifier.db"
   SWAGGER_URL: "https://debshuttle/notifier/api/swagger/doc.json"
   MN_CLIENT_TZ: "Europe/Berlin"
+  MN_MAIL_SERVER: "mail.gmx.net"
+  MN_MAIL_SERVER_PORT: "587"
 
 ---
 # Backend REST service
@@ -50,7 +52,22 @@ spec:
           valueFrom:
             secretKeyRef:
               name: notifier-secret
-              key: notifier_api_key              
+              key: notifier_api_key
+        - name: MN_MAIL_SENDER_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: notifier-secret
+              key: mail_sender
+        - name: MN_MAIL_SENDER_PW
+          valueFrom:
+            secretKeyRef:
+              name: notifier-secret
+              key: mail_password
+        - name: MN_MAIL_RECIPIENT
+          valueFrom:
+            secretKeyRef:
+              name: notifier-secret
+              key: mail_receiver
       volumes:
       - name: data-volume
         persistentVolumeClaim:

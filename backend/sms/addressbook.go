@@ -14,10 +14,10 @@ const TypeMail = "Mail"
 const TypeDummy = "Dummy"
 
 type Recipient struct {
-	DisplayName string
-	Id          string
-	Address     string
-	AddrType    string
+	DisplayName string `json:"display_name"`
+	Id          string `json:"id"`
+	Address     string `json:"address"`
+	AddrType    string `json:"addr_type"`
 }
 
 type RecipientInfo struct {
