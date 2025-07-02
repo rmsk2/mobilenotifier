@@ -19,9 +19,6 @@ const envMailServer = "MN_MAIL_SERVER"
 const envServerPort = "MN_MAIL_SERVER_PORT"
 const envSenderAddress = "MN_MAIL_SENDER_ADDR"
 const envServerPassword = "MN_MAIL_SENDER_PW"
-const envMartinMail = "MN_MAIL_RECIPIENT"
-
-var mailMartin string = "niemand@nix.de"
 
 func NewMailNotifierFromEnvironment() (*mailNotifier, error) {
 	mailServer, ok := os.LookupEnv(envMailServer)
@@ -51,11 +48,6 @@ func NewMailNotifierFromEnvironment() (*mailNotifier, error) {
 		return nil, fmt.Errorf("no mailer config found")
 	}
 
-	mailMartin, ok = os.LookupEnv(envMartinMail)
-	if !ok {
-		return nil, fmt.Errorf("no mailer config found")
-	}
-
 	return NewMailNotifier(mailServer, port16, senderAddr, password), nil
 }
 
@@ -69,20 +61,6 @@ func NewMailNotifier(h string, p uint16, s string, pw string) *mailNotifier {
 	}
 
 	return res
-}
-
-const displayMartinMail = "Martin via Mail"
-const idMartinMail = "0E69B617-12D0-4491-ADD8-D103CF3925A1"
-
-func AddMailRecipients(a *AddressBook) {
-	martin := Recipient{
-		DisplayName: displayMartinMail,
-		Id:          idMartinMail,
-		Address:     mailMartin,
-		AddrType:    TypeMail,
-	}
-
-	a.AddRecipient(martin)
 }
 
 func (m *mailNotifier) SetSubject(s string) {

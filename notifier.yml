@@ -63,11 +63,11 @@ spec:
             secretKeyRef:
               name: notifier-secret
               key: mail_password
-        - name: MN_MAIL_RECIPIENT
+        - name: MN_ADDR_BOOK
           valueFrom:
             secretKeyRef:
               name: notifier-secret
-              key: mail_receiver
+              key: address_book
       volumes:
       - name: data-volume
         persistentVolumeClaim:

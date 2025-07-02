@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"notifier/controller"
@@ -23,6 +25,7 @@ const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
 const envClientTimeZone = "MN_CLIENT_TZ"
+const envAddressBook = "MN_ADDR_BOOK"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
@@ -32,23 +35,41 @@ func createLogger() *log.Logger {
 }
 
 func createAddressBook() sms.SmsAddressBook {
-	addrBook := sms.NewAddressBook()
+	var addrBook *sms.AddressBook
+	var addrBookJsonByte []byte
+	var addrBookJson string
+	var err error
+
+	addrBookB64, ok := os.LookupEnv(envAddressBook)
+	if !ok {
+		panic(fmt.Errorf("unable to read address book: %v", err))
+	}
+
+	addrBookJsonByte, err = base64.StdEncoding.DecodeString(addrBookB64)
+	if err != nil {
+		panic(fmt.Errorf("unable to read address book: %v", err))
+	}
+
+	addrBookJson = string(addrBookJsonByte)
+	addrBook, err = sms.NewAddressBookFromJson(addrBookJson)
+	if err != nil {
+		panic(fmt.Errorf("unable to parse address book: %v", err))
+	}
 
 	apiKey, ok := os.LookupEnv(envApiKey)
 	if !ok {
 		dummy := sms.NewDummySender()
-		addrBook.AddSender(sms.TypeSMS, dummy)
+		addrBook.AddSender(sms.TypeIFTTT, dummy)
 	} else {
 		ifft := sms.NewIftttSender(apiKey)
-		addrBook.AddSender(sms.TypeSMS, ifft)
+		addrBook.AddSender(sms.TypeIFTTT, ifft)
 	}
 
-	addrBook.SetDefaultType(sms.TypeSMS)
+	addrBook.SetDefaultType(sms.TypeIFTTT)
 
 	mailSender, err := sms.NewMailNotifierFromEnvironment()
 	if err == nil {
 		addrBook.AddSender(sms.TypeMail, mailSender)
-		sms.AddMailRecipients(addrBook)
 		log.Println("Mail notifier added")
 	} else {
 		log.Printf("Mail notifier not added: %v", err)
