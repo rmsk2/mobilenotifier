@@ -35,6 +35,7 @@ export default {
       hours: new Date(this.editdata.spec).getHours(),
       minutes: new Date(this.editdata.spec).getMinutes(),
       day: new Date(this.editdata.spec).getDate(),
+      disableSave: false
     }
   },
   watch: {
@@ -43,9 +44,15 @@ export default {
           this.copyData(newVal)
         },
         immediate: true
+    },
+    disablesave: {
+        handler(newVal){
+          this.disableSave = newVal
+        },
+        immediate: true
     }
   },  
-  props: ['editdata', 'allrecipients', 'nametoid', 'idtoname'],
+  props: ['editdata', 'allrecipients', 'nametoid', 'idtoname', 'disablesave'],
   emits: ['error-occurred', 'delete-id', 'save-data'],
   methods: {
     makeNumeric() {
@@ -342,6 +349,6 @@ export default {
       </div>
     </fieldset>
 
-    <button @click="saveData">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
+    <button @click="saveData" :disabled="disableSave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
   </div>
 </template>

@@ -102,6 +102,10 @@ function getDefaultReminder(recipient) {
     return new Reminder(null, reminderOneShot, 0, [warningSameDay], now, "Neues Ereignis", [recipient]);
 }
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class ReminderAPI {
     constructor(baseUrl, accessToken) {
         this.URL = baseUrl

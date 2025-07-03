@@ -25,7 +25,8 @@ export default {
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       editData: "",
       reminderCount: 0,
-      metrics: {}
+      metrics: {},
+      disableSave: false
     }
   },
   methods: {
@@ -48,25 +49,33 @@ export default {
         await this.switchComponents(newPage)
       }
     },
-    async saveReminder(saveData) { 
-      let h = saveData.reminderData
-      let apiResult = null
-      let savedId = ""
+    async saveReminder(saveData) {
+      this.disableSave = true
 
-      if (saveData.id === null) {
-        apiResult = await this.api.createNewReminder(h)
-      } else {
-        apiResult = await this.api.updateReminder(h, saveData.id)
-      }
+      try {
+        let h = saveData.reminderData
+        let apiResult = null
+        let savedId = ""
 
-      if (apiResult.error) {  
-        this.setErrorMessage("Daten konten nicht gespeichert werden")
-        return
+        if (saveData.id === null) {
+          apiResult = await this.api.createNewReminder(h)
+        } else {
+          apiResult = await this.api.updateReminder(h, saveData.id)
+        }
+
+        if (apiResult.error) {
+          this.setErrorMessage("Daten konten nicht gespeichert werden")
+          return
+        }
+
+        savedId = apiResult.data
+        this.editData = new Reminder(savedId, h.kind, h.param, h.warning_at, h.spec, h.description, h.recipients)
+        this.setErrorMessage("Daten gespeichert")
       }
-            
-      savedId = apiResult.data
-      this.editData = new Reminder(savedId, h.kind, h.param, h.warning_at, h.spec, h.description, h.recipients)
-      this.setErrorMessage("Daten gespeichert")
+      finally
+      {
+        this.disableSave = false;
+      }
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
@@ -273,7 +282,7 @@ export default {
       </EntryList>
     </div>
     <EditEntry v-if="testNew()" :allrecipients="allRecipients" :editdata="editData"
-      :nametoid="displayNameToId" :idtoname="idToDisplayName"
+      :nametoid="displayNameToId" :idtoname="idToDisplayName" :disablesave="disableSave"
       @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
