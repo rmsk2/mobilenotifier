@@ -1,4 +1,3 @@
 secrets.yml
-backend/egal.txt
 backend/start.sh
 backend/addr_book.json
