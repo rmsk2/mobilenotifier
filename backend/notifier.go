@@ -26,6 +26,7 @@ const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
 const envClientTimeZone = "MN_CLIENT_TZ"
 const envAddressBook = "MN_ADDR_BOOK"
+const envMailSubject = "MN_MAIL_SUBJECT"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
@@ -69,6 +70,10 @@ func createAddressBook() sms.SmsAddressBook {
 
 	mailSender, err := sms.NewMailNotifierFromEnvironment()
 	if err == nil {
+		mailSubject, ok := os.LookupEnv(envMailSubject)
+		if ok {
+			mailSender.SetSubject(mailSubject)
+		}
 		addrBook.AddSender(sms.TypeMail, mailSender)
 		log.Println("Mail notifier added")
 	} else {
