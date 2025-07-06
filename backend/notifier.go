@@ -144,18 +144,19 @@ func run() int {
 
 	smsAddressBook := createAddressBook()
 	smsLogger := createLogger()
-	authWrapper := tools.NewAuthWrapper[tools.ApiKey](createAuthSecret(), smsLogger)
+	authSecret := createAuthSecret()
+	authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.ApiKeyAuthenticator)
 	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
-	smsController.Add(authWrapper)
+	smsController.AddHandlersWithAuth(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
-	notificationController.Add()
+	notificationController.AddHandlers()
 
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
-	reminderController.Add()
+	reminderController.AddHandlers()
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
-	infoController.Add()
+	infoController.AddHandlers()
 
 	logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
 

@@ -29,7 +29,7 @@ func NewGeneralController(s repo.DBSerializer, l *log.Logger, m *tools.MetricsCo
 	}
 }
 
-func (s *GeneralController) Add() {
+func (s *GeneralController) AddHandlers() {
 	http.HandleFunc("/notifier/api/general/info", s.HandleInfo)
 }
 

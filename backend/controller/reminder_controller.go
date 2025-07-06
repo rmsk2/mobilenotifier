@@ -67,7 +67,7 @@ func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Lo
 	}
 }
 
-func (n *ReminderController) Add() {
+func (n *ReminderController) AddHandlers() {
 	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
 	http.HandleFunc("GET /notifier/api/reminder", n.HandleList)
 	http.HandleFunc("GET /notifier/api/reminder/views/basic", n.HandleOverview)
