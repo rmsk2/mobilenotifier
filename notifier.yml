@@ -43,32 +43,8 @@ spec:
         envFrom:
         - configMapRef:
             name: backend-config
-        env:
-        - name: IFTTT_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: notifier-secret
-              key: api_key
-        - name: NOTIFIER_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: notifier-secret
-              key: notifier_api_key
-        - name: MN_MAIL_SENDER_ADDR
-          valueFrom:
-            secretKeyRef:
-              name: notifier-secret
-              key: mail_sender
-        - name: MN_MAIL_SENDER_PW
-          valueFrom:
-            secretKeyRef:
-              name: notifier-secret
-              key: mail_password
-        - name: MN_ADDR_BOOK
-          valueFrom:
-            secretKeyRef:
-              name: notifier-secret
-              key: address_book
+        - secretRef:
+            name: notifier-secret
       volumes:
       - name: data-volume
         persistentVolumeClaim:
