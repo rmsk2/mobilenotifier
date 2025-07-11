@@ -25,17 +25,20 @@ type SmsAddressBook interface {
 	ListRecipients() ([]RecipientInfo, error)
 	GetSender(addrType string) SmsSender
 	CheckRecipient(r string) (bool, string, error)
+	GetDefaultRecipientId() string
 }
 
 type AddressBook struct {
 	recipientMap map[string]Recipient
 	senders      map[string]SmsSender
 	defaultType  string
+	defaultId    string
 }
 
 func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 	var m []Recipient
 	parsedRecipientMap := map[string]Recipient{}
+	var defaultId string
 
 	err := json.Unmarshal([]byte(jsonData), &m)
 	if err != nil {
@@ -43,6 +46,7 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 	}
 
 	for _, j := range m {
+		defaultId = j.Id
 		parsedRecipientMap[j.Id] = j
 	}
 
@@ -50,7 +54,16 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 		recipientMap: parsedRecipientMap,
 		senders:      map[string]SmsSender{},
 		defaultType:  TypeIFTTT,
+		defaultId:    defaultId,
 	}, nil
+}
+
+func (a *AddressBook) GetDefaultRecipientId() string {
+	return a.defaultId
+}
+
+func (a *AddressBook) SetDefaultRecipientId(id string) {
+	a.defaultId = id
 }
 
 func (a *AddressBook) SetDefaultType(t string) {

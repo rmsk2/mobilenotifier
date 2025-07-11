@@ -305,7 +305,7 @@ class ReminderAPI {
 
             let allRecipients = await response.json();            
 
-            return new APIResult(false, allRecipients.all_recipients)
+            return new APIResult(false, allRecipients)
         } catch(error) {
             return new APIResult(true, error);
         }        

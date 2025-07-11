@@ -57,6 +57,8 @@ func createAddressBook() sms.SmsAddressBook {
 		panic(fmt.Errorf("unable to parse address book: %v", err))
 	}
 
+	addrBook.SetDefaultRecipientId("0D69B617-12D0-4491-ADD8-D103CF3925A1")
+
 	apiKey, ok := os.LookupEnv(envApiKey)
 	if !ok {
 		dummy := sms.NewDummySender()

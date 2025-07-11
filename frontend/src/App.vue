@@ -26,7 +26,8 @@ export default {
       editData: "",
       reminderCount: 0,
       metrics: {},
-      disableSave: false
+      disableSave: false,
+      defaultRecipientId: ""
     }
   },
   methods: {
@@ -109,12 +110,13 @@ export default {
       let toIdHelp = {};
       let toNameHelp = {};
 
-      for (let i of res.data) {
+      for (let i of res.data.all_recipients) {
         displayNames.push(i.display_name)
         toIdHelp[i.display_name] = i.id;
         toNameHelp[i.id] = i.display_name;
       }
 
+      this.defaultRecipientId = res.data.default_id
       this.allRecipients = displayNames
       this.idToDisplayName = toNameHelp;
       this.displayNameToId = toIdHelp;
@@ -178,7 +180,7 @@ export default {
     },
     async switchComponents(value) {
       if (value == newSelected) {
-        this.editData = getDefaultReminder(this.displayNameToId[this.allRecipients[0]]);
+        this.editData = getDefaultReminder(this.defaultRecipientId);
       }
 
       await this.showComponents(value)
