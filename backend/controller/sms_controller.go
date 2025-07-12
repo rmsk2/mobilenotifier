@@ -23,7 +23,7 @@ type SmSController struct {
 
 type RecipientList struct {
 	AllRecipients []sms.RecipientInfo `json:"all_recipients"`
-	DefaultId     string              `json:"default_id"`
+	DefaultIds    []string            `json:"default_ids"`
 }
 
 func NewSmsController(l *log.Logger, a sms.SmsAddressBook) *SmSController {
@@ -113,7 +113,7 @@ func (s *SmSController) HandleGetAllRecipients(w http.ResponseWriter, r *http.Re
 
 	resp := RecipientList{
 		AllRecipients: recipients,
-		DefaultId:     s.addressBook.GetDefaultRecipientId(),
+		DefaultIds:    s.addressBook.GetDefaultRecipientIds(),
 	}
 
 	data, err := json.Marshal(&resp)

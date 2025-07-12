@@ -97,9 +97,9 @@ class RecipientInfo {
     }
 }
 
-function getDefaultReminder(recipient) {
+function getDefaultReminder(recipients) {
     let now = new Date();
-    return new Reminder(null, reminderOneShot, 0, [warningSameDay], now, "Neues Ereignis", [recipient]);
+    return new Reminder(null, reminderOneShot, 0, [warningSameDay], now, "Neues Ereignis", recipients);
 }
 
 function timeout(ms) {
