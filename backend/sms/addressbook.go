@@ -14,6 +14,7 @@ type Recipient struct {
 	Id          string `json:"id"`
 	Address     string `json:"address"`
 	AddrType    string `json:"addr_type"`
+	IsDefault   bool   `json:"is_default"`
 }
 
 type RecipientInfo struct {
@@ -38,7 +39,7 @@ type AddressBook struct {
 func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 	var m []Recipient
 	parsedRecipientMap := map[string]Recipient{}
-	var defaultId string
+	defaults := []string{}
 
 	err := json.Unmarshal([]byte(jsonData), &m)
 	if err != nil {
@@ -46,7 +47,9 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 	}
 
 	for _, j := range m {
-		defaultId = j.Id
+		if j.IsDefault {
+			defaults = append(defaults, j.Id)
+		}
 		parsedRecipientMap[j.Id] = j
 	}
 
@@ -54,7 +57,7 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 		recipientMap: parsedRecipientMap,
 		senders:      map[string]SmsSender{},
 		defaultType:  TypeIFTTT,
-		defaultIds:   []string{defaultId},
+		defaultIds:   defaults,
 	}, nil
 }
 
