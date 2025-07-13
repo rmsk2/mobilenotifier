@@ -73,6 +73,12 @@ td.list-anniversary {
   background-color: var(--list-yearly-highlight);
 }
 
+/* Show yearly events in different color */
+td.list-monthly {
+  background-color: var(--list-monthly-highlight);
+}
+
+
 /* Draw external borders and column borders. No border between rows*/
 .about-table,
 .table-list-events {
