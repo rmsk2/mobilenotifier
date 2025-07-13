@@ -11,6 +11,7 @@ type ReftimeGenerator func(*repo.Reminder, time.Time) time.Time
 var RefTimeMap map[repo.ReminderType]ReftimeGenerator = map[repo.ReminderType]ReftimeGenerator{
 	repo.Anniversary: anniversaryRefTimeGen,
 	repo.OneShot:     oneShotRefTimeGen,
+	repo.Monthly:     monthlyRefTimeGen,
 }
 
 func oneShotRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
@@ -22,6 +23,8 @@ func anniversaryRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	// Feb 29 is handled correctly by go, i.e. Feb 29 plus one year is Mar 01
 	h := r.Spec.In(tools.ClientTZ())
 	now := n.In(tools.ClientTZ())
+	// A yearly event which is created on the day it occurs in the current year is first
+	// scheduled in the following year
 	refThisYear := time.Date(now.Year(), h.Month(), h.Day(), 0, 0, 0, 0, tools.ClientTZ())
 	var offset int
 
@@ -38,6 +41,29 @@ func anniversaryRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	refThisYear = time.Date(refThisYear.Year(), refThisYear.Month(), refThisYear.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
 
 	return refThisYear.UTC()
+}
+
+// Calculates the next occurrance of the event defined by r.Spec in the clients timezone
+func monthlyRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
+	h := r.Spec.In(tools.ClientTZ())
+	now := n.In(tools.ClientTZ())
+	// When creating a monthly event the desired hour and minute are taken into account in order to decide whether
+	// to initially schedule the event in the current or the following month
+	refThisMonth := time.Date(now.Year(), now.Month(), h.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
+	var offset int
+
+	switch {
+	case refThisMonth.Compare(now) == -1:
+		offset = 1
+	case refThisMonth.Compare(now) == 0:
+		offset = 1
+	default:
+		offset = 0
+	}
+
+	refThisMonth = refThisMonth.AddDate(0, offset, 0)
+
+	return refThisMonth.UTC()
 }
 
 // Calculates the next occurrance of the event defined by r.Spec in the clients timezone

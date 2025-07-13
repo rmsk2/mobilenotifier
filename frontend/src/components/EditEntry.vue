@@ -1,5 +1,5 @@
 <script>
-import { reminderAnniversary, ReminderData, reminderOneShot } from './reminderapi';
+import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
 import { DeleteNotification } from './globals';
 
@@ -16,6 +16,7 @@ export default {
     return {
       reminderOneShot: reminderOneShot,
       reminderAnniversary: reminderAnniversary,
+      reminderMonthly: reminderMonthly,
       warningMorningBefore: warningMorningBefore,
       warningNoonBefore: warningNoonBefore,
       warningEveningBefore: warningEveningBefore,
@@ -321,6 +322,7 @@ export default {
             <select name="kindselect" v-model="kind" id="kindselect">
               <option :value="reminderOneShot">Einmaliges Ereignis</option>
               <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
+              <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
             </select>
           </td>
         </tr>

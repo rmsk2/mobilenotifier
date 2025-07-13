@@ -149,7 +149,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if (repo.WarningType(m.Kind) < repo.WarningType(repo.Anniversary)) || (m.Kind > repo.OneShot) {
+	if (repo.WarningType(m.Kind) < repo.WarningType(repo.Anniversary)) || (m.Kind > repo.Monthly) {
 		n.log.Printf("Illegal kind of reminder type: %d", m.Kind)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return

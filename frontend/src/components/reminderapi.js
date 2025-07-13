@@ -1,5 +1,6 @@
 const reminderAnniversary = 1
 const reminderOneShot = 2
+const reminderMonthly = 3
 
 const warningMorningBefore = 1
 const warningNoonBefore = 2
@@ -10,7 +11,7 @@ const warningSameDay = 5
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
     ExtReminder, ReminderListResponse, OverviewResponse, ApiInfoResult, RecipientInfo, getDefaultReminder,
-    reminderAnniversary, reminderOneShot,
+    reminderAnniversary, reminderOneShot, reminderMonthly,
     warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay
  };
 

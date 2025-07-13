@@ -11,6 +11,7 @@ type WarningType int
 const (
 	Anniversary ReminderType = iota + 1
 	OneShot
+	Monthly
 )
 
 const (
