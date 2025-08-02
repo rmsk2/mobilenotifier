@@ -98,11 +98,11 @@ when talking to them.
 
 ## Important notice 
 
-Nearly all methods of the backend service can be called without authentication and authorization. The only exception is the API method to manually send a notification message which
-uses an API key. Or in other words **if you deploy this software in such a way that it can be called from the public internet you effectively allow other people to send text messages, e-mails and push 
-messages to all recipients configured in your IFTTT recipes and/or specified in the address book**. I assume this is not what you want especially if there is a cap on the number of text messages which
-can be sent without additional costs in your cell phone plan. Additionally there may be bugs in this software which allow people to successfully attack your systems in other ways. I am not aware of 
-such bugs but I might have made mistakes.
+Even though the infrastructure for implementing authentication and authorization is there (see `backend/tools/auth_handler.go`) nearly all methods of the backend service can be called without 
+authentication and authorization. The only exception is the API method to manually send a notification message which uses an API key. Or in other words **if you deploy this software in such a way 
+that it can be called from the public internet you effectively allow other people to send text messages, e-mails and push messages to all recipients configured in your IFTTT recipes and/or specified
+in the address book**. I assume this is not what you want especially if there is a cap on the number of text messages which can be sent without additional costs in your cell phone plan. Additionally
+there may be bugs in this software which allow people to successfully attack your systems in other ways. I am not aware of such bugs but I might have made mistakes.
 
 In other words: **Please, do not deploy this software in a fashion which exposes it to the public internet**. I run it in my home network on my own K3S kubernetes cluster and for this environment the
 lack of authentication and authorization is acceptable.
