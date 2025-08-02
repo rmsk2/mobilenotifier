@@ -7,7 +7,7 @@ the needed `.yml` kubernetes config files are also part of the project.
 
 As the core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
 from several vendors the main purpose for creating this application was to get some exercise using `Vue.js` and kubernetes. Nonetheless it is functional and
-useful if you want to run it on your own systems. Please read the [import notice](#important-notice) below.
+useful if you want to run it on your own systems. Please read the [important notice](#important-notice) below.
 
 # Building the software
 
