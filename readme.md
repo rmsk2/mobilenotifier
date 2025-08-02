@@ -88,6 +88,12 @@ The software expects to be able to call IFTTT webhooks ("normal" webhooks withou
 `Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent. Please note that the
 webhook feature requires you to subscribe to an IFTTT pro account which is not free.
 
+I utilize an older Android phone which is not in daily use anymore as the "host" for the IFTTT "Android SMS" action. This phone then sends the reminder SMS messages to the recipients in our family. My first
+idea was to use the API of the messaging app Threema to send messages but unfortunately they closed their API for non business customers. I know that IFTTT has some actions which allow to send WhatsApp
+messages but these seem to have somewhat arbitrary limits on the number of messages which can be sent and all looked a bit dodgy. Signal has an API which was reverse engineered from the Android app but that
+also falls in the dodgy category in my book. Telegram has an API but I don't like Telegram. There are dedicated SMS Gateway providers but for my expected volume of messages I did not want to embarass myself
+when talking to them.
+
 # Deploying the software
 
 ## Important notice 
