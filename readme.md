@@ -189,7 +189,7 @@ I have not configured Let's Encrypt. I use my own [minica](https://github.com/rm
 
 # Using the webapp
 
-The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screen shots of the four different panels. 
+The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screenshots of the four different panels of the webapp.
 
 ![](/monat.png?raw=true "Monatliche Ereignisse")
 
