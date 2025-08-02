@@ -192,3 +192,9 @@ I have not configured Let's Encrypt. I use my own [minica](https://github.com/rm
 The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screen shots of the four different panels. 
 
 ![](/monat.png?raw=true "Monatliche Ereignisse")
+
+![](/neu.png?raw=true "Neues Ereignis")
+
+![](/alle.png?raw=true "Alle Ereignisse")
+
+![](/about.png?raw=true "Über mobilenotifier")
