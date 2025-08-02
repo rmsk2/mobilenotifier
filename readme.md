@@ -147,9 +147,44 @@ provide the persistent volumes which makes it very easy to deploy the webapp: I 
 do a `kubectl rollout restart` of the nginx deployment. The persistent volume claim for the `bbolt` file is defined to have `accessMode` `ReadWriteOnce`. Therefore it is not possible to run more than one
 replica of the backend service.
  
-You will need an additional file (not part of this repo) containing all the secrets including the TLS certificate and its private key. I have not configured Let's Encrypt. I use my 
-own [minica](https://github.com/rmsk2/minica) to issue certificates.
+You will need an additional file (not part of this repo) containing all the secrets including the TLS certificate and its private key. This file has to have the following structure
 
-I run this software in its own kubernetes namespace.
+```yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notifier-secret
+data:
+  IFTTT_API_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  NOTIFIER_API_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAa
+  MN_MAIL_SENDER_PW: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  MN_MAIL_SENDER_ADDR: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa
+  MN_ADDR_BOOK: |
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notifier-tls
+data:
+  tls.crt: |
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  tls.key: |
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+type: kubernetes.io/tls
+```
+
+I have not configured Let's Encrypt. I use my own [minica](https://github.com/rmsk2/minica) to issue certificates. I run this software in its own kubernetes namespace.
 
 # Using the webapp
