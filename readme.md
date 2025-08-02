@@ -188,3 +188,7 @@ type: kubernetes.io/tls
 I have not configured Let's Encrypt. I use my own [minica](https://github.com/rmsk2/minica) to issue certificates. I run this software in its own kubernetes namespace.
 
 # Using the webapp
+
+The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screen shots of the four different panels. 
+
+![](/monat.png?raw=true "Monatliche Ereignisse")
