@@ -199,4 +199,6 @@ The webapp is currently in german and I did not attempt to add any sort of inter
 
 ![](/about.png?raw=true "Über mobilenotifier")
 
+And here a screenshot of the Swagger API info page.
+
 ![](/swagger.png?raw=true "Swagger API Info")
