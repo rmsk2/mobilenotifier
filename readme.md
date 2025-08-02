@@ -198,3 +198,5 @@ The webapp is currently in german and I did not attempt to add any sort of inter
 ![](/alle.png?raw=true "Alle Ereignisse")
 
 ![](/about.png?raw=true "Über mobilenotifier")
+
+![](/swagger.png?raw=true "Swagger API Info")
