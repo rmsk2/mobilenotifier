@@ -26,6 +26,18 @@ type BoltDBLocker struct {
 	mutex *sync.RWMutex
 }
 
+func LockAndGetRepoRW[T any](l *BoltDBLocker, generator func(*bolt.DB) T) T {
+	l.Lock()
+
+	return generator(l.db)
+}
+
+func LockAndGetRepo[T any](l *BoltDBLocker, generator func(*bolt.DB) T) T {
+	l.RLock()
+
+	return generator(l.db)
+}
+
 func (l *BoltDBLocker) Lock() (NotificationRepoWrite, ReminderRepoWrite) {
 	l.mutex.Lock()
 
