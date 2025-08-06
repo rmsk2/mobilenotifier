@@ -70,8 +70,6 @@ func (a *BBoltAddrBookRepo) Get(u *tools.UUID) (*Recipient, error) {
 	return res, nil
 }
 
-//func (a *BBoltAddrBookRepo) SaveAddressBook(addrBook)
-
 func (a *BBoltAddrBookRepo) Delete(u *tools.UUID) error {
 	err := a.db.Update(func(tx *bolt.Tx) error {
 		// Delete from address book
