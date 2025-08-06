@@ -11,6 +11,7 @@ import (
 	"notifier/sms"
 	"notifier/tools"
 	"os"
+	"sync"
 	"time"
 
 	_ "notifier/docs"
@@ -35,7 +36,7 @@ func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
 
-func createAddressBook() sms.SmsAddressBook {
+func createAddressBook() *sms.AddressBook {
 	var addrBook *sms.AddressBook
 	var addrBookJsonByte []byte
 	var addrBookJson string
@@ -128,7 +129,9 @@ func run() int {
 		return ERROR_EXIT
 	}
 
-	dbl, rawDB, err := repo.InitDB(&dbOpened, boltPath)
+	mutex := new(sync.RWMutex)
+
+	dbl, rawDB, err := repo.InitDB(&dbOpened, boltPath, mutex)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
@@ -143,6 +146,10 @@ func run() int {
 	defer func() { metricCollector.Stop() }()
 
 	smsAddressBook := createAddressBook()
+	// err = smsAddressBook.BBoltSave(repo.NewBBoltAddressBookRepo(rawDB))
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 	smsLogger := createLogger()
 	authSecret := createAuthSecret()
 	authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.ApiKeyAuthenticator)

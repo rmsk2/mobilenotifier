@@ -10,11 +10,6 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-const bucketNotifications = "NOTIFICATIONS"
-const bucketExpiryTimes = "EXPIRIES"
-const bucketParents = "PARENTS"
-const bucketReminders = "REMINDERS"
-
 func NewBBoltNotificationRepo(db *bolt.DB) *BoltNotificationRepo {
 	return &BoltNotificationRepo{
 		db: db,

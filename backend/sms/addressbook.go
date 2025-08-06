@@ -3,19 +3,12 @@ package sms
 import (
 	"encoding/json"
 	"fmt"
+	"notifier/repo"
 )
 
 const TypeIFTTT = "IFTTT"
 const TypeMail = "Mail"
 const TypeDummy = "Dummy"
-
-type Recipient struct {
-	DisplayName string `json:"display_name"`
-	Id          string `json:"id"`
-	Address     string `json:"address"`
-	AddrType    string `json:"addr_type"`
-	IsDefault   bool   `json:"is_default"`
-}
 
 type RecipientInfo struct {
 	Id          string `json:"id"`
@@ -30,15 +23,15 @@ type SmsAddressBook interface {
 }
 
 type AddressBook struct {
-	recipientMap map[string]Recipient
+	recipientMap map[string]repo.Recipient
 	senders      map[string]SmsSender
 	defaultType  string
 	defaultIds   []string
 }
 
 func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
-	var m []Recipient
-	parsedRecipientMap := map[string]Recipient{}
+	var m []repo.Recipient
+	parsedRecipientMap := map[string]repo.Recipient{}
 	defaults := []string{}
 
 	err := json.Unmarshal([]byte(jsonData), &m)
@@ -48,9 +41,9 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 
 	for _, j := range m {
 		if j.IsDefault {
-			defaults = append(defaults, j.Id)
+			defaults = append(defaults, j.Id.String())
 		}
-		parsedRecipientMap[j.Id] = j
+		parsedRecipientMap[j.Id.String()] = j
 	}
 
 	return &AddressBook{
@@ -59,6 +52,17 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 		defaultType:  TypeIFTTT,
 		defaultIds:   defaults,
 	}, nil
+}
+
+func (a *AddressBook) BBoltSave(db *repo.BBoltAddrBookRepo) error {
+	for _, v := range a.recipientMap {
+		err := db.Upsert(&v)
+		if err != nil {
+			return fmt.Errorf("error saving address book: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func (a *AddressBook) GetDefaultRecipientIds() []string {
@@ -92,7 +96,7 @@ func (a *AddressBook) GetSender(recipientId string) SmsSender {
 }
 
 func (a *AddressBook) ToJson() (string, error) {
-	help := []Recipient{}
+	help := []repo.Recipient{}
 
 	for _, j := range a.recipientMap {
 		help = append(help, j)
@@ -106,8 +110,8 @@ func (a *AddressBook) ToJson() (string, error) {
 	return string(data), nil
 }
 
-func (a *AddressBook) AddRecipient(r Recipient) {
-	a.recipientMap[r.Id] = r
+func (a *AddressBook) AddRecipient(r repo.Recipient) {
+	a.recipientMap[r.Id.String()] = r
 }
 
 func (a *AddressBook) AddSender(addrType string, s SmsSender) {

@@ -8,6 +8,12 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
+const bucketNotifications = "NOTIFICATIONS"
+const bucketExpiryTimes = "EXPIRIES"
+const bucketParents = "PARENTS"
+const bucketReminders = "REMINDERS"
+const bucketAddressBook = "ADDRESSBOOK"
+
 type DBSerializer interface {
 	RLock() (NotificationRepoRead, ReminderRepoRead)
 	RUnlock()
@@ -40,7 +46,7 @@ func (l *BoltDBLocker) RUnlock() {
 	l.mutex.RUnlock()
 }
 
-func InitDB(openFlag *bool, boltPath string) (*BoltDBLocker, *bolt.DB, error) {
+func InitDB(openFlag *bool, boltPath string, dbMutex *sync.RWMutex) (*BoltDBLocker, *bolt.DB, error) {
 	db, err := bolt.Open(boltPath, 0600, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
@@ -58,7 +64,7 @@ func InitDB(openFlag *bool, boltPath string) (*BoltDBLocker, *bolt.DB, error) {
 
 	res := BoltDBLocker{
 		db:    db,
-		mutex: new(sync.RWMutex),
+		mutex: dbMutex,
 	}
 
 	return &res, db, nil
@@ -84,6 +90,11 @@ func CreateBuckets(db *bolt.DB) error {
 		_, err = tx.CreateBucketIfNotExists([]byte(bucketReminders))
 		if err != nil {
 			return fmt.Errorf("error creating bucket for reminders: %v", err)
+		}
+
+		_, err = tx.CreateBucketIfNotExists([]byte(bucketAddressBook))
+		if err != nil {
+			return fmt.Errorf("error creating bucket for the address book: %v", err)
 		}
 
 		return nil
