@@ -14,7 +14,7 @@ const bucketParents = "PARENTS"
 const bucketReminders = "REMINDERS"
 const bucketAddressBook = "ADDRESSBOOK"
 
-type DbType *bolt.DB
+type DbType = *bolt.DB
 
 type DBSerializer interface {
 	RLock() (NotificationRepoRead, ReminderRepoRead)
