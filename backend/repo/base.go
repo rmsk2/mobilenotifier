@@ -25,7 +25,7 @@ type DBSerializer interface {
 }
 
 type BoltDBLocker struct {
-	db    DbType
+	db    *bolt.DB
 	mutex *sync.RWMutex
 }
 
