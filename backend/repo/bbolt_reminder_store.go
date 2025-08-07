@@ -8,7 +8,7 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-func NewBBoltReminderRepo(db *bolt.DB) *BoltReminderRepo {
+func NewBBoltReminderRepo(db DbType) *BoltReminderRepo {
 	return &BoltReminderRepo{
 		db: db,
 	}

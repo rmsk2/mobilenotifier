@@ -29,12 +29,6 @@ type ReminderResponse struct {
 	Data  *repo.Reminder `json:"data"`
 }
 
-type ReminderController struct {
-	db          repo.DBSerializer
-	addressBook sms.SmsAddressBook
-	log         *log.Logger
-}
-
 type SmallReminder struct {
 	Id          *tools.UUID       `json:"id"`
 	Description string            `json:"description"`
@@ -59,11 +53,23 @@ type OverviewResponse struct {
 	Reminders []*ReminderOverview `json:"reminders"`
 }
 
-func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger) *ReminderController {
+type ReminderController struct {
+	db          repo.DBSerializer
+	addressBook sms.SmsAddressBook
+	log         *log.Logger
+	generator   func(repo.DbType) repo.ReminderRepoRead
+}
+
+func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger, g func(repo.DbType) *repo.BoltReminderRepo) *ReminderController {
+	genWrapper := func(db repo.DbType) repo.ReminderRepoRead {
+		return g(db)
+	}
+
 	return &ReminderController{
 		db:          l,
 		addressBook: a,
 		log:         lg,
+		generator:   genWrapper,
 	}
 }
 
@@ -287,7 +293,8 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, readRepo := n.db.RLock()
+	//_, readRepo := n.db.RLock()
+	readRepo := repo.LockAndGetRepoR(n.db, n.generator)
 	defer func() { n.db.RUnlock() }()
 
 	reminder, err := readRepo.Get(uuid)
@@ -407,7 +414,8 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 }
 
 func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, refNow time.Time) {
-	_, readRepo := n.db.RLock()
+	//_, readRepo := n.db.RLock()
+	readRepo := repo.LockAndGetRepoR(n.db, n.generator)
 	defer func() { n.db.RUnlock() }()
 
 	allReminders, err := readRepo.Filter(filterFunc)
@@ -475,7 +483,8 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 }
 
 func (n *ReminderController) HandleFilteredOverview(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, maxEntries int, refTime time.Time) {
-	_, readRepo := n.db.RLock()
+	//_, readRepo := n.db.RLock()
+	readRepo := repo.LockAndGetRepoR(n.db, n.generator)
 	defer func() { n.db.RUnlock() }()
 
 	allReminders, err := readRepo.Filter(filterFunc)

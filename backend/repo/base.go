@@ -14,28 +14,31 @@ const bucketParents = "PARENTS"
 const bucketReminders = "REMINDERS"
 const bucketAddressBook = "ADDRESSBOOK"
 
+type DbType *bolt.DB
+
 type DBSerializer interface {
 	RLock() (NotificationRepoRead, ReminderRepoRead)
 	RUnlock()
 	Lock() (NotificationRepoWrite, ReminderRepoWrite)
 	Unlock()
+	GetRaw() interface{}
 }
 
 type BoltDBLocker struct {
-	db    *bolt.DB
+	db    DbType
 	mutex *sync.RWMutex
 }
 
-func LockAndGetRepoRW[T any](l *BoltDBLocker, generator func(*bolt.DB) T) T {
+func LockAndGetRepoRW[T, U any](l DBSerializer, generator func(U) T) T {
 	l.Lock()
 
-	return generator(l.db)
+	return generator(l.GetRaw().(U))
 }
 
-func LockAndGetRepo[T any](l *BoltDBLocker, generator func(*bolt.DB) T) T {
+func LockAndGetRepoR[T, U any](l DBSerializer, generator func(U) T) T {
 	l.RLock()
 
-	return generator(l.db)
+	return generator(l.GetRaw().(U))
 }
 
 func (l *BoltDBLocker) Lock() (NotificationRepoWrite, ReminderRepoWrite) {
@@ -46,6 +49,10 @@ func (l *BoltDBLocker) Lock() (NotificationRepoWrite, ReminderRepoWrite) {
 
 func (l *BoltDBLocker) Unlock() {
 	l.mutex.Unlock()
+}
+
+func (l *BoltDBLocker) GetRaw() interface{} {
+	return l.db
 }
 
 func (l *BoltDBLocker) RLock() (NotificationRepoRead, ReminderRepoRead) {

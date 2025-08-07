@@ -156,10 +156,10 @@ func run() int {
 	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
 
-	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger())
+	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger(), repo.NewBBoltNotificationRepo)
 	notificationController.AddHandlers()
 
-	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger())
+	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger(), repo.NewBBoltReminderRepo)
 	reminderController.AddHandlers()
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)

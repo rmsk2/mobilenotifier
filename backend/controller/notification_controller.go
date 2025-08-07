@@ -31,13 +31,25 @@ type NotficationController struct {
 	db          repo.DBSerializer
 	addressBook sms.SmsAddressBook
 	log         *log.Logger
+	genRead     func(repo.DbType) repo.NotificationRepoRead
+	genWrite    func(repo.DbType) repo.NotificationRepoWrite
 }
 
-func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger) *NotficationController {
+func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger, g func(repo.DbType) *repo.BoltNotificationRepo) *NotficationController {
+	genR := func(db repo.DbType) repo.NotificationRepoRead {
+		return g(db)
+	}
+
+	genW := func(db repo.DbType) repo.NotificationRepoWrite {
+		return g(db)
+	}
+
 	return &NotficationController{
 		db:          l,
 		addressBook: a,
 		log:         lg,
+		genRead:     genR,
+		genWrite:    genW,
 	}
 }
 
@@ -66,7 +78,7 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	writeRepo, _ := n.db.Lock()
+	writeRepo := repo.LockAndGetRepoRW(n.db, n.genWrite)
 	defer func() { n.db.Unlock() }()
 
 	err := writeRepo.Delete(uuid)
@@ -97,7 +109,7 @@ func (n *NotficationController) HandleGet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	readRepo, _ := n.db.RLock()
+	readRepo := repo.LockAndGetRepoR(n.db, n.genRead)
 	defer func() { n.db.RUnlock() }()
 
 	notificationData, err := readRepo.Get(uuid)
@@ -173,7 +185,7 @@ func (n *NotficationController) HandleGetSiblings(w http.ResponseWriter, r *http
 }
 
 func (n *NotficationController) HandleFilter(w http.ResponseWriter, r *http.Request, filterFunc repo.NotificationPredicate) {
-	readRepo, _ := n.db.RLock()
+	readRepo := repo.LockAndGetRepoR(n.db, n.genRead)
 	defer func() { n.db.RUnlock() }()
 
 	uuids, err := readRepo.Filter(filterFunc)

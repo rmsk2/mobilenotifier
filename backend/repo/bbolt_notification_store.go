@@ -10,7 +10,7 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-func NewBBoltNotificationRepo(db *bolt.DB) *BoltNotificationRepo {
+func NewBBoltNotificationRepo(db DbType) *BoltNotificationRepo {
 	return &BoltNotificationRepo{
 		db: db,
 	}
