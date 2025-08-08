@@ -24,10 +24,12 @@ type ReminderData struct {
 	Recipients  []string           `json:"recipients"`
 }
 
-type ReminderResponse struct {
-	Found bool           `json:"found"`
-	Data  *repo.Reminder `json:"data"`
+type GetResponseGeneric[T any] struct {
+	Found bool `json:"found"`
+	Data  T    `json:"data"`
 }
+
+type ReminderResponse GetResponseGeneric[*repo.Reminder]
 
 type SmallReminder struct {
 	Id          *tools.UUID       `json:"id"`
@@ -234,7 +236,6 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Write([]byte(data))
-
 }
 
 // @Summary      Delete a reminder

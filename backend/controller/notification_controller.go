@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"notifier/repo"
-	"notifier/sms"
 	"notifier/tools"
 	"time"
 )
@@ -28,14 +27,13 @@ type ListResponse struct {
 }
 
 type NotficationController struct {
-	db          repo.DBSerializer
-	addressBook sms.SmsAddressBook
-	log         *log.Logger
-	genRead     func(repo.DbType) repo.NotificationRepoRead
-	genWrite    func(repo.DbType) repo.NotificationRepoWrite
+	db       repo.DBSerializer
+	log      *log.Logger
+	genRead  func(repo.DbType) repo.NotificationRepoRead
+	genWrite func(repo.DbType) repo.NotificationRepoWrite
 }
 
-func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Logger, g func(repo.DbType) *repo.BoltNotificationRepo) *NotficationController {
+func NewNotificationController(l repo.DBSerializer, lg *log.Logger, g func(repo.DbType) *repo.BoltNotificationRepo) *NotficationController {
 	genR := func(db repo.DbType) repo.NotificationRepoRead {
 		return g(db)
 	}
@@ -45,11 +43,10 @@ func NewNotificationController(l repo.DBSerializer, a sms.SmsAddressBook, lg *lo
 	}
 
 	return &NotficationController{
-		db:          l,
-		addressBook: a,
-		log:         lg,
-		genRead:     genR,
-		genWrite:    genW,
+		db:       l,
+		log:      lg,
+		genRead:  genR,
+		genWrite: genW,
 	}
 }
 

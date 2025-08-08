@@ -46,7 +46,8 @@ which is part of this repository.
 
 ## Address Book
 
-The address book is a JSON string which specifies each known recipient. It is a JSON array where each entry conforms to the following structure
+The address book is a data structure which specifies each known recipient and is stored in the database file used by the backend. If the address book is represented as a JSON array then each
+entry has to conform to the following schema
 
 |Name | Type | Value |
 |-|-|-|
@@ -79,6 +80,11 @@ Example:
 ```
 
 This software assumes that there is an IFTTT webhook for each recipient of type `IFTTT` which can be called via the following URL `https://maker.ifttt.com/trigger/{address}/with/key/{IFTTT_API_KEY}`.
+
+The address book is persisted in the database and can be managed through the backend's REST calls. Alternatively the contents of the address book can be changed through the envirnment variable
+`MN_ADDR_BOOK`. If it is set to a base64 encoded JSON string (having the structure described above) then the values contained in the JSON data are merged into the database. Setting this variable
+is optional.
+
 This repo also contains a small Python script `addr2b64.py` which allows to generate a compacted and base64 encoded version of a JSON address book. The output of this script can be
 used to set the `MN_ADDR_BOOK` environment variable. When set through a kubernetes secret the script output has to be base64 encoded a second time.
 

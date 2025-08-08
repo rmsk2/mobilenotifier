@@ -11,7 +11,6 @@ import (
 	"notifier/sms"
 	"notifier/tools"
 	"os"
-	"sync"
 	"time"
 
 	_ "notifier/docs"
@@ -36,26 +35,46 @@ func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
 
-func createAddressBook() *sms.AddressBook {
-	var addrBook *sms.AddressBook
+func saveEnvirnomentInDB(addrBook *sms.AddressBook, dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) {
+	writeRepo := repo.LockAndGetRepoRW(dbl, generator)
+	defer func() { dbl.Unlock() }()
+
+	err := addrBook.BBoltSave(writeRepo)
+	if err != nil {
+		panic(fmt.Errorf("unable to save address book data read from environment into DB: %v", err))
+	}
+
+	log.Println("Saved address book from environment to database")
+}
+
+func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) sms.SmsAddressBook {
+	var addrBook sms.SmsAddressBook
+	var addrBookEnvironment *sms.AddressBook
 	var addrBookJsonByte []byte
 	var addrBookJson string
 	var err error
 
-	addrBookB64, ok := os.LookupEnv(envAddressBook)
-	if !ok {
-		panic(fmt.Errorf("unable to read address book: %v", err))
+	addrBookB64, addrBookInEnvironment := os.LookupEnv(envAddressBook)
+
+	if addrBookInEnvironment {
+		addrBookJsonByte, err = base64.StdEncoding.DecodeString(addrBookB64)
+		if err != nil {
+			panic(fmt.Errorf("unable to read address book from environment variable: %v", err))
+		}
+		log.Println("Read address book from environment")
+
+		addrBookJson = string(addrBookJsonByte)
+		addrBookEnvironment, err = sms.NewAddressBookFromJson(addrBookJson)
+		if err != nil {
+			panic(fmt.Errorf("unable to parse address book in environment: %v", err))
+		}
 	}
 
-	addrBookJsonByte, err = base64.StdEncoding.DecodeString(addrBookB64)
-	if err != nil {
-		panic(fmt.Errorf("unable to read address book: %v", err))
-	}
+	addrBook = sms.NewDBAddressBook(dbl, generator)
 
-	addrBookJson = string(addrBookJsonByte)
-	addrBook, err = sms.NewAddressBookFromJson(addrBookJson)
-	if err != nil {
-		panic(fmt.Errorf("unable to parse address book: %v", err))
+	if addrBookInEnvironment {
+		saveEnvirnomentInDB(addrBookEnvironment, dbl, generator)
+		log.Println("Address book in environment merged into DB")
 	}
 
 	apiKey, ok := os.LookupEnv(envApiKey)
@@ -129,9 +148,7 @@ func run() int {
 		return ERROR_EXIT
 	}
 
-	mutex := new(sync.RWMutex)
-
-	dbl, rawDB, err := repo.InitDB(&dbOpened, boltPath, mutex)
+	rawDB, err := repo.InitDB(&dbOpened, boltPath)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
@@ -141,26 +158,29 @@ func run() int {
 		log.Println("bbolt DB closed")
 	}()
 
+	dbl := repo.NewBoltDBLocker(rawDB)
+	dblAddr := repo.NewBoltDBLocker(rawDB)
+
 	metricCollector := tools.NewMetricsCollector()
 	metricCollector.Start()
 	defer func() { metricCollector.Stop() }()
 
-	smsAddressBook := createAddressBook()
-	// err = smsAddressBook.BBoltSave(repo.NewBBoltAddressBookRepo(rawDB))
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo)
+
 	smsLogger := createLogger()
 	authSecret := createAuthSecret()
 	authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.ApiKeyAuthenticator)
 	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
 
-	notificationController := controller.NewNotificationController(dbl, smsAddressBook, createLogger(), repo.NewBBoltNotificationRepo)
+	notificationController := controller.NewNotificationController(dbl, createLogger(), repo.NewBBoltNotificationRepo)
 	notificationController.AddHandlers()
 
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger(), repo.NewBBoltReminderRepo)
 	reminderController.AddHandlers()
+
+	addrBookController := controller.NewAddressBookController(dbl, createLogger(), repo.NewBBoltAddressBookRepo)
+	addrBookController.AddHandlers()
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
 	infoController.AddHandlers()

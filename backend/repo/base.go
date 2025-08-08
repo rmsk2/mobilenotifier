@@ -24,6 +24,15 @@ type DBSerializer interface {
 	GetRaw() interface{}
 }
 
+func NewBoltDBLocker(db *bolt.DB) *BoltDBLocker {
+	res := BoltDBLocker{
+		db:    db,
+		mutex: new(sync.RWMutex),
+	}
+
+	return &res
+}
+
 type BoltDBLocker struct {
 	db    *bolt.DB
 	mutex *sync.RWMutex
@@ -65,10 +74,10 @@ func (l *BoltDBLocker) RUnlock() {
 	l.mutex.RUnlock()
 }
 
-func InitDB(openFlag *bool, boltPath string, dbMutex *sync.RWMutex) (*BoltDBLocker, *bolt.DB, error) {
+func InitDB(openFlag *bool, boltPath string) (*bolt.DB, error) {
 	db, err := bolt.Open(boltPath, 0600, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
+		return nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
 	}
 
 	*openFlag = true
@@ -78,15 +87,10 @@ func InitDB(openFlag *bool, boltPath string, dbMutex *sync.RWMutex) (*BoltDBLock
 	if err != nil {
 		db.Close()
 		*openFlag = false
-		return nil, nil, fmt.Errorf("unable to create buckets in database file %s: %v", boltPath, err)
+		return nil, fmt.Errorf("unable to create buckets in database file %s: %v", boltPath, err)
 	}
 
-	res := BoltDBLocker{
-		db:    db,
-		mutex: dbMutex,
-	}
-
-	return &res, db, nil
+	return db, nil
 }
 
 func CreateBuckets(db *bolt.DB) error {

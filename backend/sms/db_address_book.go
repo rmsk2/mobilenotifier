@@ -1,0 +1,122 @@
+package sms
+
+import (
+	"fmt"
+	"notifier/repo"
+	"notifier/tools"
+)
+
+func NewDBAddressBook(d repo.DBSerializer, g func(repo.DbType) *repo.BBoltAddrBookRepo) *DBAddressBook {
+	gr := func(db repo.DbType) repo.AddrBookRead {
+		return g(db)
+	}
+
+	return &DBAddressBook{
+		db:          d,
+		senders:     map[string]SmsSender{},
+		defaultType: TypeIFTTT,
+		genRead:     gr,
+	}
+}
+
+type DBAddressBook struct {
+	db          repo.DBSerializer
+	senders     map[string]SmsSender
+	defaultType string
+	genRead     func(repo.DbType) repo.AddrBookRead
+}
+
+func (d *DBAddressBook) ListRecipients() ([]RecipientInfo, error) {
+	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
+	defer func() { d.db.RUnlock() }()
+
+	recipients, err := readRepo.Filter(func(*repo.Recipient) bool { return true })
+	if err != nil {
+		return nil, fmt.Errorf("error getting all recipients: %v", err)
+	}
+
+	result := []RecipientInfo{}
+
+	for _, j := range recipients {
+		h := RecipientInfo{
+			Id:          j.Id.String(),
+			DisplayName: j.DisplayName,
+		}
+		result = append(result, h)
+	}
+
+	return result, nil
+}
+
+func (d *DBAddressBook) GetSender(recipientId string) SmsSender {
+	defaultSender := d.senders[d.defaultType]
+
+	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
+	defer func() { d.db.RUnlock() }()
+
+	uuid, ok := tools.NewUuidFromString(recipientId)
+	if !ok {
+		return defaultSender
+	}
+
+	recipient, err := readRepo.Get(uuid)
+	if (err != nil) || (recipient == nil) {
+		return defaultSender
+	}
+
+	sender, ok := d.senders[recipient.AddrType]
+	if !ok {
+		return defaultSender
+	}
+
+	return sender
+}
+
+func (d *DBAddressBook) CheckRecipient(r string) (bool, string, error) {
+	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
+	defer func() { d.db.RUnlock() }()
+
+	uuid, ok := tools.NewUuidFromString(r)
+	if !ok {
+		return false, "", fmt.Errorf("illegal recipient id: '%s'", r)
+	}
+
+	recipient, err := readRepo.Get(uuid)
+	if err != nil {
+		return false, "", fmt.Errorf("unable to determine validity of recipient: '%s'", r)
+	}
+
+	if recipient == nil {
+		return false, "", nil
+	}
+
+	return true, recipient.Address, nil
+}
+
+func (d *DBAddressBook) GetDefaultRecipientIds() []string {
+	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
+	defer func() { d.db.RUnlock() }()
+
+	recipients, err := readRepo.Filter(func(r *repo.Recipient) bool {
+		return r.IsDefault
+	})
+	if err != nil {
+		return []string{}
+	}
+
+	result := []string{}
+
+	for _, j := range recipients {
+		result = append(result, j.Id.String())
+	}
+
+	return result
+}
+
+func (d *DBAddressBook) AddSender(addrType string, s SmsSender) {
+	d.senders[addrType] = s
+}
+
+func (d *DBAddressBook) SetDefaultType(t string) {
+	d.defaultType = t
+}
