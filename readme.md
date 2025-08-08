@@ -37,7 +37,7 @@ variables:
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notificarions| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
-|MN_ADDR_BOOK| If set, then this variable has to contain a base64 encoded JSON string which contains all the recipients known to the backend. The format of the JSON data is specified below (see Address Book)| Yes |
+|MN_ADDR_BOOK| If set then this variable has to contain a base64 encoded JSON string which specifies recipients which are to be merged into the database. The format of the JSON data is specified below (see Address Book)| Yes |
 |IFTTT_API_KEY| The IFTTT API key used when sending text (SMS) or push messages| Yes |
 
 All variables marked as being secret in the table above have to be provided in a kubernetes secret named `notifier-secret` when the backend is run in a kubernetes cluster. All non secret variables
