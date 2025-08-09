@@ -6,6 +6,24 @@ import (
 	"notifier/tools"
 )
 
+const TypeIFTTT = "IFTTT"
+const TypeMail = "Mail"
+const TypeDummy = "Dummy"
+
+type RecipientInfo struct {
+	Id          string `json:"id"`
+	DisplayName string `json:"display_name"`
+}
+
+type SmsAddressBook interface {
+	ListRecipients() ([]RecipientInfo, error)
+	GetSender(addrType string) SmsSender
+	AddSender(addrType string, s SmsSender)
+	SetDefaultType(t string)
+	CheckRecipient(r string) (bool, string, error)
+	GetDefaultRecipientIds() []string
+}
+
 func NewDBAddressBook(d repo.DBSerializer, g func(repo.DbType) *repo.BBoltAddrBookRepo) *DBAddressBook {
 	gr := func(db repo.DbType) repo.AddrBookRead {
 		return g(db)
