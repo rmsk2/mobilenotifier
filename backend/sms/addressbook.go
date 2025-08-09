@@ -24,11 +24,11 @@ type SmsAddressBook interface {
 	GetDefaultRecipientIds() []string
 }
 
-type AddressBook struct {
+type AddressSaver struct {
 	recipientMap map[string]repo.Recipient
 }
 
-func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
+func NewAddressSaverFromJson(jsonData string) (*AddressSaver, error) {
 	var m []repo.Recipient
 	parsedRecipientMap := map[string]repo.Recipient{}
 
@@ -41,12 +41,12 @@ func NewAddressBookFromJson(jsonData string) (*AddressBook, error) {
 		parsedRecipientMap[j.Id.String()] = j
 	}
 
-	return &AddressBook{
+	return &AddressSaver{
 		recipientMap: parsedRecipientMap,
 	}, nil
 }
 
-func (a *AddressBook) BBoltSave(db repo.AddrBookWrite) error {
+func (a *AddressSaver) BBoltSave(db repo.AddrBookWrite) error {
 	for _, v := range a.recipientMap {
 		err := db.Upsert(&v)
 		if err != nil {

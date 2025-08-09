@@ -35,11 +35,11 @@ func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
 
-func saveEnvirnomentInDB(addrBook *sms.AddressBook, dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) {
+func saveEnvirnomentInDB(addrSaver *sms.AddressSaver, dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) {
 	writeRepo := repo.LockAndGetRepoRW(dbl, generator)
 	defer func() { dbl.Unlock() }()
 
-	err := addrBook.BBoltSave(writeRepo)
+	err := addrSaver.BBoltSave(writeRepo)
 	if err != nil {
 		panic(fmt.Errorf("unable to save address book data read from environment into DB: %v", err))
 	}
@@ -49,7 +49,7 @@ func saveEnvirnomentInDB(addrBook *sms.AddressBook, dbl repo.DBSerializer, gener
 
 func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) sms.SmsAddressBook {
 	var addrBook sms.SmsAddressBook
-	var addrBookEnvironment *sms.AddressBook
+	var addressSaver *sms.AddressSaver
 	var addrBookJsonByte []byte
 	var addrBookJson string
 	var err error
@@ -64,7 +64,7 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 		log.Println("Read address book from environment")
 
 		addrBookJson = string(addrBookJsonByte)
-		addrBookEnvironment, err = sms.NewAddressBookFromJson(addrBookJson)
+		addressSaver, err = sms.NewAddressSaverFromJson(addrBookJson)
 		if err != nil {
 			panic(fmt.Errorf("unable to parse address book in environment: %v", err))
 		}
@@ -73,7 +73,7 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 	addrBook = sms.NewDBAddressBook(dbl, generator)
 
 	if addrBookInEnvironment {
-		saveEnvirnomentInDB(addrBookEnvironment, dbl, generator)
+		saveEnvirnomentInDB(addressSaver, dbl, generator)
 		log.Println("Address book in environment merged into DB")
 	}
 
