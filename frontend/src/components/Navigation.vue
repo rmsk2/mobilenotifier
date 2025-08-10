@@ -1,6 +1,6 @@
 <script>
 
-import { monthSelected, newSelected, allSelected, aboutSelected } from './globals';
+import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected } from './globals';
 
 export default {
   data() {
@@ -9,6 +9,7 @@ export default {
       newSelected: newSelected,
       allSelected: allSelected,
       aboutSelected: aboutSelected,
+      recipientListSelected: recipientListSelected,
 
       idPressed: monthSelected
     }
@@ -39,6 +40,9 @@ export default {
     },
     emitAbout() {
       this.emitEvent(aboutSelected)
+    },
+    emitRecipientList() {
+      this.emitEvent(recipientListSelected)
     }    
   },  
 }
@@ -49,6 +53,7 @@ export default {
     <button id="nav_nmonth" class="navbutton" :class="{active: idPressed === monthSelected}" @click="emitMonth">Pro Monat anzeigen</button>
     <button id="nav_new" class="navbutton" :class="{active: idPressed === newSelected}" @click="emitNew">Neu anlegen/bearbeiten</button>
     <button id="nav_all" class="navbutton" :class="{active: idPressed === allSelected}" @click="emitAll">Alle anzeigen</button>
-    <button id="nav_about" class="navbutton" :class="{active: idPressed === aboutSelected}" @click="emitAbout">Über diese Anwendung</button>  
+    <button id="nav_about" class="navbutton" :class="{active: idPressed === recipientListSelected}" @click="emitRecipientList">Empfänger</button>
+    <button id="nav_about" class="navbutton" :class="{active: idPressed === aboutSelected}" @click="emitAbout">Über diese Anwendung</button>
   </div>
 </template>

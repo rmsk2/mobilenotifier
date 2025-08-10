@@ -4,9 +4,10 @@ import EntryList from './components/EntryList.vue'
 import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
-import { monthSelected, newSelected, allSelected, aboutSelected } from './components/globals';
+import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected } from './components/globals';
 import { ReminderAPI, getDefaultReminder, Reminder } from './components/reminderapi';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
+import RecipientList from './components/RecipientList.vue';
 
 
 export default {
@@ -18,6 +19,7 @@ export default {
       allRecipients: [],
       displayNameToId: {},
       idToDisplayName: {},
+      fullRecipientData: [],
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
@@ -133,6 +135,15 @@ export default {
       this.reminderCount = res.data.reminder_count;
       this.metrics = res.data.metrics;
     },
+    async getFullRecipientData() {
+      let res = await this.api.getFullRecipients()
+      if (res.error) {
+        this.setErrorMessage("Kann Empfängeradressen nicht abrufen");
+        return;
+      }
+
+      this.fullRecipientData = res.data
+    },
     resetErrors() {
       this.result = "";
     },
@@ -200,6 +211,9 @@ export default {
     testMonth() {
       return this.testCurrentComponent(monthSelected);
     },
+    testRecipientList(){
+      return this.testCurrentComponent(recipientListSelected);
+    },
     async showComponents(value) {
       this.currentComponent = value
       this.result = "";
@@ -215,6 +229,10 @@ export default {
       if (value === aboutSelected) {
         await this.getApiInfo()
       }
+
+      if (value === recipientListSelected) {
+        await this.getFullRecipientData()
+      }
     }
   },
   components: {
@@ -223,11 +241,13 @@ export default {
     EditEntry,
     ErrorBar,
     About,
-    ConfirmationDialog
+    ConfirmationDialog,
+    RecipientList
   },
   async beforeMount() {
     await this.getApiInfo();
     await this.getRecipients();
+    await this.getFullRecipientData();
     await this.showComponents(monthSelected);
   },
 }
@@ -290,6 +310,8 @@ export default {
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
     </About>
+    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData"></RecipientList>
+
     <ConfirmationDialog ref="confirmationDialog"></ConfirmationDialog>
   </section>
 </template>

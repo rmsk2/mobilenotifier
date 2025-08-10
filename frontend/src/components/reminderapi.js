@@ -8,11 +8,16 @@ const warningEveningBefore = 3
 const warningWeekBefore = 4
 const warningSameDay = 5
 
+const addrClassIfttt = "IFTTT"
+const addrClassMail = "Mail"
+
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
     ExtReminder, ReminderListResponse, OverviewResponse, ApiInfoResult, RecipientInfo, getDefaultReminder,
+    RecipientData, Recipient,
     reminderAnniversary, reminderOneShot, reminderMonthly,
-    warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay
+    warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay,
+    addrClassIfttt, addrClassMail
  };
 
 class ReminderResponse {
@@ -95,6 +100,22 @@ class RecipientInfo {
     constructor(displayName, id) {
         this.display_name = displayName;
         this.id = id;
+    }
+}
+
+class RecipientData {
+    constructor(adrType, adr, display_name, is_default) {
+        this.addr_type = adrType
+        this.address = adr
+        this.display_name = display_name
+        this.is_default = is_default
+    }
+}
+
+class Recipient extends RecipientData {
+    constructor(adrType, adr, display_name, id, is_default) {
+        super(adrType, this.address, display_name, is_default)
+        this.id = id
     }
 }
 
@@ -310,6 +331,30 @@ class ReminderAPI {
         } catch(error) {
             return new APIResult(true, error);
         }        
+    }
+
+    async getFullRecipients() {
+        try
+        {
+            let apiUrl = `${this.URL}addressbook`;
+
+            let response = await fetch(apiUrl, {
+                method: "get",
+                headers: {
+                    'Accept': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                return new APIResult(true, `${response.status}`);
+            }
+
+            let allRecipients = await response.json();
+
+            return new APIResult(false, allRecipients)
+        } catch(error) {
+            return new APIResult(true, error);
+        }
     }
 
     async getApiInfo() {
