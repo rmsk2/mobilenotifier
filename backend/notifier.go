@@ -179,7 +179,7 @@ func run() int {
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger(), repo.NewBBoltReminderRepo)
 	reminderController.AddHandlers()
 
-	addrBookController := controller.NewAddressBookController(dbl, dblAddr, createLogger(), repo.NewBBoltAddressBookRepo)
+	addrBookController := controller.NewAddressBookController(dblAddr, dbl, createLogger(), repo.NewBBoltAddressBookRepo)
 	addrBookController.AddHandlers()
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
