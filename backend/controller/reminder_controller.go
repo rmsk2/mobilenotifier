@@ -169,6 +169,12 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Make sure lock on Reminder and Notification store is always obtained first and
+	// only after that obtain a lock on the address book. CheckRecipients obtains this lock.
+	// This does prevent deadlocks.
+	nWriteRepo, writeRepo := n.db.Lock()
+	defer func() { n.db.Unlock() }()
+
 	for _, j := range m.Recipients {
 		ok, _, err := n.addressBook.CheckRecipient(j)
 		if err != nil {
@@ -206,27 +212,9 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		Recipients:  m.Recipients,
 	}
 
-	nWriteRepo, writeRepo := n.db.Lock()
-	defer func() { n.db.Unlock() }()
-
-	err = repo.ClearNotifications(nWriteRepo, reminder.Id)
+	err = logic.ChangeReminder(nWriteRepo, writeRepo, &reminder)
 	if err != nil {
-		n.log.Printf("error clearing possibly existing notifications: %v", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	err = writeRepo.Upsert(&reminder)
-	if err != nil {
-		n.log.Printf("error creating/updating reminder: %v", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	// ToDo: Attempt to cleanup DB if this fails
-	err = logic.ProcessNewUuid(nWriteRepo, writeRepo, &reminder)
-	if err != nil {
-		n.log.Printf("error creating notifications for new/updated reminder: %v", err)
+		n.log.Printf("error updating reminders: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
@@ -259,16 +247,9 @@ func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request
 	nWriteRepo, writeRepo := n.db.Lock()
 	defer func() { n.db.Unlock() }()
 
-	err := writeRepo.Delete(uuid)
+	err := logic.RemoveReminder(nWriteRepo, writeRepo, uuid)
 	if err != nil {
-		n.log.Printf("error deleting reminder: %v", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
-		return
-	}
-
-	err = repo.ClearNotifications(nWriteRepo, uuid)
-	if err != nil {
-		n.log.Printf("error deleting notifications for reminder '%s': %v", uuid, err)
+		n.log.Printf("error removing reminder: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}

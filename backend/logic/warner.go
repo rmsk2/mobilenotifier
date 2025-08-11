@@ -72,6 +72,8 @@ func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
 }
 
 func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
+	// First obtain lock on Reminder and Notification store and only after
+	// that get a lock on AddressBook. This prevents deadlocks.
 	writeRepo, _ := w.db.Lock()
 	defer func() { w.db.Unlock() }()
 

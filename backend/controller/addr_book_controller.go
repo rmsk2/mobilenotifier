@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"notifier/logic"
 	"notifier/repo"
 	"notifier/tools"
 	"sort"
@@ -21,13 +22,14 @@ type RecipientData struct {
 }
 
 type AddressBookController struct {
-	db       repo.DBSerializer
-	log      *log.Logger
-	genRead  func(repo.DbType) repo.AddrBookRead
-	genWrite func(repo.DbType) repo.AddrBookWrite
+	db         repo.DBSerializer
+	dbRemNotif repo.DBSerializer
+	log        *log.Logger
+	genRead    func(repo.DbType) repo.AddrBookRead
+	genWrite   func(repo.DbType) repo.AddrBookWrite
 }
 
-func NewAddressBookController(l repo.DBSerializer, lg *log.Logger, g func(repo.DbType) *repo.BBoltAddrBookRepo) *AddressBookController {
+func NewAddressBookController(l repo.DBSerializer, lRemNotif repo.DBSerializer, lg *log.Logger, g func(repo.DbType) *repo.BBoltAddrBookRepo) *AddressBookController {
 	genR := func(db repo.DbType) repo.AddrBookRead {
 		return g(db)
 	}
@@ -37,10 +39,11 @@ func NewAddressBookController(l repo.DBSerializer, lg *log.Logger, g func(repo.D
 	}
 
 	return &AddressBookController{
-		db:       l,
-		log:      lg,
-		genRead:  genR,
-		genWrite: genW,
+		db:         l,
+		dbRemNotif: lRemNotif,
+		log:        lg,
+		genRead:    genR,
+		genWrite:   genW,
 	}
 }
 
@@ -70,10 +73,15 @@ func (a *AddressBookController) HandleDelete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Obatain lock on Reminders and Notifications first. If we consistently
+	// do this we can prevent deadlocks
+	nWrite, remWrite := a.dbRemNotif.Lock()
+	defer a.dbRemNotif.Unlock()
+
 	repoWrite := repo.LockAndGetRepoRW(a.db, a.genWrite)
 	defer func() { a.db.Unlock() }()
 
-	err := repoWrite.Delete(uuid)
+	err := logic.DeleteAddrBookEntry(nWrite, remWrite, repoWrite, uuid)
 	if err != nil {
 		a.log.Printf("error deleting from database: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)

@@ -50,6 +50,10 @@ func LockAndGetRepoR[T, U any](l DBSerializer, generator func(U) T) T {
 	return generator(l.GetRaw().(U))
 }
 
+func GetRepo[T, U any](l DBSerializer, generator func(U) T) T {
+	return generator(l.GetRaw().(U))
+}
+
 func (l *BoltDBLocker) Lock() (NotificationRepoWrite, ReminderRepoWrite) {
 	l.mutex.Lock()
 
