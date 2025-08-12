@@ -124,7 +124,6 @@ func RemoveReminder(nWriteRepo repo.NotificationRepoWrite, writeRepo repo.Remind
 func HasRecipient(recipientId *tools.UUID) repo.ReminderPredicate {
 	return func(r *repo.Reminder) bool {
 		for _, j := range r.Recipients {
-			// ToDO: Enforce upper case
 			if j.IsEqual(recipientId) {
 				return true
 			}
