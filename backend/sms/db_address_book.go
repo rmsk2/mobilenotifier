@@ -11,16 +11,16 @@ const TypeMail = "Mail"
 const TypeDummy = "Dummy"
 
 type RecipientInfo struct {
-	Id          string `json:"id"`
-	DisplayName string `json:"display_name"`
+	Id          *tools.UUID `json:"id"`
+	DisplayName string      `json:"display_name"`
 }
 
 type SmsAddressBook interface {
 	ListRecipients() ([]RecipientInfo, error)
-	GetSender(addrType string) SmsSender
+	GetSender(recipientId *tools.UUID) SmsSender
 	AddSender(addrType string, s SmsSender)
 	SetDefaultType(t string)
-	CheckRecipient(r string) (bool, string, error)
+	CheckRecipient(r *tools.UUID) (bool, string, error)
 	GetDefaultRecipientIds() []string
 }
 
@@ -57,7 +57,7 @@ func (d *DBAddressBook) ListRecipients() ([]RecipientInfo, error) {
 
 	for _, j := range recipients {
 		h := RecipientInfo{
-			Id:          j.Id.String(),
+			Id:          j.Id,
 			DisplayName: j.DisplayName,
 		}
 		result = append(result, h)
@@ -66,18 +66,13 @@ func (d *DBAddressBook) ListRecipients() ([]RecipientInfo, error) {
 	return result, nil
 }
 
-func (d *DBAddressBook) GetSender(recipientId string) SmsSender {
+func (d *DBAddressBook) GetSender(recipientId *tools.UUID) SmsSender {
 	defaultSender := d.senders[d.defaultType]
 
 	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
 	defer func() { d.db.RUnlock() }()
 
-	uuid, ok := tools.NewUuidFromString(recipientId)
-	if !ok {
-		return defaultSender
-	}
-
-	recipient, err := readRepo.Get(uuid)
+	recipient, err := readRepo.Get(recipientId)
 	if (err != nil) || (recipient == nil) {
 		return defaultSender
 	}
@@ -90,16 +85,11 @@ func (d *DBAddressBook) GetSender(recipientId string) SmsSender {
 	return sender
 }
 
-func (d *DBAddressBook) CheckRecipient(r string) (bool, string, error) {
+func (d *DBAddressBook) CheckRecipient(r *tools.UUID) (bool, string, error) {
 	readRepo := repo.LockAndGetRepoR(d.db, d.genRead)
 	defer func() { d.db.RUnlock() }()
 
-	uuid, ok := tools.NewUuidFromString(r)
-	if !ok {
-		return false, "", fmt.Errorf("illegal recipient id: '%s'", r)
-	}
-
-	recipient, err := readRepo.Get(uuid)
+	recipient, err := readRepo.Get(r)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to determine validity of recipient: '%s'", r)
 	}

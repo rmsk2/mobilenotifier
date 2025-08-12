@@ -9,11 +9,11 @@ import (
 )
 
 type Recipient struct {
-	DisplayName string     `json:"display_name"`
-	Id          tools.UUID `json:"id"`
-	Address     string     `json:"address"`
-	AddrType    string     `json:"addr_type"`
-	IsDefault   bool       `json:"is_default"`
+	DisplayName string      `json:"display_name"`
+	Id          *tools.UUID `json:"id"`
+	Address     string      `json:"address"`
+	AddrType    string      `json:"addr_type"`
+	IsDefault   bool        `json:"is_default"`
 }
 
 type RecipientPredicate func(r *Recipient) bool

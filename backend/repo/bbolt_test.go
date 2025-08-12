@@ -14,8 +14,12 @@ const pathTestDb = "testbold.bin"
 const Uuid1 = "D20F95D6-3339-40FF-8E4E-B2F6AC439D06"
 const Uuid2 = "3ACC4A36-5F13-49DC-A795-AA8553FEBAAE"
 const Uuid3 = "F27834D6-3339-40FF-8E4E-B2F6AC439D06"
+const TestRecipient = "357941EA-04FA-45BC-96B6-C05DCD4D1B16"
+const TestRecipient2 = "6481482D-0781-41D8-A947-E7D3E475F700"
 
 func Test1(t *testing.T) {
+	recipientId, _ := tools.NewUuidFromString(TestRecipient)
+	recipientId2, _ := tools.NewUuidFromString(TestRecipient2)
 	os.Remove(pathTestDb)
 
 	db, err := bolt.Open(pathTestDb, 0600, nil)
@@ -45,7 +49,7 @@ func Test1(t *testing.T) {
 		Parent:      testUUID2,
 		WarningTime: time.Now().UTC(),
 		Description: "Test notification",
-		Recipient:   "martin",
+		Recipient:   recipientId,
 	}
 
 	err = r.Upsert(&n)
@@ -59,7 +63,7 @@ func Test1(t *testing.T) {
 		Parent:      testUUID2,
 		WarningTime: time.Now().UTC(),
 		Description: "Test notification",
-		Recipient:   "martin2",
+		Recipient:   recipientId2,
 	}
 
 	err = r.Upsert(&n2)
@@ -74,7 +78,7 @@ func Test1(t *testing.T) {
 		return
 	}
 
-	if d.Recipient != "martin2" {
+	if !d.Recipient.IsEqual(recipientId2) {
 		t.Errorf("Wrong values retrieved: %s", d.Recipient)
 		return
 	}
@@ -147,6 +151,8 @@ func Test1(t *testing.T) {
 }
 
 func Test2(t *testing.T) {
+	recipientId, _ := tools.NewUuidFromString(TestRecipient)
+	recipientId2, _ := tools.NewUuidFromString(TestRecipient2)
 	os.Remove(pathTestDb)
 
 	db, err := bolt.Open(pathTestDb, 0600, nil)
@@ -176,7 +182,7 @@ func Test2(t *testing.T) {
 		Parent:      testUUID2,
 		WarningTime: time.Now().UTC(),
 		Description: "Test notification",
-		Recipient:   "martin",
+		Recipient:   recipientId,
 	}
 
 	err = r.Upsert(&n)
@@ -190,7 +196,7 @@ func Test2(t *testing.T) {
 		Parent:      testUUID2,
 		WarningTime: time.Now().UTC(),
 		Description: "Test notification",
-		Recipient:   "martin2",
+		Recipient:   recipientId2,
 	}
 
 	err = r.Upsert(&n2)
@@ -200,7 +206,7 @@ func Test2(t *testing.T) {
 	}
 
 	res, err := r.Filter(func(n *Notification) bool {
-		return n.Recipient == "martin2"
+		return n.Recipient.IsEqual(recipientId2)
 	})
 	if err != nil {
 		t.Errorf("Filtering failed: %v", err)
@@ -219,6 +225,8 @@ func Test2(t *testing.T) {
 }
 
 func Test3(t *testing.T) {
+	recipientId, _ := tools.NewUuidFromString(TestRecipient)
+	recipientId2, _ := tools.NewUuidFromString(TestRecipient2)
 	os.Remove(pathTestDb)
 
 	db, err := bolt.Open(pathTestDb, 0600, nil)
@@ -249,7 +257,7 @@ func Test3(t *testing.T) {
 		Spec:        time.Now().UTC(),
 		WarningAt:   []WarningType{MorningBefore, NoonBefore},
 		Description: "Test Reminder",
-		Recipients:  []string{"martin"},
+		Recipients:  []*tools.UUID{recipientId},
 	}
 
 	err = r.Upsert(&n)
@@ -265,7 +273,7 @@ func Test3(t *testing.T) {
 		Spec:        time.Now().UTC(),
 		WarningAt:   []WarningType{MorningBefore, NoonBefore},
 		Description: "Test Reminder",
-		Recipients:  []string{"martin2"},
+		Recipients:  []*tools.UUID{recipientId2},
 	}
 
 	err = r.Upsert(&n2)
@@ -280,7 +288,7 @@ func Test3(t *testing.T) {
 		return
 	}
 
-	if (len(n3.Recipients) != 1) || (n3.Recipients[0] != "martin2") {
+	if (len(n3.Recipients) != 1) || (!n3.Recipients[0].IsEqual(recipientId2)) {
 		t.Errorf("Data wrong")
 	}
 

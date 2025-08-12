@@ -125,7 +125,7 @@ func HasRecipient(recipientId *tools.UUID) repo.ReminderPredicate {
 	return func(r *repo.Reminder) bool {
 		for _, j := range r.Recipients {
 			// ToDO: Enforce upper case
-			if j == recipientId.String() {
+			if j.IsEqual(recipientId) {
 				return true
 			}
 		}
@@ -134,12 +134,12 @@ func HasRecipient(recipientId *tools.UUID) repo.ReminderPredicate {
 	}
 }
 
-func TestAndRemoveRecipient(recipient string, recipients []string) ([]string, bool) {
-	res := []string{}
+func TestAndRemoveRecipient(recipient *tools.UUID, recipients []*tools.UUID) ([]*tools.UUID, bool) {
+	res := []*tools.UUID{}
 	found := false
 
 	for _, j := range recipients {
-		if j != recipient {
+		if !j.IsEqual(recipient) {
 			res = append(res, j)
 		} else {
 			found = true
@@ -156,7 +156,7 @@ func DeleteAddrBookEntry(nWriteRepo repo.NotificationRepoWrite, writeRepo repo.R
 	}
 
 	for _, j := range affected {
-		newRecipients, found := TestAndRemoveRecipient(addrEntryId.String(), j.Recipients)
+		newRecipients, found := TestAndRemoveRecipient(addrEntryId, j.Recipients)
 		if found {
 			if len(newRecipients) == 0 {
 				err := RemoveReminder(nWriteRepo, writeRepo, j.Id)

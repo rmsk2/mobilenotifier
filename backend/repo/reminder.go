@@ -27,7 +27,7 @@ type Notification struct {
 	Parent      *tools.UUID `json:"parent"`
 	WarningTime time.Time   `json:"warning_time"`
 	Description string      `json:"description"`
-	Recipient   string      `json:"recipient"`
+	Recipient   *tools.UUID `json:"recipient"`
 }
 
 type Reminder struct {
@@ -37,7 +37,7 @@ type Reminder struct {
 	WarningAt   []WarningType `json:"warning_at"`
 	Spec        time.Time     `json:"spec"`
 	Description string        `json:"description"`
-	Recipients  []string      `json:"recipients"`
+	Recipients  []*tools.UUID `json:"recipients"`
 }
 
 type NotificationPredicate func(r *Notification) bool

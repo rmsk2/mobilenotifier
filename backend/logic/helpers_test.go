@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func newTestReminder(ty repo.ReminderType, wa []repo.WarningType, recipients []string) *repo.Reminder {
+func newTestReminder(ty repo.ReminderType, wa []repo.WarningType, recipients []*tools.UUID) *repo.Reminder {
 	r := &repo.Reminder{
 		Id:          tools.UUIDGen(),
 		Kind:        ty,
@@ -21,12 +21,14 @@ func newTestReminder(ty repo.ReminderType, wa []repo.WarningType, recipients []s
 	return r
 }
 
-func newOneShotReminder(wa []repo.WarningType, recipients []string) *repo.Reminder {
+func newOneShotReminder(wa []repo.WarningType, recipients []*tools.UUID) *repo.Reminder {
 	return newTestReminder(repo.OneShot, wa, recipients)
 }
 
 func TestRescheduleOneShot(t *testing.T) {
-	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []string{"martin", "push"})
+	martin := tools.UUIDGen()
+	push := tools.UUIDGen()
+	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []*tools.UUID{martin, push})
 	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen)
 	notifications, err := sch.Reschedule(rem)
 	if err != nil {
@@ -37,12 +39,7 @@ func TestRescheduleOneShot(t *testing.T) {
 		t.Errorf("Wrong number of notifications: %d", len(notifications))
 	}
 
-	testRecipients := map[string]bool{}
-	for _, j := range notifications {
-		testRecipients[j.Recipient] = true
-	}
-
-	rem = newOneShotReminder([]repo.WarningType{repo.SameDay, repo.EveningBefore, repo.WeekBefore}, []string{"martin", "push"})
+	rem = newOneShotReminder([]repo.WarningType{repo.SameDay, repo.EveningBefore, repo.WeekBefore}, []*tools.UUID{martin, push})
 	notifications, err = sch.Reschedule(rem)
 	if err != nil {
 		t.Errorf("%v", err)

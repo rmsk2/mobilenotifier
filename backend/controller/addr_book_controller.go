@@ -236,7 +236,7 @@ func (a *AddressBookController) HandleUpsertRaw(w http.ResponseWriter, r *http.R
 	defer func() { a.db.Unlock() }()
 
 	recipient := repo.Recipient{
-		Id:          *uuid,
+		Id:          uuid,
 		DisplayName: m.DisplayName,
 		Address:     m.Address,
 		AddrType:    m.AddrType,

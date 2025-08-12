@@ -13,7 +13,7 @@ type AddMetricsEvent func(string)
 type expiryInfo struct {
 	uuid        *tools.UUID
 	parent      *tools.UUID
-	recipient   string
+	recipient   *tools.UUID
 	description string
 }
 

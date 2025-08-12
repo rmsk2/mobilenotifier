@@ -21,7 +21,7 @@ type ReminderData struct {
 	WarningAt   []repo.WarningType `json:"warning_at"`
 	Spec        time.Time          `json:"spec"`
 	Description string             `json:"description"`
-	Recipients  []string           `json:"recipients"`
+	Recipients  []*tools.UUID      `json:"recipients"`
 }
 
 type GetResponseGeneric[T any] struct {

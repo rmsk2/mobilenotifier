@@ -50,7 +50,15 @@ func (s *SmSController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
 // @Failure      500  {object} string
 // @Router       /notifier/api/send/{recipient} [post]
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
-	recipient := r.PathValue("recipient")
+	recipientRaw := r.PathValue("recipient")
+
+	recipient, ok := tools.NewUuidFromString(recipientRaw)
+	if !ok {
+		s.log.Printf("uuid not wellformed: '%s'", recipientRaw)
+		http.Error(w, "uuid not wellformed", http.StatusBadRequest)
+		return
+	}
+
 	ok, address, err := s.addressBook.CheckRecipient(recipient)
 
 	if err != nil {
