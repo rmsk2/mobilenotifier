@@ -16,9 +16,6 @@ export default {
       overviewEntries: [],
       entriesInMonth: [],
       result: "",
-      allRecipients: [],
-      displayNameToId: {},
-      idToDisplayName: {},
       fullRecipientData: [],
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
@@ -98,30 +95,16 @@ export default {
       this.editData = res.data.data
       this.showComponents(newSelected)
     },
-    async getRecipients() {
-      let res = await this.api.getRecipients()
-      if (res.error) {
-        this.setErrorMessage("Kann Empfängerliste nicht abrufen")
-        this.allRecipients = [];
-        this.displayNameToId = {};
-        this.idToDisplayName = {};
-        return
+    getRecipients() {
+      let defaultList = [];
+
+      for (let i of this.fullRecipientData) {
+        if (i.is_default) {
+          defaultList.push(i.id);
+        }
       }
 
-      let displayNames = []
-      let toIdHelp = {};
-      let toNameHelp = {};
-
-      for (let i of res.data.all_recipients) {
-        displayNames.push(i.display_name)
-        toIdHelp[i.display_name] = i.id;
-        toNameHelp[i.id] = i.display_name;
-      }
-
-      this.defaultRecipientIds = res.data.default_ids
-      this.allRecipients = displayNames
-      this.idToDisplayName = toNameHelp;
-      this.displayNameToId = toIdHelp;
+      this.defaultRecipientIds = defaultList;
     },
     async getApiInfo() {
       let res = await this.api.getApiInfo()
@@ -143,6 +126,7 @@ export default {
       }
 
       this.fullRecipientData = res.data
+      this.getRecipients()
     },
     resetErrors() {
       this.result = "";
@@ -246,7 +230,6 @@ export default {
   },
   async beforeMount() {
     await this.getApiInfo();
-    await this.getRecipients();
     await this.getFullRecipientData();
     await this.showComponents(monthSelected);
   },
@@ -303,8 +286,7 @@ export default {
         @edit-id="editReminder" @delete-id="deleteReminder">
       </EntryList>
     </div>
-    <EditEntry v-if="testNew()" :allrecipients="allRecipients" :editdata="editData"
-      :nametoid="displayNameToId" :idtoname="idToDisplayName" :disablesave="disableSave"
+    <EditEntry v-if="testNew()" :allrecipients="fullRecipientData" :disablesave="disableSave" :editdata="editData"
       @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"

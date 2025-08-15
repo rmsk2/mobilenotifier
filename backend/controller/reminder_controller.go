@@ -176,6 +176,11 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 	defer func() { n.db.Unlock() }()
 
 	for _, j := range m.Recipients {
+		if j == nil {
+			n.log.Printf("recipient must not be nil")
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
 		ok, _, err := n.addressBook.CheckRecipient(j)
 		if err != nil {
 			n.log.Printf("error accessing recipient info: %v", err)

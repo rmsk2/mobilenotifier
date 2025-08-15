@@ -35,8 +35,7 @@ export default {
       year: new Date(this.editdata.spec).getFullYear(),
       hours: new Date(this.editdata.spec).getHours(),
       minutes: new Date(this.editdata.spec).getMinutes(),
-      day: new Date(this.editdata.spec).getDate(),
-      disableSave: false
+      day: new Date(this.editdata.spec).getDate()
     }
   },
   watch: {
@@ -46,15 +45,54 @@ export default {
         },
         immediate: true
     },
+    allrecipients: {
+        handler(newVal){
+          // make sure data is available as early as possible
+          // simply defining the watcher as immediate allows 
+          // this to happen
+        },
+        immediate: true
+    },
     disablesave: {
         handler(newVal){
-          this.disableSave = newVal
+          // make sure data is available as early as possible
+          // simply defining the watcher as immediate allows 
+          // this to happen
         },
         immediate: true
     }
-  },  
-  props: ['editdata', 'allrecipients', 'nametoid', 'idtoname', 'disablesave'],
+  },
+  props: ['editdata', 'allrecipients', 'disablesave'],
   emits: ['error-occurred', 'delete-id', 'save-data'],
+  computed: {
+    recipientNames() {
+      let res = []
+
+      for (let i of this.allrecipients) {
+        res.push(i.display_name)
+      }
+
+      return res
+    },
+    mapIdToName() {
+      let res = {};
+
+      for (let i of this.allrecipients) {
+        res[i.id] = i.display_name
+      }
+
+      return res;
+    },
+    mapNameToId() {
+      let res = {};
+
+      for (let i of this.allrecipients) {
+        res[i.display_name] = i.id
+      }
+
+      return res;
+    }
+  },
   methods: {
     makeNumeric() {
       let h = []
@@ -74,7 +112,7 @@ export default {
       let res = [];
 
       for (let i of recipientNames) {
-        res.push(this.nametoid[i]);
+        res.push(this.mapNameToId[i]);
       }
 
       return res
@@ -83,7 +121,7 @@ export default {
       let res = [];
 
       for (let i of recipientIds) {
-        res.push(this.idtoname[i]);
+        res.push(this.mapIdToName[i]);
       }
 
       return res;
@@ -346,11 +384,11 @@ export default {
       <legend>
         <b>Wer soll gewarnt werden</b>
       </legend>
-      <div v-for="r in allrecipients">
+      <div v-for="r in recipientNames">
         <input  type="checkbox" v-model="recipients" name="selrecipients" :value="r">{{ r }}</input>
       </div>
     </fieldset>
 
-    <button @click="saveData" :disabled="disableSave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
+    <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
   </div>
 </template>
