@@ -118,7 +118,7 @@ export default {
   </div>
   <p/>
   <div>
-    <table id="table-found-events" class="table-list-events" v-if="recipientsAvailable()">
+    <table id="table-found-events" class="table-list-events">
       <tr class="table-list-events-row">
         <th class="table-list-events-header">Neuer Name</th>
         <th class="table-list-events-header">neue Adresse</th>
