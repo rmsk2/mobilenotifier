@@ -193,7 +193,7 @@ func (a *AddressBookController) HandleGet(w http.ResponseWriter, r *http.Request
 // @Accept       json
 // @Param        uuid   path  string  true  "UUID of address book entry"
 // @Param        addr_book_data  body  RecipientData true "Specification of address book entry to set"
-// @Success      200  {object} nil
+// @Success      200  {object} UuidResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook/{uuid} [put]

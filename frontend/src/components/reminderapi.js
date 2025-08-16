@@ -114,8 +114,12 @@ class RecipientData {
 
 class Recipient extends RecipientData {
     constructor(adrType, adr, display_name, id, is_default) {
-        super(adrType, this.address, display_name, is_default)
+        super(adrType, adr, display_name, is_default)
         this.id = id
+    }
+
+    toData() {
+        return new RecipientData(this.addr_type, this.address, this.display_name, this.is_default)
     }
 }
 
@@ -214,10 +218,46 @@ class ReminderAPI {
         }
     }
 
-    async deleteReminder(id) {
+    async upsertAddressBookEntry(entryData, apiUrl, method) {
         try
         {
-            let apiUrl = `${this.URL}reminder/${id}`;
+            let response = await fetch(apiUrl, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(entryData)
+            });
+
+            if (!response.ok) {
+                return new APIResult(true, `${response.status}`);
+            }
+
+            let result = await response.json();
+
+            return new APIResult(false, result.uuid);
+        } catch(error) {
+            return new APIResult(true, error);
+        }
+    }
+
+    async updateAddressBookEntry(entryData, id) {
+        let apiUrl = `${this.URL}addressbook/${id}`;
+
+        return await this.upsertAddressBookEntry(entryData, apiUrl, "put");
+    }
+
+    async newAddressBookEntry(entryData) {
+        let apiUrl = `${this.URL}addressbook`;
+
+        return await this.upsertAddressBookEntry(entryData, apiUrl, "post");
+    }
+
+    async deleteById(id, baseUrl) {
+        try
+        {
+            let apiUrl = `${baseUrl}${id}`;
             
             let response = await fetch(apiUrl, {
                 method: "delete",
@@ -234,6 +274,18 @@ class ReminderAPI {
         } catch(error) {
             return new APIResult(true, error);
         }
+    }
+
+    async deleteReminder(id) {
+        let baseUrl = `${this.URL}reminder/`;
+
+        return await this.deleteById(id, baseUrl);
+    }
+
+    async deleteAddressBookEntry(id) {
+        let baseUrl = `${this.URL}addressbook/`;
+
+        return await this.deleteById(id, baseUrl);
     }
 
     async getOverview() {

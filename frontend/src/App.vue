@@ -5,7 +5,7 @@ import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
 import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected } from './components/globals';
-import { ReminderAPI, getDefaultReminder, Reminder } from './components/reminderapi';
+import { ReminderAPI, getDefaultReminder, Reminder, RecipientData } from './components/reminderapi';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import RecipientList from './components/RecipientList.vue';
 
@@ -29,7 +29,51 @@ export default {
       defaultRecipientIds: ""
     }
   },
+  computed: {
+    recipientDict() {
+      let res = {}
+
+      for (let e of this.fullRecipientData) {
+        res[e.id] = e
+      }
+
+      return res;
+    }
+  },
   methods: {
+    async upsertAddrBookEntry(entryData) {
+      let apiResult = null
+
+      let addrBookData = entryData.toData();
+
+      if (entryData.id === null) {
+        apiResult = await this.api.newAddressBookEntry(addrBookData)
+      } else {
+        apiResult = await this.api.updateAddressBookEntry(addrBookData, entryData.id)
+      }
+
+      if (apiResult.error) {
+        this.setErrorMessage("Daten konten nicht gespeichert werden")
+        return
+      }
+
+      this.setErrorMessage("Daten gespeichert")
+
+      await this.getFullRecipientData();
+    },
+    async deleteAddrBookEntry(entryId) {
+      const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${this.recipientDict[entryId].display_name}" gelöscht werden?`, 'Löschen')
+
+      if (ok) {
+        let res = await this.api.deleteAddressBookEntry(entryId);
+        if (res.error) {
+          this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
+          return
+        }
+      }
+
+      await this.getFullRecipientData();
+    },
     async deleteReminder(delNotification) {
       await this.deleteReminderAndSwitch(delNotification, this.currentComponent)
     },
@@ -292,7 +336,9 @@ export default {
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
     </About>
-    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData"></RecipientList>
+    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData"
+      @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage">
+    </RecipientList>
 
     <ConfirmationDialog ref="confirmationDialog"></ConfirmationDialog>
   </section>
