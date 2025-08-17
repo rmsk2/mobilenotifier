@@ -157,13 +157,13 @@ export default {
       <tr class="table-list-events-row">
         <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="20" class="list-text" v-model="displayName"></input></td>
         <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="30" class="list-text" v-model="address"></input></td>
-        <td class="table-list-events-elem">
+        <td class="table-list-events-elem table-list-buttons">
           <select name="typeselect" v-model="addressType" id="typeselect">
             <option class="list-text" :value="addrTypeIfttt">IFTTT</option>
             <option class="list-text" :value="addrTypeMail">Mail</option>
           </select>
         </td>
-        <td class="table-list-events-elem">
+        <td class="table-list-events-elem table-list-buttons">
           <select name="defaultselect" v-model="isDefault" id="defaultselect">
             <option class="list-text" value="true">Ja</option>
             <option class="list-text" value="false">Nein</option>
