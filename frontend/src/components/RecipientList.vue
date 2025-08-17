@@ -1,5 +1,5 @@
 <script>
-import { addrClassIfttt, addrClassMail, Recipient, RecipientData } from './reminderapi';
+import { addrClassIfttt, addrClassMail, Recipient } from './reminderapi';
 
 export default {
   data() {

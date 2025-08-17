@@ -81,9 +81,9 @@ Example:
 
 This software assumes that there is an IFTTT webhook for each recipient of type `IFTTT` which can be called via the following URL `https://maker.ifttt.com/trigger/{address}/with/key/{IFTTT_API_KEY}`.
 
-The address book is persisted in the database and can be managed through the backend's REST calls. Alternatively the contents of the address book can be changed through the envirnment variable
+The address book is persisted in the database and can be managed through mobilenotifier's web UI. Alternatively the contents of the address book can be changed through the environment variable
 `MN_ADDR_BOOK`. If it is set to a base64 encoded JSON string (having the structure described above) then the values contained in the JSON data are merged into the database. Setting this variable
-is optional.
+is optional and should only be done during development.
 
 This repo also contains a small Python script `addr2b64.py` which allows to generate a compacted and base64 encoded version of a JSON address book. The output of this script can be
 used to set the `MN_ADDR_BOOK` environment variable. When set through a kubernetes secret the script output has to be base64 encoded a second time.
@@ -150,7 +150,7 @@ The file `notifier.yml` specifies two deployments with its corresponding service
 deployment `notifier-nginx` creates an nginx instance which serves the static `Vue.js` webapp. These two deployments are tied together with a `traefik` ingress which also performs TLS termination.
 
 The container image for the backend can be created as described above using the script `conbuild.sh`. As the the image is created locally and not pulled from a registry the backend deployment has 
-its `imagePullPolicy` set to `Never`. I copy the image over to my K3S cluster using `k3s ctr images rm` and `k3s ctr images import`
+its `imagePullPolicy` set to `Never`. I copy the image over to the machines making up my K3S cluster and after that import it manually via `k3s ctr images rm` and `k3s ctr images import`
 
 The file `pvs.yml` defines two persistent volume claims. One (`notifier-appdata`) for the `bbolt` database file of the backend service and the other (`notifier-statichtml`) for the static files of the
 `Vue.js` webapp which is used by the nginx instance. Currently the PVCs use the NFS storage class which might not be available in your cluster. This is convenient for me as my NAS drive is configured to
@@ -194,7 +194,7 @@ I have not configured Let's Encrypt. I use my own [minica](https://github.com/rm
 
 # Using the webapp
 
-The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screenshots of the four different panels of the webapp.
+The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screenshots of the five different panels of the webapp.
 
 ![](/monat.png?raw=true "Monatliche Ereignisse")
 
@@ -203,6 +203,8 @@ The webapp is currently in german and I did not attempt to add any sort of inter
 ![](/alle.png?raw=true "Alle Ereignisse")
 
 ![](/about.png?raw=true "Über mobilenotifier")
+
+![](/empfaenger.png?raw=true "Verwaltung der Empfänger")
 
 And here a screenshot of the Swagger API info page.
 
