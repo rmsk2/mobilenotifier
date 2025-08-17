@@ -21,7 +21,7 @@ export default {
     recipientsAvailable() {
       return this.allrecipients.length !== 0;
     },
-    upsertRecipient(entryData) {
+    upsertRecipient() {
       let checkRes = this.validate()
       if (!checkRes.ok) {
         this.$emit('error-occurred', checkRes.msg);
@@ -34,7 +34,7 @@ export default {
       if (this.isDefault === "false") {
         this.isDefault = false
       }
-      entryData = new Recipient(this.addressType, this.address, this.displayName, this.editId, this.isDefault)
+      let entryData = new Recipient(this.addressType, this.address, this.displayName, this.editId, this.isDefault)
       this.$emit('upsert-entry', entryData);
     },
     procNewEntry() {
