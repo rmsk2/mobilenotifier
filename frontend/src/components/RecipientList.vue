@@ -11,11 +11,12 @@ export default {
       displayName: "",
       isDefault: false,
       addressType: addrClassIfttt,
-      address: ""
+      address: "",
+      editButtonText: "Empfängerliste ändern"
     }
   },
-  props: ['allrecipients'],
-  emits: ['upsert-entry', 'delete-id', 'error-occurred'],
+  props: ['allrecipients', 'editvisible'],
+  emits: ['upsert-entry', 'delete-id', 'error-occurred', 'toggle-edit'],
   methods: {
     recipientsAvailable() {
       return this.allrecipients.length !== 0;
@@ -53,6 +54,23 @@ export default {
       this.isDefault = this.recipientDict[id].is_default
       this.displayName = this.recipientDict[id].display_name
     },
+    toggleEditable() {
+      this.$emit("toggle-edit")
+    },
+    setButtonText(val) {
+      if (val) {
+        this.editButtonText = "Empfängerliste nur betrachten"
+      } else {
+        this.editButtonText = "Empfängerliste ändern"
+      }
+    },
+    getDefaultText(val) {
+      if (val) {
+        return "Ja"
+      } else {
+        return "Nein"
+      }
+    },
     validate() {
       if ((this.address === "") || (this.displayName === "")) {
         return ({"ok": false, "msg":"Adresse und Anzeigename müssen gefüllt sein"})
@@ -74,6 +92,15 @@ export default {
           this.procNewEntry()
         },
         immediate: true
+    },
+    editvisible: {
+        handler(newVal){
+          // make sure data is available as early as possible
+          // simply defining the watcher as immediate allows
+          // this to happen
+          this.setButtonText(newVal)
+        },
+        immediate: true
     }
   },
   computed: {
@@ -93,20 +120,22 @@ export default {
 <template>
   <div id="div-entry-list" class="work-entry">
     <h1>Liste der Empfänger</h1>
+    <button @click="toggleEditable()">{{ editButtonText }}</button>
+    <p/>
     <table id="table-found-events" class="table-list-events" v-if="recipientsAvailable()">
       <tr class="table-list-events-row">
         <th class="table-list-events-header">Name</th>
         <th class="table-list-events-header">Adresse</th>
         <th class="table-list-events-header">Typ</th>
         <th class="table-list-events-header">Default</th>
-        <th class="table-list-events-header">Bearbeiten</th>
+        <th v-if="editvisible" class="table-list-events-header">Bearbeiten</th>
       </tr>
       <tr class="table-list-events-row" v-for="item in allrecipients">
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.display_name }}</span></td> 
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.address }}</span></td> 
         <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.addr_type }}</span></td> 
-        <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ item.is_default }}</span></td> 
-        <td class="table-list-events-elem table-list-buttons">
+        <td class="table-list-events-elem" :class="item.cls"><span class="list-text">{{ getDefaultText(item.is_default) }}</span></td>
+        <td v-if="editvisible" class="table-list-events-elem table-list-buttons">
           <button  @click="procDelete(item.id)">Del</button>
           <button  @click="procEdit(item.id)">Edit</button>
         </td>
@@ -117,7 +146,7 @@ export default {
     </div>
   </div>
   <p/>
-  <div>
+  <div v-if="editvisible">
     <table id="table-found-events" class="table-list-events">
       <tr class="table-list-events-row">
         <th class="table-list-events-header">Neuer Name</th>
@@ -127,7 +156,7 @@ export default {
       </tr>
       <tr class="table-list-events-row">
         <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="20" class="list-text" v-model="displayName"></input></td>
-        <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="20" class="list-text" v-model="address"></input></td>
+        <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="30" class="list-text" v-model="address"></input></td>
         <td class="table-list-events-elem">
           <select name="typeselect" v-model="addressType" id="typeselect">
             <option class="list-text" :value="addrTypeIfttt">IFTTT</option>
@@ -136,16 +165,16 @@ export default {
         </td>
         <td class="table-list-events-elem">
           <select name="defaultselect" v-model="isDefault" id="defaultselect">
-            <option class="list-text" value="true">True</option>
-            <option class="list-text" value="false">False</option>
+            <option class="list-text" value="true">Ja</option>
+            <option class="list-text" value="false">Nein</option>
           </select>
         </td>
       </tr>
     </table>
+    <p/>
+    <button @click="procNewEntry">Alle Eingabewerte zurücksetzen</button><button @click="upsertRecipient">
+      <span v-if="this.editId===null">Neuen Eintrag erstellen</span>
+      <span v-if="this.editId!==null">Eintrag aktualisieren</span>
+    </button>
   </div>
-  <p/>
-  <button @click="procNewEntry">Alle Eingabewerte zurücksetzen</button><button @click="upsertRecipient">
-    <span v-if="this.editId===null">Neuen Eintrag erstellen</span>
-    <span v-if="this.editId!==null">Eintrag aktualisieren</span>
-  </button>
 </template>

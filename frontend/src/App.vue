@@ -26,7 +26,8 @@ export default {
       reminderCount: 0,
       metrics: {},
       disableSave: false,
-      defaultRecipientIds: ""
+      defaultRecipientIds: "",
+      addrBookEditable: false
     }
   },
   computed: {
@@ -123,6 +124,9 @@ export default {
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
+    },
+    toggleAddrBookEdit() {
+      this.addrBookEditable = !this.addrBookEditable
     },
     async editReminder(info) {
       let res = await this.api.readReminder(info.id)
@@ -336,8 +340,8 @@ export default {
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
     </About>
-    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData"
-      @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage">
+    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :editvisible="addrBookEditable"
+      @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">
     </RecipientList>
 
     <ConfirmationDialog ref="confirmationDialog"></ConfirmationDialog>
