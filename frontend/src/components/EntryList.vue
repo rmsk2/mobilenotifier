@@ -7,7 +7,7 @@ export default {
     return {
     }
   },
-  props: ['reminders', 'headline'],
+  props: ['reminders', 'headline', 'clienttime'],
   emits: ['edit-id', 'delete-id'],
   methods: {
     emitEdit(info) {
@@ -47,6 +47,11 @@ export default {
       }
       
       return res;
+    },
+    currentDate() {
+      let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      let d = new Date(this.clienttime);
+      return d.toLocaleDateString("de-DE", options);
     }
   }
 }
@@ -55,6 +60,8 @@ export default {
 <template>
   <div id="div-entry-list" class="work-entry">
     <h1>{{ headline }}</h1>
+    <span class="text-no-events">Heute ist {{ currentDate }}</span>
+    <p/>
     <table id="table-found-events" class="table-list-events" v-if="eventsAvailable()">
       <tr class="table-list-events-row">
         <th class="table-list-events-header">Am</th>

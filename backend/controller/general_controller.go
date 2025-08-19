@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"notifier/repo"
 	"notifier/tools"
+	"time"
 )
 
 type ApiInfoResult struct {
-	Version  string         `json:"version_info"`
-	TimeZone string         `json:"time_zone"`
-	Count    int            `json:"reminder_count"`
-	Metrics  map[string]int `json:"metrics"`
+	Version    string         `json:"version_info"`
+	TimeZone   string         `json:"time_zone"`
+	ClientTime time.Time      `json:"client_time"`
+	Count      int            `json:"reminder_count"`
+	Metrics    map[string]int `json:"metrics"`
 }
 
 type GeneralController struct {
@@ -55,10 +57,11 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 	s.log.Printf("Returning API info")
 
 	resp := ApiInfoResult{
-		Version:  tools.VersionString,
-		TimeZone: tools.ClientTZ().String(),
-		Count:    countReminders(s.dbl),
-		Metrics:  s.metricCollector.GetMetrics(),
+		Version:    tools.VersionString,
+		TimeZone:   tools.ClientTZ().String(),
+		ClientTime: time.Now().UTC().In(tools.ClientTZ()),
+		Count:      countReminders(s.dbl),
+		Metrics:    s.metricCollector.GetMetrics(),
 	}
 
 	data, err := json.Marshal(&resp)

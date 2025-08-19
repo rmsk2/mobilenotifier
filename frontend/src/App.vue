@@ -27,7 +27,8 @@ export default {
       metrics: {},
       disableSave: false,
       defaultRecipientIds: "",
-      addrBookEditable: false
+      addrBookEditable: false,
+      clientTime: ""
     }
   },
   computed: {
@@ -161,6 +162,7 @@ export default {
         return;
       }
 
+      this.clientTime = res.data.client_time
       this.apiVersion = res.data.version_info;
       this.apiTimeZone = res.data.time_zone;
       this.reminderCount = res.data.reminder_count;
@@ -309,7 +311,7 @@ export default {
   </section>
 
   <section class="work-items">
-    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse" 
+    <EntryList :reminders="overviewEntries" v-if="testAll()" headline="Alle Ereignisse" :clienttime="clientTime"
       @edit-id="editReminder" @delete-id="deleteReminder">
     </EntryList>
     <div v-if="testMonth()">
@@ -330,7 +332,7 @@ export default {
       <input type="number" v-model="yearToSearch" @change="redraw" name="yearentry" id="yearentry">
       <button id="nextmonth" @click="incMonth">Nächster Monat</button>
       <button id="prevmonth" @click="decMonth">Voriger Monat</button>
-      <EntryList :reminders="entriesInMonth" headline="Ereignisse im gewählten Monat" 
+      <EntryList :reminders="entriesInMonth" headline="Ereignisse im gewählten Monat" :clienttime="clientTime"
         @edit-id="editReminder" @delete-id="deleteReminder">
       </EntryList>
     </div>

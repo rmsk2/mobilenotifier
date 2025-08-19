@@ -88,9 +88,10 @@ class APIResult {
 }
 
 class ApiInfoResult {
-    constructor(version, timeZone, elemCount, metrics) {
+    constructor(version, timeZone, elemCount, metrics, clientTime) {
         this.version_info = version;
         this.time_zone = timeZone;
+        this.client_time = clientTime
         this.reminder_count = elemCount;
         this.metrics = metrics
     }
