@@ -23,9 +23,9 @@ func anniversaryRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	// Feb 29 is handled correctly by go, i.e. Feb 29 plus one year is Mar 01
 	h := r.Spec.In(tools.ClientTZ())
 	now := n.In(tools.ClientTZ())
-	// A yearly event which is created on the day it occurs in the current year is first
-	// scheduled in the following year
-	refThisYear := time.Date(now.Year(), h.Month(), h.Day(), 0, 0, 0, 0, tools.ClientTZ())
+	// A yearly event which is created on the day it occurs is scheduled in this year if the
+	// event is still in the future relative to the current time given in parameter n.
+	refThisYear := time.Date(now.Year(), h.Month(), h.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
 	var offset int
 
 	switch {
