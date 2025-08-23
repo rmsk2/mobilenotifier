@@ -192,6 +192,47 @@ type: kubernetes.io/tls
 
 I have not configured Let's Encrypt. I use my own [minica](https://github.com/rmsk2/minica) to issue certificates. I run this software in its own kubernetes namespace.
 
+# Performing backups
+
+The script `backup.py` can be used to create a backup of the current state of a mobile notifier instance. Additionally it allows to restore this backup into an
+"empty" mobile notifier instance. The script uses mobile notifier's REST API to extract and restore the data which makes up the state.
+
+```
+usage: backup.py [-h] -n HOST_NAME [-o OUTPUT_FILE] [-i INPUT_FILE] [-c CA_BUNDLE] {backup,restore}
+
+Tool, um Backups des Datenbestandes von mobilenotifier zu erstellen und wiederherzustellen
+
+positional arguments:
+  {backup,restore}      Was soll getan werden: backup oder restore.
+
+options:
+  -h, --help            show this help message and exit
+  -n HOST_NAME, --host-name HOST_NAME
+                        Hostnamen des mobile notifier APIs
+  -o OUTPUT_FILE, --output-file OUTPUT_FILE
+                        Ausgabedatei für backup
+  -i INPUT_FILE, --input-file INPUT_FILE
+                        Eingabedatei für restoe
+  -c CA_BUNDLE, --ca-bundle CA_BUNDLE
+                        Datei, die das CA-Bundle enthält. Falls das benötigt wird
+```
+
+The option `-c/--ca-bundle` can be used to reference a file which contains a private root certificate in PEM-format which is to be used to verify the TLS server
+certificate. If you do not use TLS or use a certificate of a publicly trusted CA then you can ignore this option. The option `-n/--host-name` has to specify
+not only the host name of the machine which runs mobile notifier's backend but also the protocol, i.e. `http` or `https`. 
+
+Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by private root, where the root certifciate 
+is stored in the file `my-private-root.pem`. Then the following commands can be used to create 
+
+`python3 backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem` 
+
+and restore a backup
+
+`python3 restore -i mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem`
+
+You can use the variable `CONF_API_PREFIX` to specify any additional path components which are needed to access the API in addition to the host name. The default
+value is `/notifier`.
+
 # Using the webapp
 
 The webapp is currently in german and I did not attempt to add any sort of internationalization, sorry. Here are screenshots of the five different panels of the webapp.

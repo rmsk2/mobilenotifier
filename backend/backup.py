@@ -10,9 +10,7 @@ def get_reminders(host_name, ca_bundle=None):
     response.raise_for_status()
     data = response.json()
 
-    res = []
-    for i in data["reminders"]:
-        res.append(i["reminder"])
+    res = list(map(lambda x: x["reminder"], data["reminders"]))
 
     return res
 
@@ -79,7 +77,7 @@ def main():
     parser.add_argument("-n", "--host-name", required=True, help="Hostnamen des mobile notifier APIs")
     parser.add_argument("-o", "--output-file", default=None, help="Ausgabedatei für backup")
     parser.add_argument("-i", "--input-file", default= None, help="Eingabedatei für restoe")
-    parser.add_argument("-c", "--ca-bundle", default=None, help="Datei, dies das CA-Bundle enthält. Falls das benötigt wird")
+    parser.add_argument("-c", "--ca-bundle", default=None, help="Datei, die das CA-Bundle enthält. Falls das benötigt wird")
 
     args = parser.parse_args()
 
