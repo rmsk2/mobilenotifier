@@ -132,15 +132,20 @@ export MN_MAIL_SUBJECT="Erinnerung MobileNotifier"
 ./notifier
 ``` 
 
-After that the webapp can be used via the URL `http://localhost:5100/notifier/app/index.html`. Please note that the script does not set the environment variable `IFTTT_API_KEY` in order to prevent sending
-actual text messages when simply testing the software. If the environment variable is not set the backend service automatically switches to a dummy sender which only logs the fact that a message would have
-been sent. If you set the environment variable to the correct value for your IFTTT account then your webhooks are called for real.
+After that the webapp can be used via the URL `http://localhost:5100/notifier/app/index.html` (the server listens on all interfaces not only `localhost`). Please note that the script does not set 
+the environment variable `IFTTT_API_KEY` in order to prevent sending actual text messages when simply testing the software. If the environment variable is not set the backend service automatically
+switches to a dummy sender which only logs the fact that a message would have been sent. If you set the environment variable to the correct value for your IFTTT account then your webhooks are
+called for real.
 
 ## Running the software on a server
 
 In order to run this software on one of your machines in a classical fashion you can build a production version of the frontend after setting `VITE_API_URL` in `.env.prod` to the correct value. 
 Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Of course you also can use a web server if
-you prefer doing so. In this case make sure that `LOCALDIR` is not set.
+you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
+
+Please be aware that the port on which the backend server listens is (at the moment) hardcoded to `5100`. In addition the URL scheme used by mobile notifier is (again at the moment) also hardcoded. 
+All API addresses are mapped to the path `/notifier/api/...`, the addresses for the SPA are mappend to `/notifier/app/...` and the swagger documentation is expected to accessed via 
+`/notifier/api/swagger/...`.
 
 ## Kubernetes deployment
 
