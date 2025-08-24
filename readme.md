@@ -144,7 +144,7 @@ Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values
 you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
 
 Please be aware that the port on which the backend server listens is (at the moment) hardcoded to `5100`. In addition the URL scheme used by mobile notifier is (again at the moment) also hardcoded. 
-All API addresses are mapped to the path `/notifier/api/...`, the addresses for the SPA are mappend to `/notifier/app/...` and the swagger documentation is expected to accessed via 
+All API addresses are mapped to the path `/notifier/api/...`, the addresses for the SPA are mappend to `/notifier/app/...` and the swagger documentation is expected to be accessed via 
 `/notifier/api/swagger/...`.
 
 ## Kubernetes deployment
