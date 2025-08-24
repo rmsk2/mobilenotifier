@@ -113,6 +113,12 @@ there may be bugs in this software which allow people to successfully attack you
 In other words: **Please, do not deploy this software in a fashion which exposes it to the public internet**. I run it in my home network on my own K3S kubernetes cluster and for this environment the
 lack of authentication and authorization is acceptable.
 
+## General information
+
+Please be aware that the port on which the backend server listens is (at the moment) hardcoded to `5100`. In addition the URL scheme used by mobile notifier is (again at the moment) also hardcoded. 
+All API addresses are mapped to the path `/notifier/api/...`, the addresses for the SPA are mappend to `/notifier/app/...` and the swagger documentation is expected to be accessed via 
+`/notifier/api/swagger/...`.
+
 ## Running the software during development
 
 You first have to build the frontend by executing `npm run builddev` in the `frontend` subdirectory and `swag init -g controller/swagger_base.go` followed by `go build` in the `backend` subdirectory. 
@@ -142,10 +148,6 @@ called for real.
 In order to run this software on one of your machines in a classical fashion you can build a production version of the frontend after setting `VITE_API_URL` in `.env.prod` to the correct value. 
 Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Of course you also can use a web server if
 you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
-
-Please be aware that the port on which the backend server listens is (at the moment) hardcoded to `5100`. In addition the URL scheme used by mobile notifier is (again at the moment) also hardcoded. 
-All API addresses are mapped to the path `/notifier/api/...`, the addresses for the SPA are mappend to `/notifier/app/...` and the swagger documentation is expected to be accessed via 
-`/notifier/api/swagger/...`.
 
 ## Kubernetes deployment
 
