@@ -146,8 +146,7 @@ called for real.
 ## Running the software on a server
 
 In order to run this software on one of your machines in a classical fashion you can build a production version of the frontend after setting `VITE_API_URL` in `.env.prod` to the correct value. 
-Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Of course you also can use a web server if
-you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
+Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Be aware that in this case the web app is served on port 5100 over plain HTTP, i.e. no TLS is used. Of course you also can use a web server if you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
 
 ## Kubernetes deployment
 

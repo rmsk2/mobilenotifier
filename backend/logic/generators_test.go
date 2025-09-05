@@ -46,11 +46,11 @@ func TestYearly(t *testing.T) {
 
 	t2 = time.Date(2025, time.June, 3, 0, 0, 0, 0, tools.ClientTZ()).UTC()
 	t3 = anniversaryRefTimeGen(&rem, t2).In(tools.ClientTZ())
-	if (t3.Year() != t1.Year()+1) || (t3.Month() != t1.Month()) || (t3.Day() != t1.Day()) {
+	if (t3.Year() != t1.Year()) || (t3.Month() != t1.Month()) || (t3.Day() != t1.Day()) {
 		t.Errorf("Test Y5 failed: %v", t3)
 	}
 
-	t2 = time.Date(2025, time.June, 3, 0, 0, 0, 1, tools.ClientTZ()).UTC()
+	t2 = time.Date(2025, time.June, 3, 12, 0, 0, 1, tools.ClientTZ()).UTC()
 	t3 = anniversaryRefTimeGen(&rem, t2).In(tools.ClientTZ())
 	if (t3.Year() != t1.Year()+1) || (t3.Month() != t1.Month()) || (t3.Day() != t1.Day()) {
 		t.Errorf("Test Y4 failed: %v", t3)

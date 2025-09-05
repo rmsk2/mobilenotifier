@@ -13,7 +13,7 @@ func newTestReminder(ty repo.ReminderType, wa []repo.WarningType, recipients []*
 		Kind:        ty,
 		Param:       0,
 		WarningAt:   wa,
-		Spec:        time.Date(2025, time.June, 15, 12, 22, 15, 0, time.UTC),
+		Spec:        time.Now().Add(time.Hour * 24 * 8),
 		Description: "Test",
 		Recipients:  recipients,
 	}
@@ -29,7 +29,7 @@ func TestRescheduleOneShot(t *testing.T) {
 	martin := tools.UUIDGen()
 	push := tools.UUIDGen()
 	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []*tools.UUID{martin, push})
-	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen)
+	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen, tools.GenerateNotificationText)
 	notifications, err := sch.Reschedule(rem)
 	if err != nil {
 		t.Errorf("%v", err)

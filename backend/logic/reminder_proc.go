@@ -10,11 +10,11 @@ import (
 func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error) {
 	switch k {
 	case repo.OneShot:
-		return NewGenericNotificationGenerator(false, oneShotRefTimeGen), nil
+		return NewGenericNotificationGenerator(false, oneShotRefTimeGen, tools.GenerateNotificationText), nil
 	case repo.Anniversary:
-		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen), nil
+		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen, tools.GenerateNotificationText), nil
 	case repo.Monthly:
-		return NewGenericNotificationGenerator(true, monthlyRefTimeGen), nil
+		return NewGenericNotificationGenerator(true, monthlyRefTimeGen, tools.GenerateNotificationText), nil
 	default:
 		return nil, fmt.Errorf("unknown reminder type: %d", k)
 	}
@@ -46,6 +46,16 @@ func ProcessOneUuid(repoNotify repo.NotificationRepoWrite, repoReminder repo.Rem
 	newNotifications, err := proc.Reschedule(reminder)
 	if err != nil {
 		return err
+	}
+
+	if len(newNotifications) == 0 {
+		// No notifications have been generated => remove reminder
+		errDel := repoReminder.Delete(reminder.Id)
+		if errDel != nil {
+			return fmt.Errorf("no notifications were generated: %v", errDel)
+		}
+
+		return fmt.Errorf("no notifications were generated")
 	}
 
 	for _, j := range newNotifications {
