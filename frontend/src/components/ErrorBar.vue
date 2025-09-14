@@ -9,27 +9,27 @@ export default {
   emits: ['reset-error'],
   watch: {
     usermessage(newVal) {
-        this.stopTimer()
+      this.stopTimer()
 
-        if (newVal == "") {
-            return;
-        }    
+      if (newVal == "") {
+        return;
+      }
 
-        this.timerId = setInterval(() => {
-            this.signalReset()
-            }, this.interval)
-        }
+      this.timerId = setInterval(() => {
+        this.signalReset()
+        }, this.interval)
+      }
     },
   methods: {
     signalReset() {
-        this.stopTimer()
-        this.$emit('reset-error');
+      this.stopTimer()
+      this.$emit('reset-error');
     },
     stopTimer() {
-        if (this.timerId != null) {
-            clearInterval(this.timerId);
-            this.timerId = null;
-        }
+      if (this.timerId != null) {
+        clearInterval(this.timerId);
+        this.timerId = null;
+      }
     }
   }
 }

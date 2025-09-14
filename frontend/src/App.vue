@@ -8,6 +8,7 @@ import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSe
 import { ReminderAPI, getDefaultReminder, Reminder, RecipientData } from './components/reminderapi';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import RecipientList from './components/RecipientList.vue';
+import WaitForNas from './components/WaitForNas.vue';
 
 
 export default {
@@ -48,10 +49,19 @@ export default {
 
       let addrBookData = entryData.toData();
 
-      if (entryData.id === null) {
-        apiResult = await this.api.newAddressBookEntry(addrBookData)
-      } else {
-        apiResult = await this.api.updateAddressBookEntry(addrBookData, entryData.id)
+      try
+      {
+        this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
+
+        if (entryData.id === null) {
+          apiResult = await this.api.newAddressBookEntry(addrBookData)
+        } else {
+          apiResult = await this.api.updateAddressBookEntry(addrBookData, entryData.id)
+        }
+      }
+      finally
+      {
+        this.$refs.waitForNas.hide()
       }
 
       if (apiResult.error) {
@@ -65,9 +75,19 @@ export default {
     },
     async deleteAddrBookEntry(entryId) {
       const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${this.recipientDict[entryId].display_name}" gelöscht werden?`, 'Löschen')
+      let res;
 
       if (ok) {
-        let res = await this.api.deleteAddressBookEntry(entryId);
+        try
+        {
+          this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
+          res = await this.api.deleteAddressBookEntry(entryId);
+        }
+        finally
+        {
+          this.$refs.waitForNas.hide()
+        }
+        
         if (res.error) {
           this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
           return
@@ -84,9 +104,19 @@ export default {
     },
     async deleteReminderAndSwitch(delNotification, newPage) {
       const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${delNotification.description}" gelöscht werden?`, 'Löschen')
+      let res;
 
-      if (ok) {
-        let res = await this.api.deleteReminder(delNotification.id);
+      if (ok) {        
+        try
+        {          
+          this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
+          res = await this.api.deleteReminder(delNotification.id);
+        }
+        finally
+        {
+          this.$refs.waitForNas.hide()
+        }
+        
         if (res.error) {
           this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
           return
@@ -96,17 +126,26 @@ export default {
       }
     },
     async saveReminder(saveData) {
-      this.disableSave = true
+      this.disableSave = true      
 
-      try {
+      try 
+      {
         let h = saveData.reminderData
         let apiResult = null
         let savedId = ""
 
-        if (saveData.id === null) {
-          apiResult = await this.api.createNewReminder(h)
-        } else {
-          apiResult = await this.api.updateReminder(h, saveData.id)
+        try {
+          this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
+
+          if (saveData.id === null) {
+            apiResult = await this.api.createNewReminder(h)
+          } else {
+            apiResult = await this.api.updateReminder(h, saveData.id)
+          }
+        }     
+        finally 
+        {
+          this.$refs.waitForNas.hide()
         }
 
         if (apiResult.error) {
@@ -276,7 +315,8 @@ export default {
     ErrorBar,
     About,
     ConfirmationDialog,
-    RecipientList
+    RecipientList,
+    WaitForNas
   },
   async beforeMount() {
     await this.getApiInfo();
@@ -347,5 +387,6 @@ export default {
     </RecipientList>
 
     <ConfirmationDialog ref="confirmationDialog"></ConfirmationDialog>
+    <WaitForNas ref="waitForNas"></WaitForNas>
   </section>
 </template>

@@ -389,6 +389,6 @@ export default {
       </div>
     </fieldset>
 
-    <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry">Ereignis löschen</button>
+    <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry" :disabled="disablesave">Ereignis löschen</button>
   </div>
 </template>
