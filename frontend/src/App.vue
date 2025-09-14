@@ -46,13 +46,11 @@ export default {
   methods: {
     async upsertAddrBookEntry(entryData) {
       let apiResult = null
-
       let addrBookData = entryData.toData();
 
       try
       {
         this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
-
         if (entryData.id === null) {
           apiResult = await this.api.newAddressBookEntry(addrBookData)
         } else {
@@ -136,7 +134,6 @@ export default {
 
         try {
           this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
-
           if (saveData.id === null) {
             apiResult = await this.api.createNewReminder(h)
           } else {
