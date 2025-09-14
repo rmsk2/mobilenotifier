@@ -13,8 +13,7 @@ export default {
   },
   methods: {
     show(title, message) {
-      this.stopTimer()
-      this.$refs.popup.close()
+      this.hide()
 
       this.title = title
       this.message = message
