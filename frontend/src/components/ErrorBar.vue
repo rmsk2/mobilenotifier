@@ -15,7 +15,7 @@ export default {
         return;
       }
 
-      this.timerId = setInterval(() => {
+      this.timerId = setTimeout(() => {
         this.signalReset()
         }, this.interval)
       }
@@ -27,7 +27,7 @@ export default {
     },
     stopTimer() {
       if (this.timerId != null) {
-        clearInterval(this.timerId);
+        clearTimeout(this.timerId);
         this.timerId = null;
       }
     }

@@ -18,7 +18,7 @@ export default {
       this.title = title
       this.message = message
       
-      this.timerId = setInterval(() => { this.$refs.popup.open() }, this.interval)
+      this.timerId = setTimeout(() => { this.$refs.popup.open() }, this.interval)
     },      
     hide() {
       this.stopTimer()
@@ -26,7 +26,7 @@ export default {
     },
     stopTimer() {
       if (this.timerId != null) {
-        clearInterval(this.timerId);
+        clearTimeout(this.timerId);
         this.timerId = null;
       }
     }    
