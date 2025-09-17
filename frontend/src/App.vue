@@ -76,12 +76,11 @@ export default {
       await this.getFullRecipientData();
     },
     async deleteAddrBookEntry(entryId) {
+      this.allowRecipientEdit = false;
       const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${this.recipientDict[entryId].display_name}" gelöscht werden?`, 'Löschen')
       let res;
 
       if (ok) {
-        this.allowRecipientEdit = false;
-
         try
         {
           this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
@@ -97,6 +96,8 @@ export default {
           this.setErrorMessage("Eintrag konnte nicht gelöscht werden")
           return
         }
+      } else {
+        this.allowRecipientEdit = true;
       }
 
       await this.getFullRecipientData();

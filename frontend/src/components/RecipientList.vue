@@ -184,9 +184,9 @@ export default {
       </tr>
     </table>
     <p/>
-    <button @click="procNewEntry">Alle Eingabewerte zurücksetzen</button><button @click="upsertRecipient">
-      <span v-if="this.editId===null" :disabled="!allowEditing">Neuen Eintrag erstellen</span>
-      <span v-if="this.editId!==null" :disabled="!allowEditing">Eintrag aktualisieren</span>
+    <button @click="procNewEntry">Alle Eingabewerte zurücksetzen</button><button :disabled="!allowEditing" @click="upsertRecipient">
+      <span v-if="this.editId===null">Neuen Eintrag erstellen</span>
+      <span v-if="this.editId!==null">Eintrag aktualisieren</span>
     </button>
   </div>
 </template>
