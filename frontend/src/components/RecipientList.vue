@@ -12,10 +12,11 @@ export default {
       isDefault: false,
       addressType: addrClassIfttt,
       address: "",
-      editButtonText: "Empfängerliste ändern"
+      editButtonText: "Empfängerliste ändern",
+      allowEditing: true
     }
   },
-  props: ['allrecipients', 'editvisible'],
+  props: ['allrecipients', 'editvisible', 'editallow'],
   emits: ['upsert-entry', 'delete-id', 'error-occurred', 'toggle-edit'],
   methods: {
     recipientsAvailable() {
@@ -35,6 +36,7 @@ export default {
         this.isDefault = false
       }
       let entryData = new Recipient(this.addressType, this.address, this.displayName, this.editId, this.isDefault)
+      this.allowEditing = false;
       this.$emit('upsert-entry', entryData);
     },
     procNewEntry() {
@@ -45,6 +47,7 @@ export default {
       this.displayName = ""
     },
     procDelete(id) {
+      this.allowEditing = false;
       this.$emit('delete-id', id);
     },
     procEdit(id) {
@@ -99,6 +102,15 @@ export default {
           // simply defining the watcher as immediate allows
           // this to happen
           this.setButtonText(newVal)
+        },
+        immediate: true
+    },
+    editallow: {
+        handler(newVal){
+          // make sure data is available as early as possible
+          // simply defining the watcher as immediate allows
+          // this to happen
+          this.allowEditing = newVal
         },
         immediate: true
     }
@@ -173,8 +185,8 @@ export default {
     </table>
     <p/>
     <button @click="procNewEntry">Alle Eingabewerte zurücksetzen</button><button @click="upsertRecipient">
-      <span v-if="this.editId===null">Neuen Eintrag erstellen</span>
-      <span v-if="this.editId!==null">Eintrag aktualisieren</span>
+      <span v-if="this.editId===null" :disabled="!allowEditing">Neuen Eintrag erstellen</span>
+      <span v-if="this.editId!==null" :disabled="!allowEditing">Eintrag aktualisieren</span>
     </button>
   </div>
 </template>

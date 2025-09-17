@@ -29,7 +29,8 @@ export default {
       disableSave: false,
       defaultRecipientIds: "",
       addrBookEditable: false,
-      clientTime: ""
+      clientTime: "",
+      allowRecipientEdit: true
     }
   },
   computed: {
@@ -48,6 +49,8 @@ export default {
       let apiResult = null
       let addrBookData = entryData.toData();
 
+      this.allowRecipientEdit = false;
+
       try
       {
         this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
@@ -59,7 +62,8 @@ export default {
       }
       finally
       {
-        this.$refs.waitForNas.hide()
+        this.allowRecipientEdit = true;
+        this.$refs.waitForNas.hide();
       }
 
       if (apiResult.error) {
@@ -76,6 +80,8 @@ export default {
       let res;
 
       if (ok) {
+        this.allowRecipientEdit = false;
+
         try
         {
           this.$refs.waitForNas.show('MobileNotifier', "Warten auf die NAS ...")
@@ -83,6 +89,7 @@ export default {
         }
         finally
         {
+          this.allowRecipientEdit = true;
           this.$refs.waitForNas.hide()
         }
         
@@ -379,7 +386,7 @@ export default {
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics">
     </About>
-    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :editvisible="addrBookEditable"
+    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
       @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">
     </RecipientList>
 
