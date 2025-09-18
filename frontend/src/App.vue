@@ -9,6 +9,7 @@ import { ReminderAPI, getDefaultReminder, Reminder, RecipientData } from './comp
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import RecipientList from './components/RecipientList.vue';
 import WaitForNas from './components/WaitForNas.vue';
+import { nextTick } from 'vue';
 
 
 export default {
@@ -76,9 +77,13 @@ export default {
       await this.getFullRecipientData();
     },
     async deleteAddrBookEntry(entryId) {
-      this.allowRecipientEdit = false;
       const ok = await this.$refs.confirmationDialog.show('MobileNotifier', `Soll "${this.recipientDict[entryId].display_name}" gelöscht werden?`, 'Löschen')
       let res;
+
+      this.allowRecipientEdit = false;
+      // If this is omitted, then vue does not pick up on the change in the editallow watcher in
+      // RecipientList.vue
+      await nextTick();
 
       if (ok) {
         try
