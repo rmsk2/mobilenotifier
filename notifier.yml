@@ -5,7 +5,7 @@ metadata:
   name: backend-config
 data:
   DB_PATH: "/opt/data/notifier.db"
-  SWAGGER_URL: "https://debshuttle/notifier/api/swagger/doc.json"
+  SWAGGER_URL: "https://debasus/notifier/api/swagger/doc.json"
   MN_CLIENT_TZ: "Europe/Berlin"
   MN_MAIL_SERVER: "mail.gmx.net"
   MN_MAIL_SERVER_PORT: "587"
