@@ -204,8 +204,20 @@ export default {
       this.month = m + 1
       this.performDateCorrection()
     },
+    daySelected(event) {
+      this.day = event.target.value
+      this.performDateCorrection()
+    },
+    monthSelected(event) {
+      this.month = event.target.value
+      this.performDateCorrection()
+    },
+    yearSelected(event) {
+      this.year = event.target.value
+      this.performDateCorrection()
+    },
     performDateCorrection() {
-      let m30 = new Set([4, 6, 9, 11])
+      let m30 = new Set([3, 5, 8, 10])
       let maxDay = 31
 
       if (this.month == 2) {
@@ -214,7 +226,9 @@ export default {
           maxDay = 29
         }
       } else {
-        if (m30.has(this.month)) {
+        // The minus 1 is important it seems to convert
+        // this.month into a proper number
+        if (m30.has(this.month - 1)) {
           maxDay = 30
         }
       }
@@ -343,7 +357,7 @@ export default {
           <td>Zeitpunkt</td>
           <td>
             <div id="eventtime" name="eventtime">              
-              <select name="dayselect" v-model="day" id="dayselect">
+              <select name="dayselect" :value="day"  @change="daySelected" id="dayselect">
                 <option value="1">01</option>
                 <option value="2">02</option>
                 <option value="3">03</option>
@@ -377,7 +391,7 @@ export default {
                 <option value="31">31</option>
               </select>  
 
-              <select name="monthselect" v-model="month" id="monthselect">
+              <select name="monthselect" :value="month" @change="monthSelected" id="monthselect">
                 <option value="1">Januar</option>
                 <option value="2">Februar</option>
                 <option value="3">März</option>
@@ -392,7 +406,7 @@ export default {
                 <option value="12">Dezember</option>
               </select>
 
-              <input type="number" size="6" id="yearin" name="yearin" v-model="year"></input>
+              <input type="number" size="6" id="yearin" name="yearin" :value="year" @change="yearSelected"></input>
 
               <select name="hourselect" v-model="hours" id="hourselect">
                 <option value="0">00</option>
