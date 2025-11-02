@@ -1,5 +1,5 @@
 <script>
-import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot } from './reminderapi';
+import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot, reminderWeekly } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
 import { DeleteNotification } from './globals';
 
@@ -17,6 +17,7 @@ export default {
       reminderOneShot: reminderOneShot,
       reminderAnniversary: reminderAnniversary,
       reminderMonthly: reminderMonthly,
+      reminderWeekly: reminderWeekly,
       warningMorningBefore: warningMorningBefore,
       warningNoonBefore: warningNoonBefore,
       warningEveningBefore: warningEveningBefore,
@@ -65,6 +66,11 @@ export default {
   props: ['editdata', 'allrecipients', 'disablesave'],
   emits: ['error-occurred', 'delete-id', 'save-data'],
   computed: {
+    weekDay() {
+      let d = new Date(this.year, this.month-1, this.day);
+      let days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
+      return days[d.getDay()]
+    },
     recipientNames() {
       let res = []
 
@@ -94,6 +100,129 @@ export default {
     }
   },
   methods: {
+    nextDay() {
+      let m30 = new Set([3, 5, 8, 10])
+
+      let m = this.month - 1
+      let y = this.year
+      let d = this.day + 1
+        
+      if (m === 1) {
+        // February
+        let maxDay = 28
+
+        if (isLeapYear(this.year)) {
+          maxDay = 29
+        }
+
+        if (d > maxDay) {
+          m = m + 1
+          d = 1
+        }
+      }
+      else if (m === 11) {
+        // December
+        if (d > 31) {
+          m = 0
+          d = 1
+          y = this.year + 1
+        }
+      }      
+      else {
+        let maxDay = 31
+        if (m30.has(m)) {
+          maxDay = 30
+        }
+
+        if (d > maxDay) {
+          m = m + 1
+          d = 1
+        }
+      }
+
+      this.day = d
+      this.month = m + 1
+      this.year = y
+    },
+    prevDay() {
+      //let m31 = Set([0, 2, 4, 6, 7, 9])
+      let m30 = new Set([3, 5, 8, 10])
+
+      let m = this.month - 1
+      let y = this.year
+      let d = this.day - 1
+
+      if (d === 0) {        
+        if (m === 2) {
+          // March to February
+          let febDay = 28
+          if (isLeapYear(this.year)) {
+            febDay = 29
+          }
+
+          m = 1
+          d = febDay
+        }        
+        else if (m === 0) {
+          // December to January
+          d = 31
+          m = 11
+          y = y - 1
+        }
+        else {
+          // All other months
+          m = m - 1
+          d = 31
+
+          if (m30.has(m)) {
+            d = 30
+          }
+        }
+      }
+
+      this.day = d
+      this.month = m + 1
+      this.year = y
+    },
+    nextMonth() {
+      let m = this.month - 1
+      m = (m + 1) % 12
+      if (m === 0) {
+        this.year++        
+      }
+
+      this.month = m + 1
+      this.performDateCorrection()
+    },
+    prevMonth() {
+      let m = this.month - 1
+      m = (m + 11) % 12
+      if (m === 11) {
+        this.year--        
+      }
+
+      this.month = m + 1
+      this.performDateCorrection()
+    },
+    performDateCorrection() {
+      let m30 = new Set([4, 6, 9, 11])
+      let maxDay = 31
+
+      if (this.month == 2) {
+        maxDay = 28
+        if (isLeapYear(this.year)) {
+          maxDay = 29
+        }
+      } else {
+        if (m30.has(this.month)) {
+          maxDay = 30
+        }
+      }
+
+      if (this.day > maxDay) {
+        this.day = maxDay
+      }
+    },
     makeNumeric() {
       let h = []
       for (let i in this.warningAt) {
@@ -201,6 +330,15 @@ export default {
         <b>Basisdaten des Ereignisses</b>
       </legend>
       <table class="edit-entry-table">
+        <tr>
+          <td>Shortcuts</td>
+          <td>              
+              <button @click="nextDay">Einen Tag vor</button>
+              <button @click="prevDay">Einen Tag zurück</button>
+              <button @click="nextMonth">Einen Monat vor</button>
+              <button @click="prevMonth">Einen Monat zurück</button>
+          </td>
+        </tr>
         <tr>
           <td>Zeitpunkt</td>
           <td>
@@ -345,6 +483,7 @@ export default {
                 <option value="58">58</option>
                 <option value="59">59</option>
               </select>
+              {{ weekDay }}
             </div>
           </td>
         </tr>
@@ -361,6 +500,7 @@ export default {
               <option :value="reminderOneShot">Einmaliges Ereignis</option>
               <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
               <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
+              <option :value="reminderWeekly">Wöchentlich wiederkehrendes Ereignis</option>
             </select>
           </td>
         </tr>

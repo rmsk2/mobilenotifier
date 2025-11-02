@@ -12,6 +12,7 @@ var RefTimeMap map[repo.ReminderType]ReftimeGenerator = map[repo.ReminderType]Re
 	repo.Anniversary: anniversaryRefTimeGen,
 	repo.OneShot:     oneShotRefTimeGen,
 	repo.Monthly:     monthlyRefTimeGen,
+	repo.Weekly:      weeklyRefTimeGen,
 }
 
 func oneShotRefTimeGen(r *repo.Reminder, now time.Time) time.Time {
@@ -66,24 +67,30 @@ func monthlyRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	return refThisMonth.UTC()
 }
 
-// Calculates the next occurrance of the event defined by r.Spec in the clients timezone
+// Calculates the next occurrance of the event defined by r.Spec in the clients timezone relative to
+// the point in time given by n
 func weeklyRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	h := r.Spec.In(tools.ClientTZ())
 	now := n.In(tools.ClientTZ())
 	var refThisWeek time.Time
 	var offset int
 
+	sameDayReftime := time.Date(now.Year(), now.Month(), now.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
+
 	switch {
 	case h.Weekday() == now.Weekday():
-		offset = 7
+		if sameDayReftime.Compare(now) > 0 {
+			offset = 0
+		} else {
+			offset = 7
+		}
 	case h.Weekday() < now.Weekday():
 		offset = 7 - (int(now.Weekday()) - int(h.Weekday()))
 	default:
 		offset = int(h.Weekday()) - int(now.Weekday())
 	}
 
-	now = time.Date(now.Year(), now.Month(), now.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
-	refThisWeek = now.AddDate(0, 0, offset)
+	refThisWeek = sameDayReftime.AddDate(0, 0, offset)
 
 	return refThisWeek.UTC()
 }

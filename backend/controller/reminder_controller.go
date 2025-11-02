@@ -157,7 +157,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if (repo.WarningType(m.Kind) < repo.WarningType(repo.Anniversary)) || (m.Kind > repo.Monthly) {
+	if (repo.WarningType(m.Kind) < repo.WarningType(repo.Anniversary)) || (m.Kind > repo.Weekly) {
 		n.log.Printf("Illegal kind of reminder type: %d", m.Kind)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
@@ -335,6 +335,7 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 // @Tags	     Reminder
 // @Param        month    query     int  true  "month to look at"
 // @Param        year    query     int  true  "year to look at"
+// @Param        all    query    string  false  "if present also include events for the current month which are in the past"
 // @Success      200  {object} OverviewResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
@@ -373,12 +374,22 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 	}
 
 	if year < 0 {
-		n.log.Printf("illegal year parameter: %d", month)
+		n.log.Printf("illegal year parameter: %d", year)
 		http.Error(w, "Illegal year", http.StatusBadRequest)
 		return
 	}
 
 	refTimeStart := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, tools.ClientTZ())
+
+	if r.URL.Query().Get("all") == "" {
+		// If data for the current month is requested, then don't show events which are in the past
+		timeNow := time.Now().In(tools.ClientTZ())
+
+		if (timeNow.Year() == refTimeStart.Year()) && (timeNow.Month() == refTimeStart.Month()) {
+			refTimeStart = time.Date(refTimeStart.Year(), refTimeStart.Month(), timeNow.Day(), 0, 0, 0, 0, tools.ClientTZ())
+		}
+	}
+
 	oneMillisecond := time.Millisecond
 	refTimeStart = refTimeStart.Add(-oneMillisecond).UTC()
 
@@ -397,7 +408,7 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 		return (t.Compare(refTimeStart) != -1) && (t.Compare(refTimeEnd) == -1)
 	}
 
-	n.HandleFilteredOverview(w, r, timeFilter, 0, refTimeStart)
+	n.HandleFilteredOverview(w, r, timeFilter, 0, refTimeStart, &refTimeEnd)
 }
 
 func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, refNow time.Time) {
@@ -466,10 +477,32 @@ func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Reque
 	}
 
 	filterFunc := func(*repo.Reminder) bool { return true }
-	n.HandleFilteredOverview(w, r, filterFunc, maxEntries, time.Now().UTC())
+	n.HandleFilteredOverview(w, r, filterFunc, maxEntries, time.Now().UTC(), nil)
 }
 
-func (n *ReminderController) HandleFilteredOverview(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, maxEntries int, refTime time.Time) {
+func (n *ReminderController) addWeeklyEvents(responses *[]*ReminderOverview, sr *SmallReminder, j *repo.Reminder, refTime time.Time, refTimeEnd *time.Time) {
+	for {
+		nextEventTime := logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ())
+		if nextEventTime.UTC().Compare(*refTimeEnd) >= 0 {
+			break
+		}
+
+		n.addNextEvent(responses, sr, j, refTime)
+
+		refTime = refTime.AddDate(0, 0, 7)
+	}
+}
+
+func (n *ReminderController) addNextEvent(responses *[]*ReminderOverview, sr *SmallReminder, j *repo.Reminder, refTime time.Time) {
+	o := ReminderOverview{
+		Reminder:  sr,
+		NextEvent: logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ()),
+	}
+
+	*responses = append(*responses, &o)
+}
+
+func (n *ReminderController) HandleFilteredOverview(w http.ResponseWriter, r *http.Request, filterFunc repo.ReminderPredicate, maxEntries int, refTime time.Time, refTimeEnd *time.Time) {
 	//_, readRepo := n.db.RLock()
 	readRepo := repo.LockAndGetRepoR(n.db, n.generator)
 	defer func() { n.db.RUnlock() }()
@@ -481,18 +514,34 @@ func (n *ReminderController) HandleFilteredOverview(w http.ResponseWriter, r *ht
 		return
 	}
 
+	// This method is called if the user either requests a list of all events or a list of events in a
+	// specific month. In the first case refTimeEnd is nil and in the second case the parameter is not nil. The
+	// list of all events only contains the next occurrance of each event. The monthly list takes weekly
+	// events into account which will occur several times in a month.
+	monthlyList := refTimeEnd != nil
+
 	responses := []*ReminderOverview{}
 	for _, j := range allReminders {
+
 		sr := SmallReminder{
 			Id:          j.Id,
 			Description: j.Description,
 			Kind:        j.Kind,
 		}
-		o := ReminderOverview{
-			Reminder:  &sr,
-			NextEvent: logic.RefTimeMap[j.Kind](j, refTime).In(tools.ClientTZ()),
+
+		if monthlyList {
+			if j.Kind == repo.Weekly {
+				n.addWeeklyEvents(&responses, &sr, j, refTime, refTimeEnd)
+			} else {
+				// Monthly and yearly events occur at most once in a month.
+				// Due to the fitering done before we know that the event does
+				// occur in the specified month.
+				n.addNextEvent(&responses, &sr, j, refTime)
+			}
+		} else {
+			// Only determine next occurrance of each event
+			n.addNextEvent(&responses, &sr, j, refTime)
 		}
-		responses = append(responses, &o)
 	}
 
 	sort.SliceStable(responses, func(i, j int) bool {

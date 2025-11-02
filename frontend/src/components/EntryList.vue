@@ -1,5 +1,5 @@
 <script>
-import { reminderAnniversary, reminderMonthly } from './reminderapi';
+import { reminderAnniversary, reminderMonthly, reminderWeekly } from './reminderapi';
 import { DeleteNotification } from './globals';
 
 export default {
@@ -42,6 +42,10 @@ export default {
         if (e.reminder.kind === reminderMonthly) {
           cl = "list-monthly";
         }
+
+        if (e.reminder.kind === reminderWeekly) {
+          cl = "list-weekly";
+        }        
 
         res.push({id: e.reminder.id, textDate: td, textTime: tt, text: t, cls: cl});
       }

@@ -78,6 +78,11 @@ td.list-monthly {
   background-color: var(--list-monthly-highlight);
 }
 
+/* Show weekly events in different color */
+td.list-weekly {
+  background-color: var(--list-weekly-highlight);
+}
+
 
 /* Draw external borders and column borders. No border between rows*/
 .about-table,

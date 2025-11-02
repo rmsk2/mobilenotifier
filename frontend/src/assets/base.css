@@ -8,6 +8,7 @@
   --global-green: #00FF00;
   --global-light-blue: #d3eaff;
   --global-faint-green: #cbf1cb;
+  --global-faint-blue: #cff2f5;
 
   /* Logical colours*/
   --global-background: var(--global-white);
@@ -21,4 +22,5 @@
   --menu-inactive: var(--nav-bar-background);
   --list-yearly-highlight: var(--global-highlight);
   --list-monthly-highlight: var(--global-faint-green);
+  --list-weekly-highlight: var(--global-faint-blue)
 }

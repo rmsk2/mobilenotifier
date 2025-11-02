@@ -12,6 +12,7 @@ const (
 	Anniversary ReminderType = iota + 1
 	OneShot
 	Monthly
+	Weekly
 )
 
 const (
