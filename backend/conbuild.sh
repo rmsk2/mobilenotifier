@@ -24,6 +24,6 @@ buildah rmi $img
 
 # Distribute image
 scp $binary martin@debasus:$binary
-scp $binary martin@debshuttle:$binary
+scp $binary martin@desktop1:$binary
 scp $binary martin@debasus2:$binary
 
