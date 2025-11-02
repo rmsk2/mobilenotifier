@@ -205,15 +205,15 @@ export default {
       this.performDateCorrection()
     },
     daySelected(event) {
-      this.day = event.target.value
+      this.day = Number(event.target.value)
       this.performDateCorrection()
     },
     monthSelected(event) {
-      this.month = event.target.value
+      this.month = Number(event.target.value)
       this.performDateCorrection()
     },
     yearSelected(event) {
-      this.year = event.target.value
+      this.year = Number(event.target.value)
       this.performDateCorrection()
     },
     performDateCorrection() {
