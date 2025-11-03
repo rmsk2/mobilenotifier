@@ -1,14 +1,7 @@
 <script>
 import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot, reminderWeekly } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
-import { DeleteNotification } from './globals';
-
-
-function isLeapYear(year)
-{
-  return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-}
-
+import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection } from './globals';
 
 
 export default {
@@ -101,141 +94,39 @@ export default {
   },
   methods: {
     nextDay() {
-      let m30 = new Set([3, 5, 8, 10])
-
-      let m = this.month - 1
-      let y = this.year
-      let d = this.day + 1
-        
-      if (m === 1) {
-        // February
-        let maxDay = 28
-
-        if (isLeapYear(this.year)) {
-          maxDay = 29
-        }
-
-        if (d > maxDay) {
-          m = m + 1
-          d = 1
-        }
-      }
-      else if (m === 11) {
-        // December
-        if (d > 31) {
-          m = 0
-          d = 1
-          y = this.year + 1
-        }
-      }      
-      else {
-        let maxDay = 31
-        if (m30.has(m)) {
-          maxDay = 30
-        }
-
-        if (d > maxDay) {
-          m = m + 1
-          d = 1
-        }
-      }
-
-      this.day = d
-      this.month = m + 1
-      this.year = y
+      let res = incDay(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
     },
     prevDay() {
-      //let m31 = Set([0, 2, 4, 6, 7, 9])
-      let m30 = new Set([3, 5, 8, 10])
-
-      let m = this.month - 1
-      let y = this.year
-      let d = this.day - 1
-
-      if (d === 0) {        
-        if (m === 2) {
-          // March to February
-          let febDay = 28
-          if (isLeapYear(this.year)) {
-            febDay = 29
-          }
-
-          m = 1
-          d = febDay
-        }        
-        else if (m === 0) {
-          // December to January
-          d = 31
-          m = 11
-          y = y - 1
-        }
-        else {
-          // All other months
-          m = m - 1
-          d = 31
-
-          if (m30.has(m)) {
-            d = 30
-          }
-        }
-      }
-
-      this.day = d
-      this.month = m + 1
-      this.year = y
+      let res = decDay(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
     },
     nextMonth() {
-      let m = this.month - 1
-      m = (m + 1) % 12
-      if (m === 0) {
-        this.year++        
-      }
-
-      this.month = m + 1
-      this.performDateCorrection()
+      let res = sucMonth(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
     },
     prevMonth() {
-      let m = this.month - 1
-      m = (m + 11) % 12
-      if (m === 11) {
-        this.year--        
-      }
-
-      this.month = m + 1
-      this.performDateCorrection()
+      let res = predMonth(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
     },
     daySelected(event) {
-      this.day = Number(event.target.value)
-      this.performDateCorrection()
+      this.day = performDateCorrection(Number(event.target.value), this.month, this.year)
     },
     monthSelected(event) {
       this.month = Number(event.target.value)
-      this.performDateCorrection()
+      this.day = performDateCorrection(this.day, this.month, this.year)
     },
     yearSelected(event) {
       this.year = Number(event.target.value)
-      this.performDateCorrection()
-    },
-    performDateCorrection() {
-      let m30 = new Set([3, 5, 8, 10])
-      let maxDay = 31
-
-      if (this.month == 2) {
-        maxDay = 28
-        if (isLeapYear(this.year)) {
-          maxDay = 29
-        }
-      } else {
-        // The minus 1 is important it seems to convert
-        // this.month into a proper number
-        if (m30.has(this.month - 1)) {
-          maxDay = 30
-        }
-      }
-
-      if (this.day > maxDay) {
-        this.day = maxDay
-      }
+      this.day = performDateCorrection(this.day, this.month, this.year)
     },
     makeNumeric() {
       let h = []
