@@ -525,13 +525,33 @@ export default {
       <legend>
         <b>Gewünschte Vorwarnung</b>
       </legend>
-      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningMorningBefore" />Am Morgen des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningNoonBefore" />Am Mittag des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningEveningBefore" />Am Abend des vorigen Tages<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningWeekBefore" />Eine Woche vor dem Ereignis<br/>
-      <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningSameDay" />Am Tag des Ereignisses<br/>
-      <label for="param">Vorlauf in Stunden bei Warnung am gleichen Tag:</label>
-      <input type="number" size="3" id="param" name="param" v-model="param"></input>
+      <table style="border-collapse: collapse;">
+        <tr>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningMorningBefore" />Am Morgen des vorigen Tages<br/>
+          </td>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningNoonBefore" />Am Mittag des vorigen Tages<br/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningEveningBefore" />Am Abend des vorigen Tages<br/>
+          </td>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningWeekBefore" />Eine Woche vor dem Ereignis<br/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningSameDay" />Am Tag des Ereignisses<br/>
+          </td>
+          <td>
+            <label for="param">Vorlauf in Stunden bei Warnung am gleichen Tag:</label>
+            <input type="number" size="3" id="param" name="param" v-model="param"></input>
+          </td>
+        </tr>
+      </table>
     </fieldset>
 
     <fieldset>
