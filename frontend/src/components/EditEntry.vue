@@ -118,15 +118,20 @@ export default {
       this.year = res.year
     },
     daySelected(event) {
-      this.day = performDateCorrection(Number(event.target.value), this.month, this.year)
+      this.day = Number(event.target.value)
+      this.performDateCorrection2()
     },
     monthSelected(event) {
       this.month = Number(event.target.value)
-      this.day = performDateCorrection(this.day, this.month, this.year)
+      this.performDateCorrection2()
     },
     yearSelected(event) {
       this.year = Number(event.target.value)
-      this.day = performDateCorrection(this.day, this.month, this.year)
+      this.performDateCorrection2()
+    },
+    performDateCorrection2() {
+      let t = performDateCorrection(this.day, this.month, this.year)
+      this.day = t
     },
     makeNumeric() {
       let h = []
