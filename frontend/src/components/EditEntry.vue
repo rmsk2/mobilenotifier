@@ -2,6 +2,7 @@
 import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot, reminderWeekly } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
 import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection } from './globals';
+import { nextTick } from 'vue';
 
 
 export default {
@@ -117,21 +118,23 @@ export default {
       this.month = res.month
       this.year = res.year
     },
-    daySelected(event) {
+    async daySelected(event) {
       this.day = Number(event.target.value)
-      this.performDateCorrection2()
+      await this.performDateCorrection2()
     },
-    monthSelected(event) {
+    async monthSelected(event) {
       this.month = Number(event.target.value)
-      this.performDateCorrection2()
+      await this.performDateCorrection2()
     },
-    yearSelected(event) {
+    async yearSelected(event) {
       this.year = Number(event.target.value)
-      this.performDateCorrection2()
+      await this.performDateCorrection2()
     },
-    performDateCorrection2() {
+    async performDateCorrection2() {
+      await nextTick()
       let t = performDateCorrection(this.day, this.month, this.year)
       this.day = t
+      await nextTick()
     },
     makeNumeric() {
       let h = []
