@@ -3,7 +3,7 @@ const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
 const recipientListSelected = 5;
-const versionString = "0.9.12";
+const versionString = "0.9.13";
 
 class DeleteNotification {
    constructor(id, description) {
@@ -14,7 +14,7 @@ class DeleteNotification {
 
 export { 
   monthSelected, newSelected, allSelected, aboutSelected, versionString, recipientListSelected,
-  DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection
+  DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear
 };
 
 
@@ -110,6 +110,26 @@ function sucMonth(day, month, year) {
   m++
   return {day: performDateCorrection(d, m, y), month: m, year: y}
 }
+
+function sucYear(day, month, year) {
+  let y = year + 1
+  let d = day
+  let m = month
+
+  return {day: performDateCorrection(d, m, y), month: m, year: y}
+}
+
+function predYear(day, month, year) {
+  let y = year - 1
+  if (y < 0) {
+    y = 0
+  }
+  let d = day
+  let m = month
+
+  return {day: performDateCorrection(d, m, y), month: m, year: y}  
+}
+
 
 function predMonth(day, month, year) {
   let d = day

@@ -1,7 +1,7 @@
 <script>
 import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot, reminderWeekly } from './reminderapi';
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
-import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection } from './globals';
+import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear } from './globals';
 import { nextTick } from 'vue';
 
 
@@ -118,6 +118,18 @@ export default {
       this.month = res.month
       this.year = res.year
     },
+    nextYear() {
+      let res = sucYear(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
+    },
+    prevYear() {
+      let res = predYear(this.day, this.month, this.year)
+      this.day = res.day
+      this.month = res.month
+      this.year = res.year
+    },    
     async daySelected(event) {
       this.day = Number(event.target.value)
       await this.performDateCorrection2()
@@ -246,10 +258,12 @@ export default {
         <tr>
           <td>Shortcuts</td>
           <td>              
-              <button @click="nextDay">Einen Tag vor</button>
-              <button @click="prevDay">Einen Tag zurück</button>
-              <button @click="nextMonth">Einen Monat vor</button>
-              <button @click="prevMonth">Einen Monat zurück</button>
+              Einen Tag: <button @click="nextDay">vor</button>
+              <button @click="prevDay">zurück</button>
+              Einen Monat: <button @click="nextMonth">vor</button>
+              <button @click="prevMonth">zurück</button>
+              Ein Jahr: <button @click="nextYear">vor</button>
+              <button @click="prevYear">zurück</button>              
           </td>
         </tr>
         <tr>
