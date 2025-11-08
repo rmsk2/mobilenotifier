@@ -65,6 +65,9 @@ export default {
       let days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
       return days[d.getDay()]
     },
+    descriptionLen() {
+      return this.description.length
+    },
     recipientNames() {
       let res = []
 
@@ -417,7 +420,7 @@ export default {
         <tr>
           <td>Beschreibung</td>
           <td>
-            <input type="text" id="desc" name="desc" size="80" v-model="description"></input><br>
+            <input type="text" id="desc" name="desc" size="80" v-model="description"></input> Länge: {{ descriptionLen }}<br>
           </td>
         </tr>
         <tr>
