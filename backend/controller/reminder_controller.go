@@ -487,7 +487,10 @@ func (n *ReminderController) addWeeklyEvents(responses *[]*ReminderOverview, sr 
 			break
 		}
 
-		n.addNextEvent(responses, sr, j, refTime)
+		// Only include events which are still in the future
+		if time.Now().UTC().Compare(nextEventTime.UTC()) <= 0 {
+			n.addNextEvent(responses, sr, j, refTime)
+		}
 
 		refTime = refTime.AddDate(0, 0, 7)
 	}
