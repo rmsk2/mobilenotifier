@@ -386,7 +386,7 @@ func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Re
 		timeNow := time.Now().In(tools.ClientTZ())
 
 		if (timeNow.Year() == refTimeStart.Year()) && (timeNow.Month() == refTimeStart.Month()) {
-			refTimeStart = time.Date(refTimeStart.Year(), refTimeStart.Month(), timeNow.Day(), 0, 0, 0, 0, tools.ClientTZ())
+			refTimeStart = timeNow
 		}
 	}
 
@@ -487,10 +487,7 @@ func (n *ReminderController) addWeeklyEvents(responses *[]*ReminderOverview, sr 
 			break
 		}
 
-		// Only include events which are still in the future
-		if time.Now().UTC().Compare(nextEventTime.UTC()) <= 0 {
-			n.addNextEvent(responses, sr, j, refTime)
-		}
+		n.addNextEvent(responses, sr, j, refTime)
 
 		refTime = refTime.AddDate(0, 0, 7)
 	}
