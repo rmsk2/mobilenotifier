@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"log"
 	"notifier/repo"
 	"notifier/sms"
@@ -103,6 +104,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 
 	if w.metricCallback != nil {
 		w.metricCallback(tools.NotificationSent)
+		w.metricCallback(fmt.Sprintf("%s_%s", info.recipient, time.Now().Format(time.ANSIC)))
 	}
 
 	err = writeRepo.Delete(info.uuid)

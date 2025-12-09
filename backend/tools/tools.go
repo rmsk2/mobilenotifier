@@ -2,7 +2,7 @@ package tools
 
 import "fmt"
 
-const VersionString = "0.9.38"
+const VersionString = "0.9.39"
 
 const MsgTextTomorrow = "Morgen"
 const MsgTextToday = "Heute"
