@@ -84,7 +84,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	}
 
 	if !ok {
-		w.log.Printf("Recipeient '%s' in notification '%s' is invalid. Deleting notification", info.recipient, info.uuid)
+		w.log.Printf("Recipient '%s' in notification '%s' is invalid. Deleting notification", info.recipient, info.uuid)
 		err = writeRepo.Delete(info.uuid)
 		if err != nil {
 			w.log.Printf("Unable to delete notification '%s': %v", info.uuid, err)
@@ -103,6 +103,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 
 	if w.metricCallback != nil {
 		w.metricCallback(tools.NotificationSent)
+		w.metricCallback(info.recipient.String())
 	}
 
 	err = writeRepo.Delete(info.uuid)
