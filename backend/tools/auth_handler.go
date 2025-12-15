@@ -26,6 +26,45 @@ func ApiKeyAuthenticator(authSecret AuthSecret, logger *log.Logger, originalHand
 	}
 }
 
+func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	jwtVerifier := NewHs256Jwt([]byte(authSecret.Secret))
+
+	res := func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get(authSecret.HeaderName)
+		parsedClaims, err := jwtVerifier.VerifyJwt(token)
+		if err != nil {
+			logger.Printf("Unable to authenticate client: %v", err)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		claims, err := NewFromVerifiedClaims(parsedClaims)
+		if err != nil {
+			logger.Printf("Unable to authenticate client: %v", err)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		if claims.Audience != "gschmarri" {
+			logger.Printf("Unable to authenticate client. Audience mismatch: '%s'", claims.Audience)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		if claims.Issuer != "gschmarri" {
+			logger.Printf("Unable to authenticate client. Issuer mismatch: '%s' ", claims.Audience)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		logger.Printf("User '%s' successfully authenticated", claims.Subject)
+
+		originalHandler(w, r)
+	}
+
+	return res
+}
+
 func MakeWrapper(authSecret AuthSecret, logger *log.Logger, authenticator AuthenticatorFunc) AuthWrapperFunc {
 	return func(handler func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
 		return authenticator(authSecret, logger, handler)

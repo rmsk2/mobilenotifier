@@ -170,6 +170,7 @@ func run() int {
 	smsLogger := createLogger()
 	authSecret := createAuthSecret()
 	authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.ApiKeyAuthenticator)
+	//authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.JwtHs256Authenticator)
 	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
 
