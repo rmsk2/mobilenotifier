@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+const ExpectedJwtAudience = "gschmarri"
+const ExpectedJwtIssuer = "gschmarri"
+
 type AuthSecret struct {
 	Secret     string
 	HeaderName string
@@ -45,14 +48,14 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 			return
 		}
 
-		if claims.Audience != "gschmarri" {
+		if claims.Audience != ExpectedJwtAudience {
 			logger.Printf("Unable to authenticate client. Audience mismatch: '%s'", claims.Audience)
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return
 		}
 
-		if claims.Issuer != "gschmarri" {
-			logger.Printf("Unable to authenticate client. Issuer mismatch: '%s' ", claims.Audience)
+		if claims.Issuer != ExpectedJwtIssuer {
+			logger.Printf("Unable to authenticate client. Issuer mismatch: '%s' ", claims.Issuer)
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return
 		}
