@@ -144,6 +144,10 @@ class ReminderAPI {
         return this.URL;
     }
 
+    setToken(newToken) {
+        this.Token = newToken;
+    }
+
     async createNewReminder(reminderData) {
         try
         {
@@ -154,6 +158,7 @@ class ReminderAPI {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 },
                 body: JSON.stringify(reminderData)
             });
@@ -179,6 +184,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -204,6 +210,7 @@ class ReminderAPI {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 },
                 body: JSON.stringify(reminderData)
             });
@@ -228,6 +235,7 @@ class ReminderAPI {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 },
                 body: JSON.stringify(entryData)
             });
@@ -265,6 +273,7 @@ class ReminderAPI {
                 method: "delete",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -299,6 +308,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -323,6 +333,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -372,6 +383,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -396,6 +408,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
@@ -420,6 +433,7 @@ class ReminderAPI {
                 method: "get",
                 headers: {
                     'Accept': 'application/json',
+                    'X-Token': this.Token
                 }
             });
 
