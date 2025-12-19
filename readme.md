@@ -7,15 +7,19 @@ the needed `.yml` kubernetes config files are also part of the project.
 
 As the core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
 from several vendors (even though these often lack sending reminders via SMS) the main purpose for creating this application was to get some exercise using `Vue.js`
-and kubernetes. Nonetheless it is functional and useful if you want to run it on your own systems. Please read the [important notice](#important-notice) below.
+and kubernetes. Nonetheless it is functional and useful if you want to run it on your own systems. If you do you also have to install my JWT token issuer, which can be
+found [here](https://github.com/rmsk2/tokenissuer). This also means you have to issue client certificates to all entities whcih are expected to use the system. You
+could use my [minica](https://github.com/rmsk2/minica) for this purpose.
+
+Please read the [important notice](#important-notice) below.
 
 # Building the software
 
 ## Frontend
 
 You need to install `node.js` before being able to build the frontend. After that the frontend can be built by running either `npm run builddev` or `npm run buildprod` 
-from the `frontend` subdirectory. The API URL where the app expects its backend service can be configured through `.env.dev` and `.env.prod`. The resulting package 
-is stored in the `dist` subdirectory of the `frontend` folder from where it can be copied or referenced.
+from the `frontend` subdirectory. The API URL where the app expects its backend service and the token issuer can be configured through `.env.dev` and `.env.prod`. 
+The resulting package is stored in the `dist` subdirectory of the `frontend` folder from where it can be copied or referenced.
 
 ## Backend
 
@@ -34,6 +38,7 @@ variables:
 |NOTIFIER_API_KEY| Secret value which is used to authorize calls to the `/notifier/api/send/{recipient}` API method | Yes |
 |MN_MAIL_SERVER| This variable has to contain the FQDN of the SMTP server which is used to send mail notifications| No |
 |MN_MAIL_SERVER_PORT| Here the port used by the SMTP server defined above can be set | No |
+|EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using| No |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notificarions| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
@@ -102,16 +107,22 @@ when talking to them.
 
 # Deploying the software
 
+## Authentication
+
+All backend REST calls are authenticated via JWTs issued by my [`tokenissuer`](https://github.com/rmsk2/tokenissuer) software. The `tokenissuer` can be called by any party who is able to
+perform a successfull TLS client authentication (using a client cert issued a priavte TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. A new token can be
+requested by reloading the web app.
+
 ## Important notice 
 
-Even though the infrastructure for implementing authentication and authorization is there (see `backend/tools/auth_handler.go`) nearly all methods of the backend service can be called without 
-authentication and authorization. The only exception is the API method to manually send a notification message which uses an API key. Or in other words **if you deploy this software in such a way 
-that it can be called from the public internet you effectively allow other people to send text messages, e-mails and push messages to all recipients configured in your IFTTT recipes and/or specified
-in the address book**. I assume this is not what you want especially if there is a cap on the number of text messages which can be sent without additional costs in your cell phone plan. Additionally
-there may be bugs in this software which allow people to successfully attack your systems in other ways. I am not aware of such bugs but I might have made mistakes.
+Even if all REST calls to the backend are using TLS and even though all such calls are authenticated via JWTs **Please be aware that if you deploy this software in such a way that it can be
+called from the public internet you may be ending up with effectively allowing other people to send text messages, e-mails and push messages to all recipients configured in your IFTTT
+recipes and/or specified in the address book**. I assume this is not what you want especially if there is a cap on the number of text messages which can be sent without additional costs in
+your cell phone plan. Additionally there may be bugs in this software which allow people to successfully attack your systems in other ways. I am not aware of such bugs but I might have made
+mistakes.
 
-In other words: **Please, do not deploy this software in a fashion which exposes it to the public internet**. I run it in my home network on my own K3S kubernetes cluster and for this environment the
-lack of authentication and authorization is acceptable.
+In other words: **Please, think about what may happen in the worst case if you expose this software on the public internet**. I run it in my home network on my own K3S kubernetes cluster and
+in this environment the riks are acceptable to me.
 
 ## General information
 
