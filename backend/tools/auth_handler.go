@@ -3,6 +3,7 @@ package tools
 import (
 	"log"
 	"net/http"
+	"time"
 )
 
 const ExpectedJwtAudience = "gschmarri"
@@ -57,6 +58,19 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 
 		if claims.Issuer != ExpectedJwtIssuer {
 			logger.Printf("Unable to authenticate client. Issuer mismatch: '%s' ", claims.Issuer)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		tokenAge := time.Now().UTC().Unix() - claims.IssuedAt
+		if tokenAge < 0 {
+			logger.Printf("Unable to authenticate client. Token for '%s' issued in the future: '%d' ", claims.Issuer, claims.IssuedAt)
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
+
+		if tokenAge > 3600 {
+			logger.Printf("Unable to authenticate client. Token for '%s' is too old: '%d' seconds", claims.Issuer, tokenAge)
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return
 		}
