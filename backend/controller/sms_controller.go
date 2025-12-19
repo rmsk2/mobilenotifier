@@ -43,12 +43,12 @@ func (s *SmSController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
 // @Tags	     SMS
 // @Param        recipient   path  string  true  "Recipient"
 // @Param        message_spec  body  SmsMessage true "Specification of message to send"
-// @Security     ApiKeyAuth
 // @Success      200  {object} nil
 // @Failure      400  {object} string
 // @Failure      401  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/send/{recipient} [post]
+// @Security     ApiKeyAuth
 func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 	recipientRaw := r.PathValue("recipient")
 
@@ -107,6 +107,7 @@ func (s *SmSController) Handle(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object} RecipientList
 // @Failure      500  {object} string
 // @Router       /notifier/api/send/recipients/all [get]
+// @Security     ApiKeyAuth
 func (s *SmSController) HandleGetAllRecipients(w http.ResponseWriter, r *http.Request) {
 	recipients, err := s.addressBook.ListRecipients()
 	if err != nil {

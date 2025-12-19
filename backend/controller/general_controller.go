@@ -31,8 +31,8 @@ func NewGeneralController(s repo.DBSerializer, l *log.Logger, m *tools.MetricsCo
 	}
 }
 
-func (s *GeneralController) AddHandlers() {
-	http.HandleFunc("/notifier/api/general/info", s.HandleInfo)
+func (s *GeneralController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
+	http.HandleFunc("/notifier/api/general/info", authWrapper(s.HandleInfo))
 }
 
 func countReminders(dbl repo.DBSerializer) int {
@@ -53,6 +53,7 @@ func countReminders(dbl repo.DBSerializer) int {
 // @Success      200  {object} ApiInfoResult
 // @Failure      500  {object} string
 // @Router       /notifier/api/general/info [get]
+// @Security     ApiKeyAuth
 func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 	s.log.Printf("Returning API info")
 

@@ -6,7 +6,8 @@ import (
 )
 
 const ExpectedJwtAudience = "gschmarri"
-const ExpectedJwtIssuer = "gschmarri"
+
+var ExpectedJwtIssuer string = "daheim_token_issuer"
 
 type AuthSecret struct {
 	Secret     string
@@ -66,6 +67,10 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 	}
 
 	return res
+}
+
+func NullAuthenticator(f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return f
 }
 
 func MakeWrapper(authSecret AuthSecret, logger *log.Logger, authenticator AuthenticatorFunc) AuthWrapperFunc {

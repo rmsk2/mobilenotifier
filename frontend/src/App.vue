@@ -6,6 +6,7 @@ import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
 import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected } from './components/globals';
 import { ReminderAPI, getDefaultReminder, Reminder, RecipientData } from './components/reminderapi';
+import { IssuerAPI } from './components/tokenissuer';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
 import RecipientList from './components/RecipientList.vue';
 import WaitForNas from './components/WaitForNas.vue';
@@ -23,6 +24,7 @@ export default {
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
       apiURL: import.meta.env.VITE_API_URL,
+      issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL),
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       editData: "",
       reminderCount: 0,
@@ -329,6 +331,8 @@ export default {
     WaitForNas
   },
   async beforeMount() {
+    let token = await this.issuerApi.getToken()
+    this.api.setToken(token)
     await this.getApiInfo();
     await this.getFullRecipientData();
     await this.showComponents(monthSelected);

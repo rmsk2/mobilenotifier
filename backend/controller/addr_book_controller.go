@@ -47,12 +47,12 @@ func NewAddressBookController(l repo.DBSerializer, lRemNotif repo.DBSerializer, 
 	}
 }
 
-func (a *AddressBookController) AddHandlers() {
-	http.HandleFunc("GET /notifier/api/addressbook", a.HandleList)
-	http.HandleFunc("POST /notifier/api/addressbook", a.HandleCreate)
-	http.HandleFunc("DELETE /notifier/api/addressbook/{uuid}", a.HandleDelete)
-	http.HandleFunc("GET /notifier/api/addressbook/{uuid}", a.HandleGet)
-	http.HandleFunc("PUT /notifier/api/addressbook/{uuid}", a.HandleUpsert)
+func (a *AddressBookController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
+	http.HandleFunc("GET /notifier/api/addressbook", authWrapper(a.HandleList))
+	http.HandleFunc("POST /notifier/api/addressbook", authWrapper(a.HandleCreate))
+	http.HandleFunc("DELETE /notifier/api/addressbook/{uuid}", authWrapper(a.HandleDelete))
+	http.HandleFunc("GET /notifier/api/addressbook/{uuid}", authWrapper(a.HandleGet))
+	http.HandleFunc("PUT /notifier/api/addressbook/{uuid}", authWrapper(a.HandleUpsert))
 }
 
 // @Summary      Delete an address book entry
@@ -63,6 +63,7 @@ func (a *AddressBookController) AddHandlers() {
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook/{uuid} [delete]
+// @Security     ApiKeyAuth
 func (a *AddressBookController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -99,6 +100,7 @@ func (a *AddressBookController) HandleDelete(w http.ResponseWriter, r *http.Requ
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook [get]
+// @Security     ApiKeyAuth
 func (a *AddressBookController) HandleList(w http.ResponseWriter, r *http.Request) {
 	readRepo := repo.LockAndGetRepoR(a.db, a.genRead)
 	defer func() { a.db.RUnlock() }()
@@ -139,6 +141,7 @@ func (a *AddressBookController) HandleList(w http.ResponseWriter, r *http.Reques
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook/{uuid} [get]
+// @Security     ApiKeyAuth
 func (a *AddressBookController) HandleGet(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -197,6 +200,7 @@ func (a *AddressBookController) HandleGet(w http.ResponseWriter, r *http.Request
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook/{uuid} [put]
+// @Security     ApiKeyAuth
 func (a *AddressBookController) HandleUpsert(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -277,6 +281,7 @@ func (a *AddressBookController) HandleUpsertRaw(w http.ResponseWriter, r *http.R
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook [post]
+// @Security     ApiKeyAuth
 func (a *AddressBookController) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	a.HandleUpsertRaw(w, r, tools.UUIDGen())
 }

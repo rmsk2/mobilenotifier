@@ -75,14 +75,14 @@ func NewReminderController(l repo.DBSerializer, a sms.SmsAddressBook, lg *log.Lo
 	}
 }
 
-func (n *ReminderController) AddHandlers() {
-	http.HandleFunc("POST /notifier/api/reminder", n.HandlePost)
-	http.HandleFunc("GET /notifier/api/reminder", n.HandleList)
-	http.HandleFunc("GET /notifier/api/reminder/views/basic", n.HandleOverview)
-	http.HandleFunc("GET /notifier/api/reminder/views/bymonth", n.HandleViewByMonth)
-	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", n.HandlePostUpsert)
-	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", n.HandleDelete)
-	http.HandleFunc("GET /notifier/api/reminder/{uuid}", n.HandleGet)
+func (n *ReminderController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
+	http.HandleFunc("POST /notifier/api/reminder", authWrapper(n.HandlePost))
+	http.HandleFunc("GET /notifier/api/reminder", authWrapper(n.HandleList))
+	http.HandleFunc("GET /notifier/api/reminder/views/basic", authWrapper(n.HandleOverview))
+	http.HandleFunc("GET /notifier/api/reminder/views/bymonth", authWrapper(n.HandleViewByMonth))
+	http.HandleFunc("PUT /notifier/api/reminder/{uuid}", authWrapper(n.HandlePostUpsert))
+	http.HandleFunc("DELETE /notifier/api/reminder/{uuid}", authWrapper(n.HandleDelete))
+	http.HandleFunc("GET /notifier/api/reminder/{uuid}", authWrapper(n.HandleGet))
 }
 
 // @Summary      Create a new reminder
@@ -94,6 +94,7 @@ func (n *ReminderController) AddHandlers() {
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder [post]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandlePost(w http.ResponseWriter, r *http.Request) {
 	n.HandleUpsert(w, r, tools.UUIDGen())
 }
@@ -108,6 +109,7 @@ func (n *ReminderController) HandlePost(w http.ResponseWriter, r *http.Request) 
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/{uuid} [put]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandlePostUpsert(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -239,6 +241,7 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/{uuid} [delete]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -270,6 +273,7 @@ func (n *ReminderController) HandleDelete(w http.ResponseWriter, r *http.Request
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/{uuid} [get]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -326,6 +330,7 @@ func (n *ReminderController) HandleGet(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder [get]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) {
 	n.HandleFiltered(w, r, func(*repo.Reminder) bool { return true }, time.Now().UTC())
 }
@@ -340,6 +345,7 @@ func (n *ReminderController) HandleList(w http.ResponseWriter, r *http.Request) 
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/views/bymonth [get]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandleViewByMonth(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("month") == "" {
 		n.log.Printf("Query parameter for month not found")
@@ -462,6 +468,7 @@ func (n *ReminderController) HandleFiltered(w http.ResponseWriter, r *http.Reque
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/reminder/views/basic [get]
+// @Security     ApiKeyAuth
 func (n *ReminderController) HandleOverview(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("max_entries") == "" {
 		n.log.Printf("Query parameter for maximum number of entries not found")

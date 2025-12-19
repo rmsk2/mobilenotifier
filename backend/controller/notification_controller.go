@@ -50,11 +50,11 @@ func NewNotificationController(l repo.DBSerializer, lg *log.Logger, g func(repo.
 	}
 }
 
-func (n *NotficationController) AddHandlers() {
-	http.HandleFunc("GET /notifier/api/notification", n.HandleList)
-	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", n.HandleDelete)
-	http.HandleFunc("GET /notifier/api/notification/siblings/{uuid}", n.HandleGetSiblings)
-	http.HandleFunc("GET /notifier/api/notification/{uuid}", n.HandleGet)
+func (n *NotficationController) AddHandlersWithAuth(authWrapper tools.AuthWrapperFunc) {
+	http.HandleFunc("GET /notifier/api/notification", authWrapper(n.HandleList))
+	http.HandleFunc("DELETE /notifier/api/notification/{uuid}", authWrapper(n.HandleDelete))
+	http.HandleFunc("GET /notifier/api/notification/siblings/{uuid}", authWrapper(n.HandleGetSiblings))
+	http.HandleFunc("GET /notifier/api/notification/{uuid}", authWrapper(n.HandleGet))
 }
 
 // @Summary      Delete a notification
@@ -65,6 +65,7 @@ func (n *NotficationController) AddHandlers() {
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/notification/{uuid} [delete]
+// @Security     ApiKeyAuth
 func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -96,6 +97,7 @@ func (n *NotficationController) HandleDelete(w http.ResponseWriter, r *http.Requ
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/notification/{uuid} [get]
+// @Security     ApiKeyAuth
 func (n *NotficationController) HandleGet(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 
@@ -152,6 +154,7 @@ func (n *NotficationController) HandleGet(w http.ResponseWriter, r *http.Request
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/notification [get]
+// @Security     ApiKeyAuth
 func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Request) {
 	n.HandleFilter(w, r, func(*repo.Notification) bool {
 		return true
@@ -166,6 +169,7 @@ func (n *NotficationController) HandleList(w http.ResponseWriter, r *http.Reques
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/notification/siblings/{uuid} [get]
+// @Security     ApiKeyAuth
 func (n *NotficationController) HandleGetSiblings(w http.ResponseWriter, r *http.Request) {
 	uuidRaw := r.PathValue("uuid")
 

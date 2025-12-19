@@ -27,6 +27,7 @@ const envSwaggerUrl = "SWAGGER_URL"
 const envClientTimeZone = "MN_CLIENT_TZ"
 const envAddressBook = "MN_ADDR_BOOK"
 const envMailSubject = "MN_MAIL_SUBJECT"
+const envExpectedTokenIssuer = "EXPECTED_TOKEN_ISSUER"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
@@ -110,6 +111,13 @@ func createAuthSecret() *tools.AuthSecret {
 	}
 }
 
+func getTokenIssuerFromEnv() {
+	temp, ok := os.LookupEnv(envExpectedTokenIssuer)
+	if ok {
+		tools.ExpectedJwtIssuer = temp
+	}
+}
+
 func determineClientTZFromEnvironment() {
 	tools.SetClientTZ(time.UTC)
 
@@ -141,6 +149,7 @@ func run() int {
 	dbOpened := false
 
 	determineClientTZFromEnvironment()
+	getTokenIssuerFromEnv()
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
@@ -167,24 +176,26 @@ func run() int {
 
 	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo)
 
-	smsLogger := createLogger()
 	authSecret := createAuthSecret()
-	authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.ApiKeyAuthenticator)
-	//authWrapper := tools.MakeWrapper(*authSecret, smsLogger, tools.JwtHs256Authenticator)
+	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator)
+	authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator)
+	//authWrapper := tools.NullAuthenticator
+
+	smsLogger := createLogger()
 	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, createLogger(), repo.NewBBoltNotificationRepo)
-	notificationController.AddHandlers()
+	notificationController.AddHandlersWithAuth(authWrapper)
 
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger(), repo.NewBBoltReminderRepo)
-	reminderController.AddHandlers()
+	reminderController.AddHandlersWithAuth(authWrapper)
 
 	addrBookController := controller.NewAddressBookController(dblAddr, dbl, createLogger(), repo.NewBBoltAddressBookRepo)
-	addrBookController.AddHandlers()
+	addrBookController.AddHandlersWithAuth(authWrapper)
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
-	infoController.AddHandlers()
+	infoController.AddHandlersWithAuth(authWrapper)
 
 	logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
 
