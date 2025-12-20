@@ -112,7 +112,7 @@ when talking to them.
 ## Authentication
 
 All backend REST calls are authenticated via JWTs issued by my [`tokenissuer`](https://github.com/rmsk2/tokenissuer) software. The `tokenissuer` can be called by any party who is able to
-perform a successfull TLS client authentication (using a client cert issued a priavte TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. `mobilnotifier` automatically
+perform a successfull TLS client authentication (using a client cert issued a private TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. `mobilnotifier` automatically
 requests a new token before the current one becomes too old. You can force `mobilenotifier` to fetch a new token by reloading the web app.
 
 ## Important notice 
