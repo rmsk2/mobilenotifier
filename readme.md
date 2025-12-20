@@ -124,7 +124,7 @@ your cell phone plan. Additionally there may be bugs in this software which allo
 mistakes.
 
 In other words: **Please, think about what may happen in the worst case if you expose this software on the public internet**. I run it in my home network on my own K3S kubernetes cluster and
-in this environment the riks are acceptable to me.
+in this environment the risks are acceptable to me.
 
 ## General information
 
