@@ -15,6 +15,7 @@ type ApiInfoResult struct {
 	ClientTime time.Time      `json:"client_time"`
 	Count      int            `json:"reminder_count"`
 	Metrics    map[string]int `json:"metrics"`
+	TokenTtl   int64          `json:"token_ttl"`
 }
 
 type GeneralController struct {
@@ -63,6 +64,7 @@ func (s *GeneralController) HandleInfo(w http.ResponseWriter, r *http.Request) {
 		ClientTime: time.Now().UTC().In(tools.ClientTZ()),
 		Count:      countReminders(s.dbl),
 		Metrics:    s.metricCollector.GetMetrics(),
+		TokenTtl:   tools.TokenTtl,
 	}
 
 	data, err := json.Marshal(&resp)

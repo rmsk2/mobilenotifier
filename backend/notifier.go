@@ -11,6 +11,7 @@ import (
 	"notifier/sms"
 	"notifier/tools"
 	"os"
+	"strconv"
 	"time"
 
 	_ "notifier/docs"
@@ -28,6 +29,8 @@ const envClientTimeZone = "MN_CLIENT_TZ"
 const envAddressBook = "MN_ADDR_BOOK"
 const envMailSubject = "MN_MAIL_SUBJECT"
 const envExpectedTokenIssuer = "EXPECTED_TOKEN_ISSUER"
+const envExpectedTokenAudience = "EXPECTED_TOKEN_AUDIENCE"
+const envExpectedTokenTtl = "TOKEN_TTL"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
@@ -111,10 +114,23 @@ func createAuthSecret() *tools.AuthSecret {
 	}
 }
 
-func getTokenIssuerFromEnv() {
+func getTokenDefinitionsFromEnv() {
 	temp, ok := os.LookupEnv(envExpectedTokenIssuer)
 	if ok {
 		tools.ExpectedJwtIssuer = temp
+	}
+
+	temp, ok = os.LookupEnv(envExpectedTokenAudience)
+	if ok {
+		tools.ExpectedJwtAudience = temp
+	}
+
+	temp, ok = os.LookupEnv(envExpectedTokenTtl)
+	if ok {
+		ttl, err := strconv.ParseInt(temp, 10, 64)
+		if (err == nil) && (ttl > 0) {
+			tools.TokenTtl = ttl
+		}
 	}
 }
 
@@ -149,7 +165,7 @@ func run() int {
 	dbOpened := false
 
 	determineClientTZFromEnvironment()
-	getTokenIssuerFromEnv()
+	getTokenDefinitionsFromEnv()
 
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {

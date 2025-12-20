@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-const ExpectedJwtAudience = "gschmarri"
-
+var ExpectedJwtAudience = "gschmarri"
 var ExpectedJwtIssuer string = "daheim_token_issuer"
+var TokenTtl int64 = 3600
 
 type AuthSecret struct {
 	Secret     string
@@ -69,7 +69,7 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 			return
 		}
 
-		if tokenAge > 3600 {
+		if tokenAge > TokenTtl {
 			logger.Printf("Unable to authenticate client. Token for '%s' is too old: '%d' seconds", claims.Issuer, tokenAge)
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return

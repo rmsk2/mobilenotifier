@@ -3,7 +3,7 @@ const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
 const recipientListSelected = 5;
-const versionString = "1.0.0";
+const versionString = "1.0.1";
 
 class DeleteNotification {
    constructor(id, description) {

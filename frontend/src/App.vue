@@ -26,6 +26,7 @@ export default {
       apiURL: import.meta.env.VITE_API_URL,
       issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL),
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
+      tokenTtl: 3600,
       editData: "",
       reminderCount: 0,
       metrics: {},
@@ -218,6 +219,7 @@ export default {
       this.apiTimeZone = res.data.time_zone;
       this.reminderCount = res.data.reminder_count;
       this.metrics = res.data.metrics;
+      this.tokenTtl = res.data.token_ttl;
     },
     async getFullRecipientData() {
       let res = await this.api.getFullRecipients()
@@ -299,6 +301,20 @@ export default {
     testRecipientList(){
       return this.testCurrentComponent(recipientListSelected);
     },
+    async getToken() {
+      let token = await this.issuerApi.getToken()
+      this.api.setToken(token);
+    },
+    rescheduleInterval() {
+      return (this.tokenTtl - 60) * 1000;
+    },
+    async rescheduleToken() {
+      await this.getToken();
+      setTimeout(this.rescheduleToken, this.rescheduleInterval());
+    },
+    startRescheduling() {
+      setTimeout(this.rescheduleToken, this.rescheduleInterval());
+    },
     async showComponents(value) {
       this.currentComponent = value
       this.result = "";
@@ -331,9 +347,9 @@ export default {
     WaitForNas
   },
   async beforeMount() {
-    let token = await this.issuerApi.getToken()
-    this.api.setToken(token)
+    await this.getToken();
     await this.getApiInfo();
+    await this.startRescheduling();
     await this.getFullRecipientData();
     await this.showComponents(monthSelected);
   },

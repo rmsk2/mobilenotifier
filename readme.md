@@ -38,7 +38,9 @@ variables:
 |NOTIFIER_API_KEY| Secret value which is used to authorize calls to the `/notifier/api/send/{recipient}` API method | Yes |
 |MN_MAIL_SERVER| This variable has to contain the FQDN of the SMTP server which is used to send mail notifications| No |
 |MN_MAIL_SERVER_PORT| Here the port used by the SMTP server defined above can be set | No |
-|EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using| No |
+|EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using. Default value `daheim_token_issuer`| No |
+|EXPECTED_TOKEN_AUDIENCE| Expected token audience. Default value `gschmarri` | No |
+|TOKEN_TTL| Maximum acceptable age of a token in seconds. Default value 3600| No |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notificarions| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
