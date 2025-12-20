@@ -8,7 +8,7 @@ the needed `.yml` kubernetes config files are also part of the project.
 As the core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
 from several vendors (even though these often lack sending reminders via SMS) the main purpose for creating this application was to get some exercise using `Vue.js`
 and kubernetes. Nonetheless it is functional and useful if you want to run it on your own systems. If you do you also have to install my JWT token issuer, which can be
-found [here](https://github.com/rmsk2/tokenissuer). This also means you have to issue client certificates to all entities whcih are expected to use the system. You
+found [here](https://github.com/rmsk2/tokenissuer). This also means you have to issue client certificates to all entities which are expected to use the system. You
 could use my [minica](https://github.com/rmsk2/minica) for this purpose.
 
 Please read the [important notice](#important-notice) below.
@@ -41,7 +41,7 @@ variables:
 |EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using. Default value `daheim_token_issuer`| No |
 |EXPECTED_TOKEN_AUDIENCE| Expected token audience. Default value `gschmarri` | No |
 |TOKEN_TTL| Maximum acceptable age of a token in seconds. Default value 3600| No |
-|MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notificarions| Yes |
+|MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
 |MN_ADDR_BOOK| If set then this variable has to contain a base64 encoded JSON string which specifies recipients which are to be merged into the database. The format of the JSON data is specified below (see Address Book)| Yes |
@@ -112,8 +112,8 @@ when talking to them.
 ## Authentication
 
 All backend REST calls are authenticated via JWTs issued by my [`tokenissuer`](https://github.com/rmsk2/tokenissuer) software. The `tokenissuer` can be called by any party who is able to
-perform a successfull TLS client authentication (using a client cert issued a priavte TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. A new token can be
-requested by reloading the web app.
+perform a successfull TLS client authentication (using a client cert issued a priavte TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. `mobilnotifier` automatically
+requests a new token before the current one becomes too old. You can force `mobilenotifier` to fetch a new token by reloading the web app.
 
 ## Important notice 
 
