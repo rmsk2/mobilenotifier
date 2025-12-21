@@ -149,6 +149,10 @@ class ReminderAPI {
         this.Token = newToken;
     }
 
+    getToken() {
+        return this.Token
+    }
+
     async createNewReminder(reminderData) {
         try
         {

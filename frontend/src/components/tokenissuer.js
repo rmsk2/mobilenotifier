@@ -1,12 +1,13 @@
 export { IssuerAPI };
 
 class IssuerAPI {
-    constructor(issuerUrl) {
+    constructor(issuerUrl, audience) {
         this.URL = issuerUrl
+        this.audience = audience
     }
 
     async getToken() {
-        let reminderData = {"audience": "gschmarri"};
+        let reminderData = {"audience": this.audience};
         
         try
         {            

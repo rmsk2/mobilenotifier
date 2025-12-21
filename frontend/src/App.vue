@@ -24,7 +24,7 @@ export default {
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
       apiURL: import.meta.env.VITE_API_URL,
-      issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL),
+      issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL, "gschmarri"),
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       tokenTtl: 3600,
       editData: "",
@@ -315,6 +315,10 @@ export default {
     startRescheduling() {
       setTimeout(this.rescheduleToken, this.rescheduleInterval());
     },
+    async copyTokenToClipboard() {
+      await navigator.clipboard.writeText(this.api.getToken())
+      this.setErrorMessage("Token kopiert")
+    },
     async showComponents(value) {
       this.currentComponent = value
       this.result = "";
@@ -410,7 +414,8 @@ export default {
       @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
-      :elemcount="reminderCount" :metrics="metrics">
+      :elemcount="reminderCount" :metrics="metrics"
+      @copy-token="copyTokenToClipboard()">
     </About>
     <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
       @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">

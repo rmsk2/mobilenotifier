@@ -10,6 +10,12 @@ export default {
     }
   },
   props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'metrics'],
+  emits: ['copy-token'],
+  methods: {
+    copyTokenClicked() {
+      this.$emit('copy-token')
+    }
+  },
   computed: {
     swaggerUrl() {
       return `${this.apilink}swagger/index.html`;
@@ -68,6 +74,11 @@ export default {
         <td class="table-about-elem"><span class="about-text">Anzahl Benachrichtigungen</span></td>
         <td class="table-about-elem"><span class="about-text">{{ metrics.notification_count }}</span></td>
       </tr>      
-    </table>    
+    </table>
+    <p/>
+    Wenn ein Token für das Backupscript oder für die direkte Bedienung des APIs via Swagger benötigt wird, kann das aktuell verwendete Token über
+    den unten stehenden Button in die Zwischenablage kopiert werden.
+    <p/>
+    <button @click="copyTokenClicked()">Aktuelles Token kopieren</button>
   </div>
 </template>
