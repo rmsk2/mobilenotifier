@@ -21,7 +21,7 @@ import (
 )
 
 const envApiKey = "IFTTT_API_KEY"
-const envNotifierApiKey = "NOTIFIER_API_KEY"
+const envNotifierHmacKey = "NOTIFIER_HMAC_KEY"
 const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
@@ -109,7 +109,7 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 
 func createAuthSecret() *tools.AuthSecret {
 	return &tools.AuthSecret{
-		Secret:     os.Getenv(envNotifierApiKey),
+		Secret:     os.Getenv(envNotifierHmacKey),
 		HeaderName: authHeaderName,
 	}
 }

@@ -35,7 +35,7 @@ variables:
 |DB_PATH| This variable has to define the file name of the `bbolt` database file| No |
 |SWAGGER_URL| This variable has to specify the URL under which the swagger documentation can be reached | No |
 |MN_CLIENT_TZ| Here you have to specify the time zone where the user lives. In my case this is `Europe/Berlin` according to the [IANA time zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)| No |  
-|NOTIFIER_API_KEY| Secret value which is used to authorize calls to the `/notifier/api/send/{recipient}` API method | Yes |
+|NOTIFIER_HMAC_KEY| HMAC key which is used to verify JWTs issued by the `tokenissuer` | Yes |
 |MN_MAIL_SERVER| This variable has to contain the FQDN of the SMTP server which is used to send mail notifications| No |
 |MN_MAIL_SERVER_PORT| Here the port used by the SMTP server defined above can be set | No |
 |EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using. Default value `daheim_token_issuer`| No |
@@ -142,7 +142,7 @@ export LOCALDIR=../frontend/dist/
 export DB_PATH=../notifier.db
 export SWAGGER_URL="http://localhost:5100/notifier/api/swagger/doc.json"
 export MN_CLIENT_TZ=Europe/Berlin
-export NOTIFIER_API_KEY=xxxxxxx
+export NOTIFIER_HMAC_KEY=xxxxxxx
 export MN_MAIL_SERVER=mail.whereever.net
 export MN_MAIL_SERVER_PORT=587
 export MN_MAIL_SENDER_ADDR=sender@whereever.net
@@ -186,7 +186,7 @@ metadata:
   name: notifier-secret
 data:
   IFTTT_API_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-  NOTIFIER_API_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAa
+  NOTIFIER_HMAC_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAa
   MN_MAIL_SENDER_PW: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   MN_MAIL_SENDER_ADDR: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa
 

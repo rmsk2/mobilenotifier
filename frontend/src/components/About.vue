@@ -76,9 +76,9 @@ export default {
       </tr>      
     </table>
     <p/>
-    Wenn ein Token für das Backupscript oder für die direkte Bedienung des APIs via Swagger benötigt wird, kann das aktuell verwendete Token über
+    Wenn ein Token für das Backupscript oder für die direkte Bedienung des APIs via Swagger benötigt wird, kann der aktuell verwendete Token über
     den unten stehenden Button in die Zwischenablage kopiert werden.
     <p/>
-    <button @click="copyTokenClicked()">Aktuelles Token kopieren</button>
+    <button @click="copyTokenClicked()">Aktuellen Token kopieren</button>
   </div>
 </template>
