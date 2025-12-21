@@ -92,6 +92,7 @@ spec:
         volumeMounts:
         - name: static-volume
           mountPath: /usr/share/nginx/html
+          readOnly: true
       volumes:
       - name: static-volume
         persistentVolumeClaim:
