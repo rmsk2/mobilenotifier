@@ -215,7 +215,7 @@ I have not configured Let's Encrypt. I use my own [minica](https://github.com/rm
 
 The script `backup.py` can be used to create a backup of the current state of a mobile notifier instance. Additionally it allows to restore this backup into an
 "empty" mobile notifier instance. The script uses mobile notifier's REST API to extract and restore the data which makes up the state. In order to be allowed
-to access the API one needs a JWT, which can be obtained via the WebUI of `mobilenotifier` by pressing the corresponding button `Aktuelles Token kopieren`
+to access the API one needs a JWT, which can be obtained via the WebUI of `mobilenotifier` by pressing the corresponding button `Aktuellen Token kopieren`
 in the `Über diese Anwendung` section. This copies the current token to the clipboard. From there it can be piped to stdin of `backup.py` via a suitable tool (for
 instance `xsel -ob` in Linux) or the token can be stored in a file which then needs to be referenced via the `-t` parameter.
 
@@ -250,11 +250,11 @@ to read the neccessary token from stdin, if `-t` is not specified.
 Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by private root, where the root certifciate 
 is stored in the file `my-private-root.pem`. Then the following commands can be used to create 
 
-`python3 backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem` 
+`python3 backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt` 
 
 and restore a backup
 
-`python3 restore -i mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem`
+`python3 restore -i mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt`
 
 You can use the variable `CONF_API_PREFIX` to specify any additional path components which are needed to access the API in addition to the host name. The default
 value is `/notifier`.
