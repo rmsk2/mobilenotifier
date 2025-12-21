@@ -107,7 +107,7 @@ messages but these seem to have somewhat arbitrary limits on the number of messa
 also falls in the dodgy category in my book. Telegram has an API but I don't like Telegram. There are dedicated SMS Gateway providers but for my expected volume of messages I did not want to embarass myself
 when talking to them.
 
-# Deploying the software
+# Some remarks
 
 ## Authentication
 
@@ -125,6 +125,8 @@ mistakes.
 
 In other words: **Please, think about what may happen in the worst case if you expose this software on the public internet**. I run it in my home network on my own K3S kubernetes cluster and
 in this environment the risks are acceptable to me.
+
+# Deploying the software
 
 ## General information
 
