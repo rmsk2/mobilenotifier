@@ -1,6 +1,7 @@
 import requests
 import json
 import argparse
+import sys
 
 CONF_API_PREFIX = "/notifier"
 
@@ -82,15 +83,18 @@ def main():
     parser.add_argument("-o", "--output-file", default=None, help="Ausgabedatei für backup")
     parser.add_argument("-i", "--input-file", default= None, help="Eingabedatei für restoe")
     parser.add_argument("-c", "--ca-bundle", default=None, help="Datei, die das CA-Bundle enthält. Falls das benötigt wird")
-    parser.add_argument("-t", "--token-file", required=True, default=None, help="File which contains a valid JWT for accessing the REST backend")
+    parser.add_argument("-t", "--token-file", required=False, default=None, help="Datei, die ein JWT für das API enthält. Wenn nicht vorhanden, dann wird aus stdin gelesen")
 
     args = parser.parse_args()
 
     try:
-        with open(args.token_file, "rb") as f:
-            token_raw = f.read()
+        if args.token_file != None:
+            with open(args.token_file, "rb") as f:
+                token_raw = f.read()
+                token = token_raw.decode("utf-8")
+        else:
+            token = sys.stdin.read()
 
-        token = token_raw.decode("utf-8")
         token = token.strip()
 
         if args.command == "backup":

@@ -214,10 +214,13 @@ I have not configured Let's Encrypt. I use my own [minica](https://github.com/rm
 # Performing backups
 
 The script `backup.py` can be used to create a backup of the current state of a mobile notifier instance. Additionally it allows to restore this backup into an
-"empty" mobile notifier instance. The script uses mobile notifier's REST API to extract and restore the data which makes up the state.
+"empty" mobile notifier instance. The script uses mobile notifier's REST API to extract and restore the data which makes up the state. In order to be allowed
+to access the API one needs a JWT, which can be obtained via the WebUI of `mobilenotifier` by pressing the corresponding button `Aktuelles Token kopieren`
+in the `Über diese Anwendung` section. This copies the current token to the clipboard. From there it can be piped to stdin of `backup.py` via a suitable tool (for
+instance `xsel -ob` in Linux) or the token can be stored in a file which then needs to be referenced via the `-t` parameter.
 
 ```
-usage: backup.py [-h] -n HOST_NAME [-o OUTPUT_FILE] [-i INPUT_FILE] [-c CA_BUNDLE] {backup,restore}
+usage: backup.py [-h] -n HOST_NAME [-o OUTPUT_FILE] [-i INPUT_FILE] [-c CA_BUNDLE] [-t TOKEN_FILE] {backup,restore}
 
 Tool, um Backups des Datenbestandes von mobilenotifier zu erstellen und wiederherzustellen
 
@@ -234,11 +237,15 @@ options:
                         Eingabedatei für restoe
   -c CA_BUNDLE, --ca-bundle CA_BUNDLE
                         Datei, die das CA-Bundle enthält. Falls das benötigt wird
+  -t TOKEN_FILE, --token-file TOKEN_FILE
+                        Datei, die ein JWT für das API enthält. Wenn nicht vorhanden, dann wird aus stdin gelesen
 ```
 
 The option `-c/--ca-bundle` can be used to reference a file which contains a private root certificate in PEM-format which is to be used to verify the TLS server
 certificate. If you do not use TLS or use a certificate of a publicly trusted CA then you can ignore this option. The option `-n/--host-name` has to specify
-not only the host name of the machine which runs mobile notifier's backend but also the protocol, i.e. `http` or `https`. 
+not only the host name of the machine which runs mobile notifier's backend but also the protocol, i.e. `http` or `https`. Finally the `-t` option can be used
+to specify a file containing a JWT which allows `backup.py` to authenticate itself to mobile notifier's REST API. As the JWT is required `backup.py` attempts
+to read the neccessary token from stdin, if `-t` is not specified.
 
 Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by private root, where the root certifciate 
 is stored in the file `my-private-root.pem`. Then the following commands can be used to create 
