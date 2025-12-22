@@ -129,7 +129,11 @@ spec:
   tls:
   - hosts:
     - debasus
-    - debshuttle
+    - debasus.fritz.box
+    - debasus2
+    - debasus2.fritz.box
+    - desktop1
+    - desktop1.fritz.box
     secretName: notifier-tls
   rules:
   - http:
