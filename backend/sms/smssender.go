@@ -56,13 +56,14 @@ func (i *iftttSmsSender) Send(recipientAddress string, message string) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
+
+	// Ignore body
+	io.ReadAll(res.Body)
 
 	if (res.StatusCode < 200) || (res.StatusCode >= 300) {
 		return fmt.Errorf("server responded with error code %d", res.StatusCode)
 	}
-
-	// Ignore body
-	io.ReadAll(res.Body)
 
 	return nil
 }
