@@ -11,6 +11,7 @@ const warningSameDay = 5
 
 const addrClassIfttt = "IFTTT"
 const addrClassMail = "Mail"
+const addrClassLocal = "local"
 
 export { 
     ReminderAPI, APIResult, Reminder, ReminderData, ReminderResponse, ReminderOverview,
@@ -18,7 +19,7 @@ export {
     RecipientData, Recipient,
     reminderAnniversary, reminderOneShot, reminderMonthly, reminderWeekly,
     warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay,
-    addrClassIfttt, addrClassMail
+    addrClassIfttt, addrClassMail, addrClassLocal
  };
 
 class ReminderResponse {

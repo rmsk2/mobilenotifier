@@ -9,6 +9,7 @@ import (
 const TypeIFTTT = "IFTTT"
 const TypeMail = "Mail"
 const TypeDummy = "Dummy"
+const TypeLocal = "local"
 
 type RecipientInfo struct {
 	Id          *tools.UUID `json:"id"`

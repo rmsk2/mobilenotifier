@@ -1,11 +1,12 @@
 <script>
-import { addrClassIfttt, addrClassMail, Recipient } from './reminderapi';
+import { addrClassIfttt, addrClassLocal, addrClassMail, Recipient } from './reminderapi';
 
 export default {
   data() {
     return {
       addrTypeIfttt: addrClassIfttt,
       addrTypeMail: addrClassMail,
+      addrTypeLocal: addrClassLocal,
 
       editId: null,
       displayName: "",
@@ -173,6 +174,7 @@ export default {
           <select name="typeselect" v-model="addressType" id="typeselect">
             <option class="list-text" :value="addrTypeIfttt">IFTTT</option>
             <option class="list-text" :value="addrTypeMail">Mail</option>
+            <option class="list-text" :value="addrTypeLocal">Lokal</option>
           </select>
         </td>
         <td class="table-list-events-elem table-list-buttons">

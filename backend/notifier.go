@@ -104,6 +104,14 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 		log.Printf("Mail notifier not added: %v", err)
 	}
 
+	localSender, err := sms.NewLocalSenderFromEnvironment()
+	if err == nil {
+		addrBook.AddSender(sms.TypeLocal, localSender)
+		log.Println("Local sender added")
+	} else {
+		log.Printf("Local sender not added: %v", err)
+	}
+
 	return addrBook
 }
 
