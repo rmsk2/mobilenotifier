@@ -41,11 +41,15 @@ variables:
 |EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using. Default value `daheim_token_issuer`| No |
 |EXPECTED_TOKEN_AUDIENCE| Expected token audience. Default value `gschmarri` | No |
 |TOKEN_TTL| Maximum acceptable age of a token in seconds. Default value 3600| No |
+|MN_LOCAL_SENDER_URL| HTTPS URL of local SMS sender | No |
+|MN_ADDITIONAL_ROOTS| Name of a file which contains additional root certificates to use for the connection to the local SMS sender | No |
+|MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
-|MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
 |MN_ADDR_BOOK| If set then this variable has to contain a base64 encoded JSON string which specifies recipients which are to be merged into the database. The format of the JSON data is specified below (see Address Book)| Yes |
 |IFTTT_API_KEY| The IFTTT API key used when sending text (SMS) or push messages| Yes |
+|MN_LOCAL_SENDER_TOKEN| JWT needed to talk to the local SMS sender | Yes |
+
 
 All variables marked as being secret in the table above have to be provided in a kubernetes secret named `notifier-secret` when the backend is run in a kubernetes cluster. All non secret variables
 are defined in `notifier.yml` through a config map named `backend-config`. Strictly speaking the mail address of the sender is not a secret but it does not belong in the `notifier.yml` file
@@ -106,6 +110,15 @@ idea was to use the API of the messaging app Threema to send messages but unfort
 messages but these seem to have somewhat arbitrary limits on the number of messages which can be sent and all looked a bit dodgy. Signal has an API which was reverse engineered from the Android app but that
 also falls in the dodgy category in my book. Telegram has an API but I don't like Telegram. There are dedicated SMS Gateway providers but for my expected volume of messages I did not want to embarass myself
 when talking to them.
+
+# Local SMS sender
+
+As an alternative to sending messages via IFTTT you can use a local SMS sender which is implemented as a simple REST service which routes message requests to a Wavecom Q2303A GSM modem. The 
+source code of this service will be published soon. You have to set the following environment varibles in order to use this feature:
+
+- `MN_LOCAL_SENDER_URL` has contain the URL of the local SMS sender
+- `MN_LOCAL_SENDER_TOKEN` has to contain a JWT accepted by the local SMS sender
+- `MN_ADDITIONAL_ROOTS` points to a file which contains additional root certificates to use for the TLS connection to the local SMS sender. You will need to make use of this if you use a private TLS CA
 
 # Some remarks
 
