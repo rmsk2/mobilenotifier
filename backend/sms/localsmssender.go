@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"notifier/tools"
 	"os"
 )
 
@@ -15,6 +16,7 @@ const envLocalSenderToken = "MN_LOCAL_SENDER_TOKEN"
 type LocalSmsSender struct {
 	ServiceUrl string
 	Jwt        string
+	Client     *http.Client
 }
 
 type SendRequest struct {
@@ -22,10 +24,11 @@ type SendRequest struct {
 	PhoneNr string `json:"phone_nr"`
 }
 
-func NewLocalSender(url string, jwt string) *LocalSmsSender {
+func NewLocalSender(url string, jwt string, c *http.Client) *LocalSmsSender {
 	res := LocalSmsSender{
 		ServiceUrl: url,
 		Jwt:        jwt,
+		Client:     c,
 	}
 
 	return &res
@@ -42,7 +45,12 @@ func NewLocalSenderFromEnvironment() (*LocalSmsSender, error) {
 		return nil, fmt.Errorf("Environment variable %s not set", envLocalSenderToken)
 	}
 
-	return NewLocalSender(url, token), nil
+	client, err := tools.MakeCustomHttpClient()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to create custom HTTP client object: %v", err)
+	}
+
+	return NewLocalSender(url, token, client), nil
 }
 
 func (l *LocalSmsSender) Send(recipientAddress string, message string) error {
@@ -69,7 +77,7 @@ func (l *LocalSmsSender) Send(recipientAddress string, message string) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Token", l.Jwt)
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := l.Client.Do(req)
 	if err != nil {
 		return err
 	}
