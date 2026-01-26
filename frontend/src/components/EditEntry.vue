@@ -474,9 +474,11 @@ export default {
       <legend>
         <b>Wer soll gewarnt werden</b>
       </legend>
-      <div v-for="r in recipientNames">
-        <input  type="checkbox" v-model="recipients" name="selrecipients" :value="r">{{ r }}</input>
-      </div>
+      <p class="recipient-list">
+        <div v-for="r in recipientNames">
+          <input  type="checkbox" v-model="recipients" name="selrecipients" :value="r">{{ r }}</input>
+        </div>
+      </p>
     </fieldset>
 
     <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry" :disabled="disablesave">Ereignis löschen</button>

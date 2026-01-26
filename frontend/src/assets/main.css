@@ -124,3 +124,10 @@ td.list-weekly {
   padding-left: 5px;
   padding-right: 5px;
 }
+
+.recipient-list {
+  column-count: 2;
+  column-rule-width: thin;
+  column-rule-style: double;
+  width: fit-content;
+}
