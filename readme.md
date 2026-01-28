@@ -113,8 +113,7 @@ when talking to them.
 
 # Local SMS sender
 
-As an alternative to sending messages via IFTTT you can use a local SMS sender which is implemented as a simple REST service which routes message requests to a Wavecom Q2303A GSM modem. The 
-source code of this service will be published soon. You have to set the following environment variables in order to use this feature:
+As an alternative to sending messages via IFTTT you can use a [local SMS sender](https://github.com/rmsk2/smssender) which is implemented as a simple REST service which routes message requests to a Wavecom Q2303A GSM modem. You have to set the following environment variables in order to use this feature:
 
 - `MN_LOCAL_SENDER_URL` has contain the URL of the local SMS sender
 - `MN_LOCAL_SENDER_TOKEN` has to contain a JWT accepted by the local SMS sender
