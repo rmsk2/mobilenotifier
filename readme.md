@@ -1,15 +1,16 @@
 # Mobile notifier
 
 This project implements a `Vue.js` webapp (and the corresponding backend in `Go`) which allows to manage reminders for events and to define notifications 
-for these reminders. Currently notifications via IFTTT and e-mail are implemented. Here IFTTT is used to send text messages (SMS) or push
+for these reminders. Currently notifications via IFTTT, a GSM modem and e-mail are implemented. Here IFTTT is used to send text messages (SMS) or push
 messages to mobile phones. It can be run either as a classic daemon on a server or in a kubernetes cluster. The tooling to create the neccessary images and 
 the needed `.yml` kubernetes config files are also part of the project.
 
 As the core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
 from several vendors (even though these often lack sending reminders via SMS) the main purpose for creating this application was to get some exercise using `Vue.js`
 and kubernetes. Nonetheless it is functional and useful if you want to run it on your own systems. If you do you also have to install my JWT token issuer, which can be
-found [here](https://github.com/rmsk2/tokenissuer). This also means you have to issue client certificates to all entities which are expected to use the system. You
-could use my [minica](https://github.com/rmsk2/minica) for this purpose.
+found [here](https://github.com/rmsk2/tokenissuer) and if you want to use a modem you will also need my [smssender](https://github.com/rmsk2/smssender). This also 
+means you have to issue client certificates to all entities which are expected to use the system. You could use my [minica](https://github.com/rmsk2/minica) for
+this purpose.
 
 Please read the [important notice](#important-notice) below.
 
