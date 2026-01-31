@@ -184,9 +184,10 @@ Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values
 variable `MN_PORT_LISTEN` to a value of your choice. If you do not set the variable port 5100 is used as a default. If you additionally set the environment variables `MN_CERT_FILE` and 
 `MN_KEY_FILE` to the names of files which contain an X.509 server certificate and its corresponding private key then `mobilenotifier` will use TLS.
 
-Of course you also can use a web server if you prefer doing so. In this case make sure that `LOCALDIR` is not set and that you configure your webserver in such a way that it provides a reverse
-proxy for the backend. This is neccessary as the backend does not implement CORS. In this setup you should also set the variable `MN_LISTEN_LOCALHOST_ONLY` to any value which makes `mobilenotifier`
-to only listen on `localhost` and not to use TLS.
+Of course you also can use a web server if you prefer doing so. In this case make sure that `LOCALDIR` is not set and that you configure your webserver in such a way that it also provides a
+reverse proxy for the backend. This is neccessary as the backend does not implement CORS and the reverse proxy makes the user's browser believe that accessing static content and the backend
+service do not violate the same origin policy. In such a setup you should also set the variable `MN_LISTEN_LOCALHOST_ONLY` to any value which makes `mobilenotifier` to only listen on `localhost`
+and forbids the use of TLS.
 
 ## Kubernetes deployment
 
