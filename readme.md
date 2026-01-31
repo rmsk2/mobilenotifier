@@ -5,12 +5,16 @@ for these reminders. Currently notifications via IFTTT, a GSM modem and e-mail a
 messages to mobile phones. It can be run either as a classic daemon on a server or in a kubernetes cluster. The tooling to create the neccessary images and 
 the needed `.yml` kubernetes config files are also part of the project.
 
-As the core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
-from several vendors (even though these often lack sending reminders via SMS) the main purpose for creating this application was to get some exercise using `Vue.js`
-and kubernetes. Nonetheless it is functional and useful if you want to run it on your own systems. If you do you also have to install my JWT token issuer, which can be
-found [here](https://github.com/rmsk2/tokenissuer) and if you want to use a modem you will also need my [smssender](https://github.com/rmsk2/smssender). This also 
-means you have to issue client certificates to all entities which are expected to use the system. You could use my [minica](https://github.com/rmsk2/minica) for
-this purpose.
+The core functionality of this project is already part of the calender apps of all well known mobile phone OSs and/or is already offered as a SaaS solution
+from several vendors. The main purpose for creating this application was to get some exercise using `Vue.js` and kubernetes. Nonetheless it is functional and 
+useful as your calender app might be unable to manage events scheduled by other members of your family and/or send them notifications. Your SaaS solution
+on the other hand will be able to do that but might not be able or willing to notify you through simple text messages which can even be received on cheap
+feature phones.
+
+If you would like to run it on your own systems and want user authentication you probably also want to install my JWT token issuer, which can be
+found [here](https://github.com/rmsk2/tokenissuer). If you want to use a GSM modem to send the notification SMSs locally you will also need my
+[smssender](https://github.com/rmsk2/smssender). This also means you have to issue client certificates to all entities which are expected to use the system.
+You could use my [minica](https://github.com/rmsk2/minica) for this purpose.
 
 Please read the [important notice](#important-notice) below.
 
@@ -118,7 +122,8 @@ when talking to them.
 
 # Local SMS sender
 
-As an alternative to sending messages via IFTTT you can use a [local SMS sender](https://github.com/rmsk2/smssender) which is implemented as a simple REST service which routes message requests to a Wavecom Q2303A GSM modem. You have to set the following environment variables in order to use this feature:
+As an alternative to sending messages via IFTTT you can use a [local SMS sender](https://github.com/rmsk2/smssender) which is implemented as a simple REST service which routes message requests to a Wavecom
+Q2303A GSM modem. You have to set the following environment variables in order to use this feature:
 
 - `MN_LOCAL_SENDER_URL` has contain the URL of the local SMS sender
 - `MN_LOCAL_SENDER_TOKEN` has to contain a JWT accepted by the local SMS sender
