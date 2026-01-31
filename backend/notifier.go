@@ -21,7 +21,6 @@ import (
 )
 
 const envApiKey = "IFTTT_API_KEY"
-const envNotifierHmacKey = "NOTIFIER_HMAC_KEY"
 const envDbPath string = "DB_PATH"
 const envServeLocal string = "LOCALDIR"
 const envSwaggerUrl = "SWAGGER_URL"
@@ -115,13 +114,6 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 	return addrBook
 }
 
-func createAuthSecret() *tools.AuthSecret {
-	return &tools.AuthSecret{
-		Secret:     os.Getenv(envNotifierHmacKey),
-		HeaderName: authHeaderName,
-	}
-}
-
 func getTokenDefinitionsFromEnv() {
 	temp, ok := os.LookupEnv(envExpectedTokenIssuer)
 	if ok {
@@ -199,14 +191,9 @@ func run() int {
 	defer func() { metricCollector.Stop() }()
 
 	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo)
+	authWrapper := createAuthWrapper()
 
-	authSecret := createAuthSecret()
-	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator)
-	authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator)
-	//authWrapper := tools.NullAuthenticator
-
-	smsLogger := createLogger()
-	smsController := controller.NewSmsController(smsLogger, smsAddressBook)
+	smsController := controller.NewSmsController(createLogger(), smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
 
 	notificationController := controller.NewNotificationController(dbl, createLogger(), repo.NewBBoltNotificationRepo)
