@@ -126,7 +126,8 @@ As an alternative to sending messages via IFTTT you can use a [local SMS sender]
 
 All backend REST calls are authenticated via JWTs issued by my [`tokenissuer`](https://github.com/rmsk2/tokenissuer) software. The `tokenissuer` can be called by any party who is able to
 perform a successfull TLS client authentication (using a client cert issued a private TLS-CA). `mobilenotfier` only accepts tokens which are younger than an hour. `mobilnotifier` automatically
-requests a new token before the current one becomes too old. You can force `mobilenotifier` to fetch a new token by reloading the web app.
+requests a new token before the current one becomes too old. You can force `mobilenotifier` to fetch a new token by reloading the web app. If you use `go build -tags noauth` you can build
+`mobilenotifier` without any authentication mechanism. This is intendend to reduce the number of dependencies **during development**.
 
 ## Important notice 
 
@@ -149,8 +150,9 @@ All API addresses are mapped to the path `/notifier/api/...`, the addresses for 
 
 ## Running the software during development
 
-You first have to build the frontend by executing `npm run builddev` in the `frontend` subdirectory and `swag init -g controller/swagger_base.go` followed by `go build` in the `backend` subdirectory. 
-I use a shell script called `start.sh` for running all programs locally. Here an example for this script
+You first have to build the frontend by executing `npm run builddev` in the `frontend` subdirectory and `swag init -g controller/swagger_base.go` followed by `go build` or `go build -tags noauth`
+in the `backend` subdirectory. The `noauth` build flag let's you use the backend without having to also setup and run `tokenissuer`. I use a shell script called `start.sh` for running all
+programs locally. Here an example for this script
 
 ```sh
 export LOCALDIR=../frontend/dist/ 
