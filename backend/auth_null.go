@@ -3,8 +3,12 @@
 
 package main
 
-import "notifier/tools"
+import (
+	"log"
+	"notifier/tools"
+)
 
 func createAuthWrapper() tools.AuthWrapperFunc {
+	log.Println("Using ********* NO AUTHENTICATION!!!!! *********")
 	return tools.NullAuthenticator
 }
