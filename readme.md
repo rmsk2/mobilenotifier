@@ -44,6 +44,10 @@ variables:
 |TOKEN_TTL| Maximum acceptable age of a token in seconds. Default value 3600| No |
 |MN_LOCAL_SENDER_URL| HTTPS URL of local SMS sender | No |
 |MN_ADDITIONAL_ROOTS| Name of a file which contains additional root certificates to use for the connection to the local SMS sender | No |
+|MN_PORT_LISTEN| Set this to a port number in order to make `mobilenotifier` listen on another port than 5100| No |
+|MN_LISTEN_LOCALHOST_ONLY| Set this variable to any value in order to make `mobilenotifier` only listen on the loopback device. If this feature is active you can not use TLS | No |
+|MN_CERT_FILE| If you want to use TLS, set this to the name of a file which holds a TLS server certificate in PEM format| No |
+|MN_CERT_KEY| If you want to use TLS, set this to the name of a file which holds the private key of the TLS server certificate in PEM format. The name of the file is no secret. Its contents is| No |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
@@ -176,7 +180,13 @@ called for real.
 ## Running the software on a server
 
 In order to run this software on one of your machines in a classical fashion you can build a production version of the frontend after setting `VITE_API_URL` in `.env.prod` to the correct value. 
-Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Be aware that in this case the web app is served on port 5100 over plain HTTP, i.e. no TLS is used. Of course you also can use a web server if you prefer doing so. In this case make sure that `LOCALDIR` is not set. 
+Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Additionally you can set the environment
+variable `MN_PORT_LISTEN` to a value of your choice. If you do not set the variable port 5100 is used as a default. If you additionally set the environment variables `MN_CERT_FILE` and 
+`MN_KEY_FILE` to the names of files which contain an X.509 server certificate and its corresponding private key then `mobilenotifier` will use TLS.
+
+Of course you also can use a web server if you prefer doing so. In this case make sure that `LOCALDIR` is not set and that you configure your webserver in such a way that it provides a reverse
+proxy for the backend. This is neccessary as the backend does not implement CORS. In this setup you should also set the variable `MN_LISTEN_LOCALHOST_ONLY` to any value which makes `mobilenotifier`
+to only listen on `localhost` and not to use TLS.
 
 ## Kubernetes deployment
 

@@ -34,6 +34,10 @@ const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
 
+type WebServer interface {
+	Serve() error
+}
+
 func createLogger() *log.Logger {
 	return log.New(os.Stdout, "", log.Ldate|log.Ltime)
 }
@@ -218,7 +222,13 @@ func run() int {
 
 	http.HandleFunc("/notifier/api/swagger/", httpSwagger.Handler(httpSwagger.URL(determineSwaggerURL())))
 
-	err = http.ListenAndServe(":5100", nil)
+	server, err := createWebServer()
+	if err != nil {
+		log.Println(err)
+		return ERROR_EXIT
+	}
+
+	err = server.Serve()
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
