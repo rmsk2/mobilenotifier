@@ -130,4 +130,6 @@ td.list-weekly {
   column-rule-width: thin;
   column-rule-style: double;
   width: fit-content;
+  margin: 0;
+  padding: 0;
 }
