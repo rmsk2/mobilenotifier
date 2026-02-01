@@ -53,6 +53,7 @@ variables:
 |MN_CERT_FILE| If you want to use TLS, set this to the name of a file which holds a TLS server certificate in PEM format| No |
 |MN_CERT_KEY| If you want to use TLS, set this to the name of a file which holds the private key of the TLS server certificate in PEM format. The name of the file is no secret. Its contents is| No |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
+|MN_EXCLUDE_DUMMY_SENDER| If IFTTT_API_KEY is not set a dummy sender is included for development purposes. Set this variable to any value to suppress this behaviour | No |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_ADDR_BOOK| If set then this variable has to contain a base64 encoded JSON string which specifies recipients which are to be merged into the database. The format of the JSON data is specified below (see Address Book)| Yes |
@@ -108,11 +109,13 @@ is optional and should only be done during development.
 This repo also contains a small Python script `addr2b64.py` which allows to generate a compacted and base64 encoded version of a JSON address book. The output of this script can be
 used to set the `MN_ADDR_BOOK` environment variable. When set through a kubernetes secret the script output has to be base64 encoded a second time.
 
-# Configuring IFTTT
+# Notification methods
 
-The software expects to be able to call IFTTT webhooks ("normal" webhooks without a JSON payload). The action to take if the webhook trigger was received is either sending an SMS via `Android SMS` or 
-`Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent. Please note that the
-webhook feature requires you to subscribe to an IFTTT pro account which is not free.
+## Configuring IFTTT
+
+As a default the software expects to be able to call IFTTT webhooks ("normal" webhooks without a JSON payload). The action to take if the webhook trigger was received is either sending an SMS via
+`Android SMS` or `Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent.
+Please note that the webhook feature requires you to subscribe to an IFTTT pro account which is not free.
 
 I utilize an older Android phone which is not in daily use anymore as the "host" for the IFTTT "Android SMS" action. This phone then sends the reminder SMS messages to the recipients in our family. My first
 idea was to use the API of the messaging app Threema to send messages but unfortunately they closed their API for non business customers. I know that IFTTT has some actions which allow to send WhatsApp
@@ -120,7 +123,9 @@ messages but these seem to have somewhat arbitrary limits on the number of messa
 also falls in the dodgy category in my book. Telegram has an API but I don't like Telegram. There are dedicated SMS Gateway providers but for my expected volume of messages I did not want to embarass myself
 when talking to them.
 
-# Local SMS sender
+If you do not want to use IFTTT, do not set the environment variable `IFTTT_API_KEY` and set the variable `MN_EXCLUDE_DUMMY_SENDER` to any value.
+
+## Local SMS sender
 
 As an alternative to sending messages via IFTTT you can use a [local SMS sender](https://github.com/rmsk2/smssender) which is implemented as a simple REST service which routes message requests to a Wavecom
 Q2303A GSM modem. You have to set the following environment variables in order to use this feature:
@@ -128,6 +133,17 @@ Q2303A GSM modem. You have to set the following environment variables in order t
 - `MN_LOCAL_SENDER_URL` has contain the URL of the local SMS sender
 - `MN_LOCAL_SENDER_TOKEN` has to contain a JWT accepted by the local SMS sender
 - `MN_ADDITIONAL_ROOTS` points to a file which contains additional root certificates to use for the TLS connection to the local SMS sender. You will need to make use of this if you use a private TLS CA
+
+## Configuring e-mail notifications
+
+In addition to or instead of the methods mentioned above you can configure `mobilenotfier` to send e-mail notifications. In order to do that you have to set all of the following environment variables:
+
+- `MN_MAIL_SERVER` This variable has to contain the host name of the SMTP server you want to use
+- `MN_MAIL_SERVER_PORT` This variable has to be set to the port on which the SMTP server listens
+- `MN_MAIL_SENDER_ADDR` This variable has to contain the e-mail address which is used to send the notifications
+- `MN_MAIL_SENDER_PW` This variable has to be set to the password wich is needed to autheticate to the mail server
+
+Optionally you can set `MN_MAIL_SUBJECT` to a value which will then be used as the subject of notification e-mails. If not set the default value "Benachrichtigung" will be used
 
 # Some remarks
 

@@ -20,6 +20,7 @@ export default {
       entriesInMonth: [],
       result: "",
       fullRecipientData: [],
+      allAddressTypes: [],
       currentComponent: monthSelected,
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
@@ -228,7 +229,8 @@ export default {
         return;
       }
 
-      this.fullRecipientData = res.data
+      this.fullRecipientData = res.data.recipients
+      this.allAddressTypes = res.data.addr_types
       this.getRecipients()
     },
     resetErrors() {
@@ -417,7 +419,7 @@ export default {
       :elemcount="reminderCount" :metrics="metrics"
       @copy-token="copyTokenToClipboard()">
     </About>
-    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
+    <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :alladdresstypes="allAddressTypes"  :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
       @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">
     </RecipientList>
 

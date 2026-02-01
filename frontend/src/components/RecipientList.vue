@@ -1,23 +1,21 @@
 <script>
-import { addrClassIfttt, addrClassLocal, addrClassMail, Recipient } from './reminderapi';
+import { Recipient } from './reminderapi';
 
 export default {
   data() {
     return {
-      addrTypeIfttt: addrClassIfttt,
-      addrTypeMail: addrClassMail,
-      addrTypeLocal: addrClassLocal,
-
       editId: null,
       displayName: "",
       isDefault: false,
-      addressType: addrClassIfttt,
+      addressType: "",
       address: "",
       editButtonText: "Empfängerliste ändern",
-      allowEditing: true
+      allowEditing: true,
+      allAddressTypes: [],
+      defaultAddrType: "",
     }
   },
-  props: ['allrecipients', 'editvisible', 'editallow'],
+  props: ['allrecipients', 'editvisible', 'editallow', 'alladdresstypes'],
   emits: ['upsert-entry', 'delete-id', 'error-occurred', 'toggle-edit'],
   methods: {
     recipientsAvailable() {
@@ -93,7 +91,23 @@ export default {
           // make sure data is available as early as possible
           // simply defining the watcher as immediate allows
           // this to happen
-          this.procNewEntry()
+          this.procNewEntry();
+        },
+        immediate: true
+    },
+    alladdresstypes: {
+        handler(newVal) {
+            // make sure data is available as early as possible
+            // simply defining the watcher as immediate allows
+            // this to happen
+            // Select first address type as default
+            if (newVal.length > 0) {
+              this.defaultAddrType = newVal[0];
+            } else {
+              this.defaultAddrType = "";
+            }
+
+            this.addressType = this.defaultAddrType;
         },
         immediate: true
     },
@@ -172,9 +186,7 @@ export default {
         <td class="table-list-events-elem"><input type="text" id="desc" name="desc" size="30" class="list-text" v-model="address"></input></td>
         <td class="table-list-events-elem table-list-buttons">
           <select name="typeselect" v-model="addressType" id="typeselect">
-            <option class="list-text" :value="addrTypeIfttt">IFTTT</option>
-            <option class="list-text" :value="addrTypeMail">Mail</option>
-            <option class="list-text" :value="addrTypeLocal">Lokal</option>
+            <option class="list-text" :value="o" v-for="o in alladdresstypes">{{ o }}</option>
           </select>
         </td>
         <td class="table-list-events-elem table-list-buttons">

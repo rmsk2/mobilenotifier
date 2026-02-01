@@ -21,15 +21,21 @@ type RecipientData struct {
 	IsDefault   bool   `json:"is_default"`
 }
 
-type AddressBookController struct {
-	db         repo.DBSerializer
-	dbRemNotif repo.DBSerializer
-	log        *log.Logger
-	genRead    func(repo.DbType) repo.AddrBookRead
-	genWrite   func(repo.DbType) repo.AddrBookWrite
+type AllRecipientsResponse struct {
+	Recipients   []*repo.Recipient `json:"recipients"`
+	AddressTypes []string          `json:"addr_types"`
 }
 
-func NewAddressBookController(l repo.DBSerializer, lRemNotif repo.DBSerializer, lg *log.Logger, g func(repo.DbType) *repo.BBoltAddrBookRepo) *AddressBookController {
+type AddressBookController struct {
+	db           repo.DBSerializer
+	dbRemNotif   repo.DBSerializer
+	log          *log.Logger
+	addressTypes []string
+	genRead      func(repo.DbType) repo.AddrBookRead
+	genWrite     func(repo.DbType) repo.AddrBookWrite
+}
+
+func NewAddressBookController(l repo.DBSerializer, lRemNotif repo.DBSerializer, lg *log.Logger, g func(repo.DbType) *repo.BBoltAddrBookRepo, addrTypes []string) *AddressBookController {
 	genR := func(db repo.DbType) repo.AddrBookRead {
 		return g(db)
 	}
@@ -39,11 +45,12 @@ func NewAddressBookController(l repo.DBSerializer, lRemNotif repo.DBSerializer, 
 	}
 
 	return &AddressBookController{
-		db:         l,
-		dbRemNotif: lRemNotif,
-		log:        lg,
-		genRead:    genR,
-		genWrite:   genW,
+		db:           l,
+		dbRemNotif:   lRemNotif,
+		log:          lg,
+		genRead:      genR,
+		genWrite:     genW,
+		addressTypes: addrTypes,
 	}
 }
 
@@ -96,7 +103,7 @@ func (a *AddressBookController) HandleDelete(w http.ResponseWriter, r *http.Requ
 // @Description  Get all existing address book entries as a JSON list
 // @Tags	     AddressBook
 // @Accept       json
-// @Success      200  {object} []repo.Recipient
+// @Success      200  {object} AllRecipientsResponse
 // @Failure      400  {object} string
 // @Failure      500  {object} string
 // @Router       /notifier/api/addressbook [get]
@@ -119,7 +126,12 @@ func (a *AddressBookController) HandleList(w http.ResponseWriter, r *http.Reques
 		return strings.Compare(responses[i].DisplayName, responses[j].DisplayName) == -1
 	})
 
-	data, err := json.Marshal(&responses)
+	fullResponse := AllRecipientsResponse{
+		Recipients:   responses,
+		AddressTypes: a.addressTypes,
+	}
+
+	data, err := json.Marshal(&fullResponse)
 	if err != nil {
 		a.log.Printf("error serializing response: %v", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)

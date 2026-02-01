@@ -23,6 +23,7 @@ type SmsAddressBook interface {
 	SetDefaultType(t string)
 	CheckRecipient(r *tools.UUID) (bool, string, error)
 	GetDefaultRecipientIds() []string
+	GetAllAddressTypes() []string
 }
 
 func NewDBAddressBook(d repo.DBSerializer, g func(repo.DbType) *repo.BBoltAddrBookRepo) *DBAddressBook {
@@ -120,6 +121,16 @@ func (d *DBAddressBook) GetDefaultRecipientIds() []string {
 	}
 
 	return result
+}
+
+func (d *DBAddressBook) GetAllAddressTypes() []string {
+	var allTypes []string = []string{}
+
+	for i := range d.senders {
+		allTypes = append(allTypes, i)
+	}
+
+	return allTypes
 }
 
 func (d *DBAddressBook) AddSender(addrType string, s SmsSender) {

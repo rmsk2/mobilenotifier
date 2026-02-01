@@ -11,6 +11,7 @@ import (
 	"notifier/sms"
 	"notifier/tools"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -30,6 +31,7 @@ const envMailSubject = "MN_MAIL_SUBJECT"
 const envExpectedTokenIssuer = "EXPECTED_TOKEN_ISSUER"
 const envExpectedTokenAudience = "EXPECTED_TOKEN_AUDIENCE"
 const envExpectedTokenTtl = "TOKEN_TTL"
+const envExcludeDummySender = "MN_EXCLUDE_DUMMY_SENDER"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
@@ -86,11 +88,18 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 
 	apiKey, ok := os.LookupEnv(envApiKey)
 	if !ok {
-		dummy := sms.NewDummySender()
-		addrBook.AddSender(sms.TypeIFTTT, dummy)
+		_, ok = os.LookupEnv(envExcludeDummySender)
+		if !ok {
+			dummy := sms.NewDummySender()
+			addrBook.AddSender(sms.TypeIFTTT, dummy)
+			log.Println("IFTTT dummy notifier added")
+		} else {
+			log.Println("IFTTT notifier not added")
+		}
 	} else {
 		ifft := sms.NewIftttSender(apiKey)
 		addrBook.AddSender(sms.TypeIFTTT, ifft)
+		log.Println("IFTTT notifier added")
 	}
 
 	addrBook.SetDefaultType(sms.TypeIFTTT)
@@ -110,9 +119,9 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 	localSender, err := sms.NewLocalSenderFromEnvironment()
 	if err == nil {
 		addrBook.AddSender(sms.TypeLocal, localSender)
-		log.Println("Local sender added")
+		log.Println("Local notifier added")
 	} else {
-		log.Printf("Local sender not added: %v", err)
+		log.Printf("Local notifier not added: %v", err)
 	}
 
 	return addrBook
@@ -206,7 +215,12 @@ func run() int {
 	reminderController := controller.NewReminderController(dbl, smsAddressBook, createLogger(), repo.NewBBoltReminderRepo)
 	reminderController.AddHandlersWithAuth(authWrapper)
 
-	addrBookController := controller.NewAddressBookController(dblAddr, dbl, createLogger(), repo.NewBBoltAddressBookRepo)
+	allAddressTypes := smsAddressBook.GetAllAddressTypes()
+	sort.SliceStable(allAddressTypes, func(i, j int) bool {
+		return allAddressTypes[i] < allAddressTypes[j]
+	})
+
+	addrBookController := controller.NewAddressBookController(dblAddr, dbl, createLogger(), repo.NewBBoltAddressBookRepo, allAddressTypes)
 	addrBookController.AddHandlersWithAuth(authWrapper)
 
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
