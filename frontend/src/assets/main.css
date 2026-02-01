@@ -126,7 +126,7 @@ td.list-weekly {
 }
 
 .recipient-list {
-  column-count: 2;
+  column-count: 3;
   column-rule-width: thin;
   column-rule-style: double;
   width: fit-content;

@@ -30,7 +30,9 @@ export default {
       year: new Date(this.editdata.spec).getFullYear(),
       hours: new Date(this.editdata.spec).getHours(),
       minutes: new Date(this.editdata.spec).getMinutes(),
-      day: new Date(this.editdata.spec).getDate()
+      day: new Date(this.editdata.spec).getDate(),
+      fixedHours: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+      fixedMinutes: [10, 15, 20, 30, 40, 45, 50]
     }
   },
   watch: {
@@ -132,6 +134,13 @@ export default {
       this.day = res.day
       this.month = res.month
       this.year = res.year
+    },
+    setFixed(hour) {
+      this.hours = hour;
+      this.minutes = 0;
+    },
+    setFixedMinutes(minute) {
+      this.minutes = minute;
     },    
     async daySelected(event) {
       this.day = Number(event.target.value)
@@ -267,6 +276,18 @@ export default {
               <button @click="prevMonth">zurück</button>
               Ein Jahr: <button @click="nextYear">vor</button>
               <button @click="prevYear">zurück</button>              
+          </td>
+        </tr>
+        <tr>
+          <td>Feste Stunden</td>
+          <td>
+            <button v-for="h in fixedHours" @click="setFixed(h)">{{ h }}</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Feste Minuten</td>
+          <td>
+            <button v-for="m in fixedMinutes" @click="setFixedMinutes(m)">{{ m }}</button>
           </td>
         </tr>
         <tr>
