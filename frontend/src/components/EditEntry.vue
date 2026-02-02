@@ -470,6 +470,9 @@ export default {
           <td>
             <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningNoonBefore" />Am Mittag des vorigen Tages<br/>
           </td>
+          <td>
+            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningSameDay" />Am Tag des Ereignisses<br/>
+          </td>
         </tr>
         <tr>
           <td>
@@ -478,14 +481,9 @@ export default {
           <td>
             <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningWeekBefore" />Eine Woche vor dem Ereignis<br/>
           </td>
-        </tr>
-        <tr>
           <td>
-            <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningSameDay" />Am Tag des Ereignisses<br/>
-          </td>
-          <td>
-            <label for="param">Vorlauf in Stunden bei Warnung am gleichen Tag:</label>
-            <input type="number" size="3" id="param" name="param" v-model="param"></input>
+            <label for="param">Vorlauf in Stunden am gleichen Tag:</label>
+            <input type="number" size="3" width="70" id="param" name="param" v-model="param"></input>
           </td>
         </tr>
       </table>
@@ -505,3 +503,15 @@ export default {
     <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry" :disabled="disablesave">Ereignis löschen</button>
   </div>
 </template>
+
+<style scoped>
+#warningtypes table td {
+  border-right: 1px solid #000;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+#warningtypes table td:last-child {
+  border-right: none;
+}
+</style>
