@@ -112,8 +112,8 @@ used to set the `MN_ADDR_BOOK` environment variable. When set through a kubernet
 ## Configuring IFTTT
 
 As a default the software expects to be able to call IFTTT webhooks ("normal" webhooks without a JSON payload) via the following URL `https://maker.ifttt.com/trigger/{address}/with/key/{IFTTT_API_KEY}`,
-where `address`is taken from the address book as descibed above. The action to take if the webhook trigger was received is either sending an SMS via `Android SMS` or 
-`Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent. Please note 
+where `address`is taken from the address book as descibed above. The action to take if the webhook trigger was received is either sending an SMS via `Android SMS` or
+`Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent. Please note
 that the webhook feature requires you to subscribe to an IFTTT pro account which is not free.
 
 I utilize an older Android phone which is not in daily use anymore as the "host" for the IFTTT "Android SMS" action. This phone then sends the reminder SMS messages to the recipients in our family. My first
