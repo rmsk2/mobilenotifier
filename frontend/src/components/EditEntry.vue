@@ -268,29 +268,6 @@ export default {
       </legend>
       <table class="edit-entry-table">
         <tr>
-          <td>Shortcuts</td>
-          <td>              
-              Einen Tag: <button @click="nextDay">vor</button>
-              <button @click="prevDay">zurück</button>
-              Einen Monat: <button @click="nextMonth">vor</button>
-              <button @click="prevMonth">zurück</button>
-              Ein Jahr: <button @click="nextYear">vor</button>
-              <button @click="prevYear">zurück</button>              
-          </td>
-        </tr>
-        <tr>
-          <td>Feste Stunden</td>
-          <td>
-            <button v-for="h in fixedHours" @click="setFixed(h)">{{ h }}</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Feste Minuten</td>
-          <td>
-            <button v-for="m in fixedMinutes" @click="setFixedMinutes(m)">{{ m }}</button>
-          </td>
-        </tr>
-        <tr>
           <td>Zeitpunkt</td>
           <td>
             <div id="eventtime" name="eventtime">              
@@ -436,6 +413,29 @@ export default {
               </select>
               {{ weekDay }}
             </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Shortcuts</td>
+          <td>
+              Einen Tag: <button @click="nextDay">vor</button>
+              <button @click="prevDay">zurück</button>
+              Einen Monat: <button @click="nextMonth">vor</button>
+              <button @click="prevMonth">zurück</button>
+              Ein Jahr: <button @click="nextYear">vor</button>
+              <button @click="prevYear">zurück</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Feste Stunden</td>
+          <td>
+            <button v-for="h in fixedHours" @click="setFixed(h)">{{ h }}</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Feste Minuten</td>
+          <td>
+            <button v-for="m in fixedMinutes" @click="setFixedMinutes(m)">{{ m }}</button>
           </td>
         </tr>
         <tr>
