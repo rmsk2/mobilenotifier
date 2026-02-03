@@ -462,7 +462,7 @@ export default {
       <legend>
         <b>Gewünschte Vorwarnung</b>
       </legend>
-      <table style="border-collapse: collapse;">
+      <table class="warningspec">
         <tr>
           <td>
             <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningMorningBefore" />Am Morgen des vorigen Tages<br/>
@@ -503,15 +503,3 @@ export default {
     <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry" :disabled="disablesave">Ereignis löschen</button>
   </div>
 </template>
-
-<style scoped>
-#warningtypes table td {
-  border-right: 1px solid #000;
-  padding-right: 5px;
-  padding-left: 5px;
-}
-
-#warningtypes table td:last-child {
-  border-right: none;
-}
-</style>

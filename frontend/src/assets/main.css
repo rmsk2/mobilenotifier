@@ -133,3 +133,19 @@ td.list-weekly {
   margin: 0;
   padding: 0;
 }
+
+/* ---------------- Edit entry ----------------*/
+
+.warningspec {
+  border-collapse: collapse;
+}
+
+.warningspec td {
+  border-right: 1px solid #000;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.warningspec td:last-child {
+  border-right: none;
+}
