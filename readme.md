@@ -100,8 +100,6 @@ Example:
 ]
 ```
 
-This software assumes that there is an IFTTT webhook for each recipient of type `IFTTT` which can be called via the following URL `https://maker.ifttt.com/trigger/{address}/with/key/{IFTTT_API_KEY}`.
-
 The address book is persisted in the database and can be managed through mobilenotifier's web UI. Alternatively the contents of the address book can be changed through the environment variable
 `MN_ADDR_BOOK`. If it is set to a base64 encoded JSON string (having the structure described above) then the values contained in the JSON data are merged into the database. Setting this variable
 is optional and should only be done during development.
@@ -113,9 +111,10 @@ used to set the `MN_ADDR_BOOK` environment variable. When set through a kubernet
 
 ## Configuring IFTTT
 
-As a default the software expects to be able to call IFTTT webhooks ("normal" webhooks without a JSON payload). The action to take if the webhook trigger was received is either sending an SMS via
-`Android SMS` or `Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent.
-Please note that the webhook feature requires you to subscribe to an IFTTT pro account which is not free.
+As a default the software expects to be able to call IFTTT webhooks ("normal" webhooks without a JSON payload) via the following URL `https://maker.ifttt.com/trigger/{address}/with/key/{IFTTT_API_KEY}`,
+where `address`is taken from the address book as descibed above. The action to take if the webhook trigger was received is either sending an SMS via `Android SMS` or 
+`Send a notification from the IFTTT app` for a push message. In these actions add `Value1` as the sole "ingredient". `Value1` will then be replaced by the actual message to be sent. Please note 
+that the webhook feature requires you to subscribe to an IFTTT pro account which is not free.
 
 I utilize an older Android phone which is not in daily use anymore as the "host" for the IFTTT "Android SMS" action. This phone then sends the reminder SMS messages to the recipients in our family. My first
 idea was to use the API of the messaging app Threema to send messages but unfortunately they closed their API for non business customers. I know that IFTTT has some actions which allow to send WhatsApp
