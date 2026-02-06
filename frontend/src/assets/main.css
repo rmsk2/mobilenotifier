@@ -149,3 +149,7 @@ td.list-weekly {
 .warningspec td:last-child {
   border-right: none;
 }
+
+.rowabitwider td {
+  padding-bottom: 15px;
+}

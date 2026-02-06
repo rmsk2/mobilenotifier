@@ -416,7 +416,24 @@ export default {
           </td>
         </tr>
         <tr>
-          <td>Shortcuts</td>
+          <td>Beschreibung</td>
+          <td>
+            <input type="text" id="desc" name="desc" size="80" v-model="description"></input> Länge: {{ descriptionLen }}<br>
+          </td>
+        </tr>
+        <tr class="rowabitwider">
+          <td>Art des Ereignisses</td>
+          <td>
+            <select name="kindselect" v-model="kind" id="kindselect">
+              <option :value="reminderOneShot">Einmaliges Ereignis</option>
+              <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
+              <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
+              <option :value="reminderWeekly">Wöchentlich wiederkehrendes Ereignis</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
           <td>
               Einen Tag: <button @click="nextDay">vor</button>
               <button @click="prevDay">zurück</button>
@@ -436,23 +453,6 @@ export default {
           <td>Feste Minuten</td>
           <td>
             <button v-for="m in fixedMinutes" @click="setFixedMinutes(m)">{{ m }}</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Beschreibung</td>
-          <td>
-            <input type="text" id="desc" name="desc" size="80" v-model="description"></input> Länge: {{ descriptionLen }}<br>
-          </td>
-        </tr>
-        <tr>
-          <td>Art des Ereignisses</td>
-          <td>
-            <select name="kindselect" v-model="kind" id="kindselect">
-              <option :value="reminderOneShot">Einmaliges Ereignis</option>
-              <option :value="reminderAnniversary">Jährlich wiederkehrendes Ereignis</option>
-              <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
-              <option :value="reminderWeekly">Wöchentlich wiederkehrendes Ereignis</option>
-            </select>
           </td>
         </tr>
       </table>

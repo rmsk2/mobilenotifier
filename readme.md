@@ -194,7 +194,7 @@ export MN_MAIL_SUBJECT="Erinnerung MobileNotifier"
 After that the webapp can be used via the URL `http://localhost:5100/notifier/app/index.html` (the server listens on all interfaces not only `localhost`). Please note that the script does not set 
 the environment variable `IFTTT_API_KEY` in order to prevent sending actual text messages when simply testing the software. If the environment variable is not set the backend service automatically
 switches to a dummy sender which only logs the fact that a message would have been sent. If you set the environment variable to the correct value for your IFTTT account then your webhooks are
-called for real.
+called for real. See [here](#configuring-ifttt) if you do not want to use IFTTT at all.
 
 ## Running the software on a server
 

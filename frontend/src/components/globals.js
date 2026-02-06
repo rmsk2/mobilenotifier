@@ -3,7 +3,7 @@ const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
 const recipientListSelected = 5;
-const versionString = "1.2.5";
+const versionString = "1.2.6";
 
 class DeleteNotification {
    constructor(id, description) {
@@ -14,7 +14,8 @@ class DeleteNotification {
 
 export { 
   monthSelected, newSelected, allSelected, aboutSelected, versionString, recipientListSelected,
-  DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear
+  DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear,
+  daysPerMonth
 };
 
 
@@ -145,19 +146,25 @@ function predMonth(day, month, year) {
   return {day: performDateCorrection(d, m, y), month: m, year: y}
 }
 
-function performDateCorrection(day, month, year) {
-  let maxDay = 31
+function daysPerMonth(month, year) {
+  let maxDay = 31;
 
   if (month == 2) {
     maxDay = 28
     if (isLeapYear(year)) {
-      maxDay = 29
+      maxDay = 29;
     }
   } else {
     if (m30.has(month - 1)) {
-      maxDay = 30
+      maxDay = 30;
     }
   }
+
+  return maxDay;
+}
+
+function performDateCorrection(day, month, year) {
+  let maxDay = daysPerMonth(month, year)
 
   if (day > maxDay) {
     day = maxDay
