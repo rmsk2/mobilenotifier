@@ -96,14 +96,3 @@ export default {
       <div class="center-dayselect"><button @click="cancel">{{ cancelButton }}</button></div>
   </popup-modal>
 </template>
-
-<style scoped>
-.center-dayselect {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.dayselect-cell-right{
-  text-align: right;
-}
-</style>

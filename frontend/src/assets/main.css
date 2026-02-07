@@ -154,3 +154,14 @@ td.list-weekly {
 .rowabitwider td {
   padding-bottom: 15px;
 }
+
+/* ---------------- Day Picker ----------------*/
+
+.center-dayselect {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dayselect-cell-right{
+  text-align: right;
+}
