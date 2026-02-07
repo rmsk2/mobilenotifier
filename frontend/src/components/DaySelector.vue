@@ -41,7 +41,7 @@ export default {
       let daysInMonth = daysPerMonth(month, year)
       
       while (dayCount <= daysInMonth) {
-        this.allDays[offset + (dayCount - 1)] = `${dayCount}`;
+        this.allDays[offset + (dayCount - 1)] = dayCount;
         dayCount++;
       }
 
