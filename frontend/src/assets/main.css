@@ -165,3 +165,8 @@ td.list-weekly {
 .dayselect-cell-right{
   text-align: right;
 }
+
+.dateselectbutton {
+  width: 100%;
+  height: 100%;
+}
