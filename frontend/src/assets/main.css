@@ -162,8 +162,9 @@ td.list-weekly {
   justify-content: center;
   align-items: center;
 }
-.dayselect-cell-right{
-  text-align: right;
+
+.dayselect-cell {
+  text-align: center;
 }
 
 .dateselectbutton {

@@ -77,16 +77,16 @@ export default {
       <div class="center-dayselect"><p>Aktuell ausgewählt: {{ selectedDay }} ter {{ monthNames[this.month - 1]}} {{ this.year }}</p></div>
       <div class="center-dayselect"><table class="daySelectorTable">
         <tr>
-          <th class="dayselect-cell-right">Mo</th>
-          <th class="dayselect-cell-right">Di</th>
-          <th class="dayselect-cell-right">Mi</th>
-          <th class="dayselect-cell-right">Do</th>
-          <th class="dayselect-cell-right">Fr</th>
-          <th class="dayselect-cell-right">Sa</th>
-          <th class="dayselect-cell-right">So</th>
+          <th class="dayselect-cell">Mo</th>
+          <th class="dayselect-cell">Di</th>
+          <th class="dayselect-cell">Mi</th>
+          <th class="dayselect-cell">Do</th>
+          <th class="dayselect-cell">Fr</th>
+          <th class="dayselect-cell">Sa</th>
+          <th class="dayselect-cell">So</th>
         </tr>
         <tr v-for="j in [0, 1, 2, 3, 4, 5]">
-          <td class="dayselect-cell-right" v-for="i in weekN(j)">
+          <td class="dayselect-cell" v-for="i in weekN(j)">
             <div v-if="i===''"></div>
             <button class="dateselectbutton" v-else @click="changeSelected(i)">{{ i }}</button>
           </td>

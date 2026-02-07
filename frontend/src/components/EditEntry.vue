@@ -282,7 +282,7 @@ export default {
           <td>Zeitpunkt</td>
           <td>
             <div id="eventtime" name="eventtime">              
-              <button name="dayselect" @click="selectDay" id="dayselect">{{ day }}</button>
+              <button name="dayselect" @click="selectDay" id="dayselect">{{ `${day}`.padStart(2, '0') }}</button>
 
               <select name="monthselect" :value="month" @change="monthSelected" id="monthselect">
                 <option value="1">Januar</option>
@@ -421,7 +421,7 @@ export default {
         <tr>
           <td>Feste Stunden</td>
           <td>
-            <button v-for="h in fixedHours" @click="setFixed(h)">{{ h }}</button>
+            <button v-for="h in fixedHours" @click="setFixed(h)">{{ `${h}`.padStart(2, '0') }}</button>
           </td>
         </tr>
         <tr>
