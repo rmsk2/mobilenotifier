@@ -3,7 +3,7 @@ const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
 const recipientListSelected = 5;
-const versionString = "1.2.6";
+const versionString = "1.3.0";
 
 class DeleteNotification {
    constructor(id, description) {
@@ -12,15 +12,30 @@ class DeleteNotification {
   }
 }
 
+class DaySelectorResult {
+  constructor(success, day) {
+    this.success = success;
+    this.day = day;
+  }
+}
+
 export { 
-  monthSelected, newSelected, allSelected, aboutSelected, versionString, recipientListSelected,
+  monthSelected, newSelected, allSelected, aboutSelected, versionString, recipientListSelected, DaySelectorResult,
   DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear,
-  daysPerMonth
+  daysPerMonth, sundayLast
 };
 
 
 function isLeapYear(year) {
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+}
+
+function sundayLast(dayNum) {
+  if (dayNum === 0) {
+    return 6
+  } else {
+    return dayNum - 1
+  }
 }
 
 var m30 = new Set([3, 5, 8, 10])

@@ -3,6 +3,7 @@ import { reminderAnniversary, ReminderData, reminderMonthly, reminderOneShot, re
 import { warningMorningBefore, warningNoonBefore, warningEveningBefore, warningWeekBefore, warningSameDay } from './reminderapi';
 import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear } from './globals';
 import { nextTick } from 'vue';
+import DaySelector from './DaySelector.vue'
 
 
 export default {
@@ -224,6 +225,13 @@ export default {
 
       return {ok: true, msg: ""}
     },
+    async selectDay() {
+      let res = await this.$refs.daySelector.show(this.day, this.month, this.year);
+
+      if (res.success) {
+        this.day = res.day;
+      }
+    },
     async saveData() {
       let valRes = this.validate();
       if (!valRes.ok) {
@@ -253,7 +261,10 @@ export default {
       this.hours = d.getHours();
       this.minutes = d.getMinutes();
     }
-  }
+  },
+  components: {
+    DaySelector
+  },
 }
 </script>
 
@@ -271,39 +282,7 @@ export default {
           <td>Zeitpunkt</td>
           <td>
             <div id="eventtime" name="eventtime">              
-              <select name="dayselect" :value="day"  @change="daySelected" id="dayselect">
-                <option value="1">01</option>
-                <option value="2">02</option>
-                <option value="3">03</option>
-                <option value="4">04</option>
-                <option value="5">05</option>
-                <option value="6">06</option>
-                <option value="7">07</option>
-                <option value="8">08</option>
-                <option value="9">09</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="22">22</option>
-                <option value="23">23</option>
-                <option value="24">24</option>
-                <option value="25">25</option>
-                <option value="26">26</option>
-                <option value="27">27</option>
-                <option value="28">28</option>
-                <option value="29">29</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-              </select>  
+              <button name="dayselect" @click="selectDay" id="dayselect">{{ day }}</button>
 
               <select name="monthselect" :value="month" @change="monthSelected" id="monthselect">
                 <option value="1">Januar</option>
@@ -502,4 +481,5 @@ export default {
 
     <button @click="saveData" :disabled="disablesave">Daten speichern</button><button v-if="!createNew()" @click="deleteEntry" :disabled="disablesave">Ereignis löschen</button>
   </div>
+  <DaySelector ref="daySelector"></DaySelector>
 </template>
