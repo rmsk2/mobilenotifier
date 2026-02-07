@@ -414,12 +414,8 @@ export default {
         <tr>
           <td></td>
           <td>
-              Einen Tag: <button @click="nextDay">vor</button>
-              <button @click="prevDay">zurück</button>
-              Einen Monat: <button @click="nextMonth">vor</button>
-              <button @click="prevMonth">zurück</button>
-              Ein Jahr: <button @click="nextYear">vor</button>
-              <button @click="prevYear">zurück</button>
+              Einen Monat: <button @click="nextMonth">vor</button><button @click="prevMonth">zurück</button>
+              Ein Jahr: <button @click="nextYear">vor</button><button @click="prevYear">zurück</button>
           </td>
         </tr>
         <tr>

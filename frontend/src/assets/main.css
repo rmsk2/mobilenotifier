@@ -123,6 +123,7 @@ td.list-weekly {
   background-color: var(--global-table-header);
   padding-left: 5px;
   padding-right: 5px;
+  text-align: center;
 }
 
 .recipient-list {
