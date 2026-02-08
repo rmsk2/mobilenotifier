@@ -52,6 +52,13 @@ export default {
         this.rejectPromise = reject
       })
     },
+    calcClass(day) {
+      if (day === this.selectedDay) {
+        return "dateselectbutton-current"
+      } else {
+        return "dateselectbutton"
+      }
+    },
     weekN(weekNum) {
       return this.allDays.slice(weekNum * 7, (weekNum + 1) * 7);
     },
@@ -88,7 +95,7 @@ export default {
         <tr v-for="j in [0, 1, 2, 3, 4, 5]">
           <td class="dayselect-cell" v-for="i in weekN(j)">
             <div v-if="i===''"></div>
-            <button class="dateselectbutton" v-else @click="changeSelected(i)">{{ i }}</button>
+            <button :class="calcClass(i)" v-else @click="changeSelected(i)">{{ i }}</button>
           </td>
         </tr>
       </table></div>
