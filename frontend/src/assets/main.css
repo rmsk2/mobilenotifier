@@ -83,7 +83,6 @@ td.list-weekly {
   background-color: var(--list-weekly-highlight);
 }
 
-
 /* Draw external borders and column borders. No border between rows*/
 .about-table,
 .table-list-events {
@@ -93,11 +92,13 @@ td.list-weekly {
   border-spacing: 0;
 }
 
+/* While we draw no lines for the rows, we still want to draw lines for the columns */
 .table-about-elem,
 .table-list-events-elem {
   border-right: 1px Solid Black;
 }
 
+/* Draw a box around the header of the tables holding event lists and the about info */
 .table-about-header,
 .table-list-events-header {
   border-right: 1px Solid Black;
@@ -119,6 +120,7 @@ td.list-weekly {
 /* Event list*/
 /* -------------------------------------- */
 
+/* Style "title bar" in popup dialogs */
 .conf-header {
   background-color: var(--global-table-header);
   padding-left: 5px;
@@ -126,6 +128,7 @@ td.list-weekly {
   text-align: center;
 }
 
+/* Show selectable recipients in edit entry panel using three columns separated by thin black lines */
 .recipient-list {
   column-count: 3;
   column-rule-width: thin;
@@ -141,37 +144,44 @@ td.list-weekly {
   border-collapse: collapse;
 }
 
+/* Draw black lines between the table columns of the warning specification */
 .warningspec td {
   border-right: 1px solid #000;
   padding-right: 5px;
   padding-left: 5px;
 }
 
+/* ... but do not draw the rightmost line */
 .warningspec td:last-child {
   border-right: none;
 }
 
+/* Create a bit of a divide between the table rows which define the event and the shortcuts for easier selection */
 .rowabitwider td {
   padding-bottom: 15px;
 }
 
 /* ---------------- Day Picker ----------------*/
 
+/* Center elements with respect to the surrounding popup */
 .center-dayselect {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* Center contents and column headers in table which holds the buttons representing the selectable days */
 .dayselect-cell {
   text-align: center;
 }
 
+/* Make buttons which represent the days fill the whole table cell*/
 .dateselectbutton {
   width: 100%;
   height: 100%;
 }
 
+/* Make selected day appear differently without breaking default styling */
 .dateselectbutton-current {
   width: 100%;
   height: 100%;
