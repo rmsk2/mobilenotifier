@@ -41,7 +41,7 @@ export default {
     procNewEntry() {
       this.editId = null
       this.address = ""
-      this.addressType = this.addrTypeIfttt
+      this.addressType = this.defaultAddrType;
       this.isDefault = false
       this.displayName = ""
     },
