@@ -42,7 +42,7 @@ export default {
   <div id="div-about" class="about-component">
     <h2>Über diese Anwendung</h2>
     <div class="about-text">
-    Mobile-Notifier (a.k.a das Gschmarri-Projekt). Eine Webanwendung zur Verwaltung von SMS-Erinnerungen. Geschrieben von Martin Grap in 2025.
+    Mobile-Notifier (a.k.a das Gschmarri-Projekt). Eine Webanwendung zur Verwaltung von SMS-Erinnerungen. Geschrieben von Martin Grap in 2025 und 2026.
     </div>
     <p/>
     <table class="about-table">
