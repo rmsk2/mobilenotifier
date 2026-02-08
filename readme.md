@@ -74,8 +74,8 @@ entry has to conform to the following schema
 |-|-|-|
 |display_name| string | This specifies the name of the recipient as displayed in the webapp. This value can be changed|
 |id| string | This is a UUID which defines the recipient internally. It this is changed a new recipient is created |
-|addr_type| string | Currently the address types `IFTTT` and `Mail` are defined |
-|address|string| The address in the context of the address type. I.e. currently either the mail address of the recipient or the name of the IFTTT recipe |
+|addr_type| string | Currently the address types `IFTTT`, `Mail` and  `local` are defined |
+|address|string| The address in the context of the address type. I.e. currently either the mail address of the recipient, the name of the IFTTT recipe or a phone number including the international access code but without a `+` sign|
 |is_default|bool| Is `true` if this recipient should be a default recipient for new reminder notifications |
 
 Example:
@@ -101,7 +101,7 @@ Example:
 ```
 
 The address book is persisted in the database and can be managed through mobilenotifier's web UI. Alternatively the contents of the address book can be changed through the environment variable
-`MN_ADDR_BOOK`. If it is set to a base64 encoded JSON string (having the structure described above) then the values contained in the JSON data are merged into the database. Setting this variable
+`MN_ADDR_BOOK`. If it is set to a base64 encoded JSON string (having its structure described above) then the values contained in the JSON data are merged into the database. Setting this variable
 is optional and should only be done during development.
 
 This repo also contains a small Python script `addr2b64.py` which allows to generate a compacted and base64 encoded version of a JSON address book. The output of this script can be
@@ -199,7 +199,7 @@ called for real. See [here](#configuring-ifttt) if you do not want to use IFTTT 
 ## Running the software on a server
 
 In order to run this software on one of your machines in a classical fashion you can build a production version of the frontend after setting `VITE_API_URL` in `.env.prod` to the correct value. 
-Then set `SWAGGER_URL` and  `LOCALDIR` in your environment to the correct values and you will be able to run the software without a separate web server. Additionally you can set the environment
+Then set `SWAGGER_URL` and  `LOCALDIR` to the correct values for your environment and you will be able to run the software without a separate web server. Additionally you can set the environment
 variable `MN_PORT_LISTEN` to a value of your choice. If you do not set the variable port 5100 is used as a default. If you additionally set the environment variables `MN_CERT_FILE` and 
 `MN_KEY_FILE` to the names of files which contain an X.509 server certificate and its corresponding private key then `mobilenotifier` will use TLS.
 
@@ -294,7 +294,7 @@ not only the host name of the machine which runs mobile notifier's backend but a
 to specify a file containing a JWT which allows `backup.py` to authenticate itself to mobile notifier's REST API. As the JWT is required `backup.py` attempts
 to read the neccessary token from stdin, if `-t` is not specified.
 
-Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by private root, where the root certifciate 
+Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by a private root, where the root certifciate 
 is stored in the file `my-private-root.pem`. Then the following commands can be used to create 
 
 `python3 backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt` 
