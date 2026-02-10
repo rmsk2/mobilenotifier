@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const metricsTicks = "ticks"
+
 type AddMetricsEvent func(string)
 
 type expiryInfo struct {
@@ -37,6 +39,7 @@ func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticke
 	go func() {
 		for {
 			t := <-warner.ticker.C
+			warner.metricCallback(metricsTicks)
 			warner.processTick(t)
 		}
 	}()
