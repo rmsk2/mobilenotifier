@@ -53,6 +53,10 @@ func NewLocalSenderFromEnvironment() (*LocalSmsSender, error) {
 	return NewLocalSender(url, token, client), nil
 }
 
+func (l *LocalSmsSender) GetName() string {
+	return "local"
+}
+
 func (l *LocalSmsSender) Send(recipientAddress string, message string) error {
 	if len([]rune(message)) > lenMessageMax {
 		temp := message

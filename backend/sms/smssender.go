@@ -12,6 +12,7 @@ const lenMessageMax = 160
 
 type SmsSender interface {
 	Send(recipientAddress string, message string) error
+	GetName() string
 }
 
 func NewIftttSender(apiKey string) *iftttSmsSender {
@@ -27,6 +28,10 @@ type ifftBody struct {
 
 type iftttSmsSender struct {
 	apiKey string
+}
+
+func (i *iftttSmsSender) GetName() string {
+	return "IFTTT"
 }
 
 func (i *iftttSmsSender) Send(recipientAddress string, message string) error {

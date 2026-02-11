@@ -67,6 +67,10 @@ func (m *mailNotifier) SetSubject(s string) {
 	m.Subject = s
 }
 
+func (m *mailNotifier) GetName() string {
+	return "Mail"
+}
+
 func (m *mailNotifier) Send(recipientAddress string, message string) error {
 	to := []string{recipientAddress}
 

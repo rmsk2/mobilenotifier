@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"log"
 	"notifier/repo"
 	"notifier/sms"
@@ -96,7 +97,9 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 		return true
 	}
 
-	err = w.addrBook.GetSender(info.recipient).Send(address, info.description)
+	sender := w.addrBook.GetSender(info.recipient)
+
+	err = sender.Send(address, info.description)
 	if err != nil {
 		w.log.Printf("Unable to send SMS to '%s' for notification '%s': %v", info.recipient, info.uuid, err)
 		return false
@@ -106,7 +109,8 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 
 	if w.metricCallback != nil {
 		w.metricCallback(tools.NotificationSent)
-		w.metricCallback(info.recipient.String())
+		w.metricCallback(fmt.Sprintf("%s:%s", address, info.recipient.String()))
+		w.metricCallback(sender.GetName())
 	}
 
 	err = writeRepo.Delete(info.uuid)

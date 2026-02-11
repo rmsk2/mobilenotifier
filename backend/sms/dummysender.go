@@ -12,6 +12,10 @@ func NewDummySender() *dummySmsSender {
 type dummySmsSender struct {
 }
 
+func (i *dummySmsSender) GetName() string {
+	return "IFTTT - dummy"
+}
+
 func (i *dummySmsSender) Send(recipientAddress string, message string) error {
 	if len([]rune(message)) > lenMessageMax {
 		temp := message
