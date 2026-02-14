@@ -3,6 +3,7 @@ package tools
 import (
 	"log"
 	"net/http"
+	"notifier/tools/jwt"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func ApiKeyAuthenticator(authSecret AuthSecret, logger *log.Logger, originalHand
 }
 
 func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	jwtVerifier := NewHs256Jwt([]byte(authSecret.Secret))
+	jwtVerifier := jwt.NewHs256JwtVerifier([]byte(authSecret.Secret))
 
 	res := func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get(authSecret.HeaderName)
@@ -43,7 +44,7 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 			return
 		}
 
-		claims, err := NewFromVerifiedClaims(parsedClaims)
+		claims, err := jwt.NewFromVerifiedClaims(parsedClaims)
 		if err != nil {
 			logger.Printf("Unable to authenticate client: %v", err)
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
