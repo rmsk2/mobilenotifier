@@ -20,6 +20,6 @@ func createAuthSecret() *tools.AuthSecret {
 func createAuthWrapper() tools.AuthWrapperFunc {
 	authSecret := createAuthSecret()
 	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator)
+	//return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator)
 	return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator)
-
 }

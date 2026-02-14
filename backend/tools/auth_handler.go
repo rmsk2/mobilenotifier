@@ -33,7 +33,15 @@ func ApiKeyAuthenticator(authSecret AuthSecret, logger *log.Logger, originalHand
 }
 
 func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	jwtVerifier := jwt.NewHs256JwtVerifier([]byte(authSecret.Secret))
+	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewHs256JwtVerifier)
+}
+
+func JwtEs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewEs256JwtVerifier)
+}
+
+func JwtAuthenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request), gen func([]byte) *jwt.JwtVerifier) func(http.ResponseWriter, *http.Request) {
+	jwtVerifier := gen([]byte(authSecret.Secret))
 
 	res := func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get(authSecret.HeaderName)
