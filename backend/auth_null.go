@@ -8,7 +8,7 @@ import (
 	"notifier/tools"
 )
 
-func createAuthWrapper() tools.AuthWrapperFunc {
+func createAuthWrapper() (tools.AuthWrapperFunc, error) {
 	log.Println("Using ********* NO AUTHENTICATION!!!!! *********")
-	return tools.NullAuthenticator
+	return tools.NullAuthenticator, nil
 }

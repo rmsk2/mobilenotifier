@@ -180,6 +180,12 @@ func run() int {
 	determineClientTZFromEnvironment()
 	getTokenDefinitionsFromEnv()
 
+	authWrapper, err := createAuthWrapper()
+	if err != nil {
+		log.Printf("Unable to initialize authentication mechanism: %v", err)
+		return ERROR_EXIT
+	}
+
 	boltPath, ok := os.LookupEnv(envDbPath)
 	if !ok {
 		log.Printf("environment variable '%s' not found in environment", envDbPath)
@@ -204,7 +210,6 @@ func run() int {
 	defer func() { metricCollector.Stop() }()
 
 	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo)
-	authWrapper := createAuthWrapper()
 
 	smsController := controller.NewSmsController(createLogger(), smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)

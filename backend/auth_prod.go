@@ -5,21 +5,27 @@ package main
 
 import (
 	"notifier/tools"
+	"notifier/tools/jwt"
 	"os"
 )
 
-const envNotifierHmacKey = "NOTIFIER_HMAC_KEY"
+const envNotifierVerificationSecret = "MN_NOTIFIER_VERIFICATION_SECRET"
 
 func createAuthSecret() *tools.AuthSecret {
 	return &tools.AuthSecret{
-		Secret:     os.Getenv(envNotifierHmacKey),
+		Secret:     os.Getenv(envNotifierVerificationSecret),
 		HeaderName: authHeaderName,
 	}
 }
 
-func createAuthWrapper() tools.AuthWrapperFunc {
+func checkEcdsaPublicKey(raw []byte) error {
+	_, err := jwt.LoadEcdsaPublicKey(raw)
+	return err
+}
+
+func createAuthWrapper() (tools.AuthWrapperFunc, error) {
 	authSecret := createAuthSecret()
-	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator)
-	//return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator)
-	return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator)
+	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator), nil
+	//return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator), checkEcdsaPublicKey([]byte(authSecret.Secret))
+	return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator), nil
 }
