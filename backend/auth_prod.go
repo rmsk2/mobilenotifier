@@ -10,6 +10,7 @@ import (
 )
 
 const envNotifierVerificationSecret = "MN_NOTIFIER_VERIFICATION_SECRET"
+const envNotifierUseEcdsa = "MN_NOTIFIER_USE_ECDSA"
 
 func createAuthSecret() *tools.AuthSecret {
 	return &tools.AuthSecret{
@@ -26,6 +27,11 @@ func checkEcdsaPublicKey(raw []byte) error {
 func createAuthWrapper() (tools.AuthWrapperFunc, error) {
 	authSecret := createAuthSecret()
 	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator), nil
-	//return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator), checkEcdsaPublicKey([]byte(authSecret.Secret))
-	return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator), nil
+
+	_, useEcdsa := os.LookupEnv(envNotifierUseEcdsa)
+	if useEcdsa {
+		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator), checkEcdsaPublicKey([]byte(authSecret.Secret))
+	} else {
+		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator), nil
+	}
 }
