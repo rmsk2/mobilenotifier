@@ -36,8 +36,16 @@ func JwtHs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHa
 	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewHs256JwtVerifier)
 }
 
+func JwtHs384Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewHs384JwtVerifier)
+}
+
 func JwtEs256Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewEs256JwtVerifier)
+}
+
+func JwtEs384Authenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return JwtAuthenticator(authSecret, logger, originalHandler, jwt.NewEs384JwtVerifier)
 }
 
 func JwtAuthenticator(authSecret AuthSecret, logger *log.Logger, originalHandler func(http.ResponseWriter, *http.Request), gen func([]byte) *jwt.JwtVerifier) func(http.ResponseWriter, *http.Request) {

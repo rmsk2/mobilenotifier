@@ -40,8 +40,8 @@ variables:
 |DB_PATH| This variable has to define the file name of the `bbolt` database file| No |
 |SWAGGER_URL| This variable has to specify the URL under which the swagger documentation can be reached | No |
 |MN_CLIENT_TZ| Here you have to specify the time zone where the user lives. In my case this is `Europe/Berlin` according to the [IANA time zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)| No |  
-|MN_NOTIFIER_USE_ECDSA| Set to any value if you want to utilize tokens signed using ECDSA-256 instead of being simply HMACed|
-|MN_NOTIFIER_VERIFICATION_SECRET| HMAC key or ECDSA public key which is used to verify JWTs issued by the `tokenissuer` | Yes when HMAC is used. No if ECDSA is used |
+|MN_TOKEN_TYPE| Specifies the JWT signature algorithm to use for token verification. Accepted values: `HS256`, `HS384`, `ES256`, or `ES384`. Defaults to `HS256` if not set or set to a value unknown to `mobilenotifier`. When using ECDSA algorithms (`ES256`, `ES384`), the `MN_VERIFICATION_SECRET` must contain the ECDSA public key | No |
+|MN_VERIFICATION_SECRET| HMAC key or ECDSA public key which is used to verify JWTs issued by the `tokenissuer` | Yes when HMAC is used. No if ECDSA is used |
 |MN_MAIL_SERVER| This variable has to contain the FQDN of the SMTP server which is used to send mail notifications| No |
 |MN_MAIL_SERVER_PORT| Here the port used by the SMTP server defined above can be set | No |
 |EXPECTED_TOKEN_ISSUER| Issuer name the token issuer is using. Default value `daheim_token_issuer`| No |

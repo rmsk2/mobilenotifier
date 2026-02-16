@@ -9,8 +9,8 @@ import (
 	"os"
 )
 
-const envNotifierVerificationSecret = "MN_NOTIFIER_VERIFICATION_SECRET"
-const envNotifierUseEcdsa = "MN_NOTIFIER_USE_ECDSA"
+const envNotifierVerificationSecret = "MN_VERIFICATION_SECRET"
+const envTokenType = "MN_TOKEN_TYPE"
 
 func createAuthSecret() *tools.AuthSecret {
 	return &tools.AuthSecret{
@@ -28,10 +28,19 @@ func createAuthWrapper() (tools.AuthWrapperFunc, error) {
 	authSecret := createAuthSecret()
 	//authWrapper := tools.MakeWrapper(*authSecret, createLogger(), tools.ApiKeyAuthenticator), nil
 
-	_, useEcdsa := os.LookupEnv(envNotifierUseEcdsa)
-	if useEcdsa {
+	tokenType, ok := os.LookupEnv(envTokenType)
+	if !ok {
+		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator), nil
+	}
+
+	switch tokenType {
+	case jwt.AlgHs384:
+		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs384Authenticator), nil
+	case jwt.AlgEs256:
 		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs256Authenticator), checkEcdsaPublicKey([]byte(authSecret.Secret))
-	} else {
+	case jwt.AlgEs384:
+		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtEs384Authenticator), checkEcdsaPublicKey([]byte(authSecret.Secret))
+	default:
 		return tools.MakeWrapper(*authSecret, createLogger(), tools.JwtHs256Authenticator), nil
 	}
 }
