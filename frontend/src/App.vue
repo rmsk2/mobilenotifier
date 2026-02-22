@@ -25,7 +25,7 @@ export default {
       monthToSearch: new Date().getMonth() + 1,
       yearToSearch: new Date().getFullYear(),
       apiURL: import.meta.env.VITE_API_URL,
-      issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL, "gschmarri"),
+      issuerApi: new IssuerAPI(import.meta.env.VITE_ISSUER_URL, "gschmarri", "HS256"),
       api: new ReminderAPI(import.meta.env.VITE_API_URL, ""),
       tokenTtl: 3600,
       editData: "",

@@ -18,7 +18,7 @@ import (
 	_ "notifier/docs"
 	_ "time/tzdata"
 
-	httpSwagger "github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 const envApiKey = "IFTTT_API_KEY"
