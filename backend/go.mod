@@ -4,8 +4,8 @@ go 1.24.0
 
 require (
 	github.com/swaggo/http-swagger/v2 v2.0.2
-	github.com/swaggo/swag v1.16.5
-	go.etcd.io/bbolt v1.4.0
+	github.com/swaggo/swag v1.16.6
+	go.etcd.io/bbolt v1.4.3
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
 )
 
