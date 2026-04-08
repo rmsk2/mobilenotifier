@@ -298,11 +298,11 @@ to read the neccessary token from stdin, if `-t` is not specified.
 Let's assume the backend runs on the machine `kubernetes-cluster.example.com` which uses a TLS certificate issued by a private root, where the root certifciate 
 is stored in the file `my-private-root.pem`. Then the following commands can be used to create 
 
-`python3 backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt` 
+`python3 backup.py backup -o mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt` 
 
 and restore a backup
 
-`python3 restore -i mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt`
+`python3 backup.py restore -i mobilenotifier.bak -n https://kubernetes-cluster.example.com -c my-private-root.pem -t token.txt`
 
 You can use the variable `CONF_API_PREFIX` to specify any additional path components which are needed to access the API in addition to the host name. The default
 value is `/notifier`.

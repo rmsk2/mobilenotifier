@@ -62,6 +62,8 @@ metadata:
   name: notifier-backend-deployment
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: notifier-backend-pod

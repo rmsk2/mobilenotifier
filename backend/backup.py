@@ -70,7 +70,7 @@ def do_restore(in_file, host_name, token, ca_bundle=None):
     with open(in_file, "rb") as f:
         data = json.load(f)
     
-    save_address_book(data["address_book"], host_name, token, ca_bundle)
+    save_address_book(data["address_book"]["recipients"], host_name, token, ca_bundle)
     save_reminders(data["reminders"], host_name, token, ca_bundle)
 
 
