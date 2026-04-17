@@ -202,6 +202,10 @@ export default {
         return {ok: false, msg: "Keine Empfänger angegeben"}
       }
 
+      if ((this.kind == reminderMonthly) && (this.day > 28)) {
+        return {ok: false, msg: "Diesen Tag gibt es nicht in jedem Monat"}
+      }
+
       if (this.param > 23) {
         return {ok: false, msg: "Der Vorlauf kann maximal 23 Stunden sein"}
       }

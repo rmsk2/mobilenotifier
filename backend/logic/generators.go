@@ -48,9 +48,16 @@ func anniversaryRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 func monthlyRefTimeGen(r *repo.Reminder, n time.Time) time.Time {
 	h := r.Spec.In(tools.ClientTZ())
 	now := n.In(tools.ClientTZ())
+	day := h.Day()
+
+	// No monthly events on days > 28, as these days do not exist in all months
+	if day > 28 {
+		day = 28
+	}
+
 	// When creating a monthly event the desired hour and minute are taken into account in order to decide whether
 	// to initially schedule the event in the current or the following month
-	refThisMonth := time.Date(now.Year(), now.Month(), h.Day(), h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
+	refThisMonth := time.Date(now.Year(), now.Month(), day, h.Hour(), h.Minute(), 0, 0, tools.ClientTZ())
 	var offset int
 
 	switch {

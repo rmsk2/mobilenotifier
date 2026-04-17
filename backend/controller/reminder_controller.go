@@ -165,6 +165,12 @@ func (n *ReminderController) HandleUpsert(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if dayToTest := m.Spec.In(tools.ClientTZ()).Day(); (m.Kind == repo.Monthly) && (dayToTest > 28) {
+		n.log.Printf("Illegal day for monthly reminder: %d", dayToTest)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
 	if m.Description == "" {
 		n.log.Printf("Description is empty. This makes no sense")
 		http.Error(w, "Bad request", http.StatusBadRequest)
