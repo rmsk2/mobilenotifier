@@ -425,7 +425,7 @@ export default {
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
       :elemcount="reminderCount" :metrics="metrics" :is-dark-theme="themeIsDark"
-      @copy-token="copyTokenToClipboard()", @theme-toggled="toggleTheme">
+      @copy-token="copyTokenToClipboard()" @theme-toggled="toggleTheme">
     </About>
     <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :alladdresstypes="allAddressTypes"  :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
       @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">
