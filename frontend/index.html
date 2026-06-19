@@ -5,7 +5,8 @@
     <!-- Restore the saved theme before the stylesheet is applied, so a reload
          never flashes the light theme before switching to dark. Must stay a
          classic (non-module) inline script so it runs synchronously during
-         parse, before first paint. -->
+         parse, before first paint. Keep the storage key and attribute name in
+         sync with ThemeSelector in globals.js. -->
     <script>
       const savedTheme = sessionStorage.getItem('theme');
       if (savedTheme != null) {

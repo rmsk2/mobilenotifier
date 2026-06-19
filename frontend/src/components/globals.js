@@ -3,7 +3,7 @@ const newSelected = 2;
 const allSelected = 3;
 const aboutSelected = 4;
 const recipientListSelected = 5;
-const versionString = "1.4.3";
+const versionString = "1.4.4";
 
 class DeleteNotification {
    constructor(id, description) {
@@ -22,7 +22,7 @@ class DaySelectorResult {
 export { 
   monthSelected, newSelected, allSelected, aboutSelected, versionString, recipientListSelected, DaySelectorResult,
   DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, performDateCorrection, sucYear, predYear,
-  daysPerMonth, sundayLast
+  daysPerMonth, sundayLast, ThemeSelector
 };
 
 
@@ -186,4 +186,28 @@ function performDateCorrection(day, month, year) {
   }
 
   return day
+}
+
+
+/* The string values 'data-theme' and 'theme' are also used in index.html. You
+   have to keep them in sync. 'data-theme' and 'dark' are also used in the CSS.*/
+class ThemeSelector {
+  constructor() {
+    this.currentTheme = document.documentElement.getAttribute('data-theme');
+  }
+
+  isDark() {
+    return this.currentTheme === 'dark';
+  }
+
+  toggle() {
+    if (this.currentTheme === 'dark') {
+      this.currentTheme = 'light'
+    } else {
+      this.currentTheme = 'dark'
+    }
+
+    document.documentElement.setAttribute('data-theme', this.currentTheme);
+    sessionStorage.setItem('theme', this.currentTheme); 
+  }
 }

@@ -4,7 +4,7 @@ import EntryList from './components/EntryList.vue'
 import Navigation from './components/Navigation.vue'
 import EditEntry from './components/EditEntry.vue';
 import About from './components/About.vue';
-import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected } from './components/globals';
+import { monthSelected, newSelected, allSelected, aboutSelected, recipientListSelected, ThemeSelector } from './components/globals';
 import { ReminderAPI, getDefaultReminder, Reminder, RecipientData } from './components/reminderapi';
 import { IssuerAPI } from './components/tokenissuer';
 import ConfirmationDialog from './components/ConfirmationDialog.vue';
@@ -35,7 +35,9 @@ export default {
       defaultRecipientIds: "",
       addrBookEditable: false,
       clientTime: "",
-      allowRecipientEdit: true
+      allowRecipientEdit: true,
+      themeSelector: null,
+      themeIsDark: false
     }
   },
   computed: {
@@ -178,6 +180,10 @@ export default {
     },
     async redraw() {
       await this.showComponents(this.currentComponent)
+    },
+    toggleTheme() {
+      this.themeSelector.toggle();
+      this.themeIsDark = this.themeSelector.isDark();
     },
     toggleAddrBookEdit() {
       this.addrBookEditable = !this.addrBookEditable
@@ -358,6 +364,8 @@ export default {
     await this.startRescheduling();
     await this.getFullRecipientData();
     await this.showComponents(monthSelected);
+    this.themeSelector = new ThemeSelector();
+    this.themeIsDark = this.themeSelector.isDark();
   },
 }
 
@@ -416,8 +424,8 @@ export default {
       @error-occurred="setErrorMessage" @delete-id="deleteAndSwitchToNew" @save-data="saveReminder">
     </EditEntry>
     <About v-if="testAbout()" :clienttz="apiTimeZone" :versioninfo="apiVersion" :apilink="apiURL"
-      :elemcount="reminderCount" :metrics="metrics"
-      @copy-token="copyTokenToClipboard()">
+      :elemcount="reminderCount" :metrics="metrics" :is-dark-theme="themeIsDark"
+      @copy-token="copyTokenToClipboard()", @theme-toggled="toggleTheme">
     </About>
     <RecipientList v-if="testRecipientList()" :allrecipients="fullRecipientData" :alladdresstypes="allAddressTypes"  :editvisible="addrBookEditable" :editallow="allowRecipientEdit"
       @delete-id="deleteAddrBookEntry" @upsert-entry="upsertAddrBookEntry" @error-occurred="setErrorMessage" @toggle-edit="toggleAddrBookEdit">

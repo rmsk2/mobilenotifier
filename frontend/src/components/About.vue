@@ -12,16 +12,10 @@ export default {
       notificationCount: 0,
       showExtendedInfo: false,
       infoButtonText: showSimpleInfoText,
-      darkMode: false
     }
   },
-  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'metrics'],
-  emits: ['copy-token'],
-  created() {
-    // The theme attribute lives on <html>, which persists even when this
-    // panel unmounts/remounts, so derive the button state from the DOM.
-    this.darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-  },
+  props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'metrics', 'isDarkTheme'],
+  emits: ['copy-token', 'theme-toggled'],
   methods: {
     copyTokenClicked() {
       this.$emit('copy-token')
@@ -30,10 +24,7 @@ export default {
       this.showExtendedInfo = !this.showExtendedInfo;
     },
     toggleDarkMode() {
-      this.darkMode = !this.darkMode;
-      const theme = this.darkMode ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', theme);
-      sessionStorage.setItem('theme', theme); 
+      this.$emit('theme-toggled')
     }
   },
   computed: {
@@ -48,22 +39,22 @@ export default {
       }
     },
     darkModeButtonText() {
-      return this.darkMode ? "Helles Design" : "Dunkles Design";
+      return this.isDarkTheme ? "Helles Design" : "Dunkles Design";
     }
   },
   watch: {
     elemcount: {
-        handler(newVal){
-          this.reminderCount = newVal;
-        },
-        immediate: true
+      handler(newVal){
+        this.reminderCount = newVal;
+      },
+      immediate: true
     },
     metrics: {
-        handler(newVal){
-          this.notificationCount = newVal;
-        },
-        immediate: true
-    }    
+      handler(newVal){
+        this.notificationCount = newVal;
+      },
+      immediate: true
+    }       
   },
 }
 </script>
