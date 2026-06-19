@@ -2,6 +2,16 @@
 <html lang="">
   <head>
     <meta charset="UTF-8">
+    <!-- Restore the saved theme before the stylesheet is applied, so a reload
+         never flashes the light theme before switching to dark. Must stay a
+         classic (non-module) inline script so it runs synchronously during
+         parse, before first paint. -->
+    <script>
+      const savedTheme = sessionStorage.getItem('theme');
+      if (savedTheme != null) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    </script>
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Notifier</title>

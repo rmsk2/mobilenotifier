@@ -10,11 +10,18 @@
   --global-faint-green: #cbf1cb;
   --global-faint-blue: #cff2f5;
 
+  /* Let the browser theme native form controls (buttons, inputs, selects,
+     scrollbars) to match the active theme. */
+  color-scheme: light;
+
   /* Logical colours*/
   --global-background: var(--global-white);
+  --global-foreground: #000000;
+  --global-border: #000000;
   --global-highlight: var(--light-grey);
   --global-hover: var(--dark-grey);
   --global-table-header: var(--global-light-blue);
+  --global-select-highlight: var(--global-foreground);
 
   /* derived colours*/
   --nav-bar-background: var(--global-highlight);
@@ -23,4 +30,26 @@
   --list-yearly-highlight: var(--global-highlight);
   --list-monthly-highlight: var(--global-faint-green);
   --list-weekly-highlight: var(--global-faint-blue)
+}
+
+/* Dark theme: re-define the logical colours. The derived colours that
+   reference logical ones (nav bar, menu, yearly highlight, ...) recompute
+   automatically, since CSS variables resolve at use-time. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --global-background: #1f2227;
+  --global-foreground: #e6e8eb;
+  --global-border: #5a5f66;
+  --global-highlight: #2c313a;
+  --global-hover: #3a4049;
+  --global-table-header: #2a3b4d;
+  --global-select-highlight: var(--global-white);
+  /* The selected nav item defaults to --global-background, which is too close
+     to the nav bar (--global-highlight) in dark mode. Override it with a
+     distinctly darker shade so the active tab stays visible. */
+  --menu-active: #14161a;
+  /* highlights that derive from palette greens/blues, not from --global-highlight */
+  --list-monthly-highlight: #e87025;
+  --list-weekly-highlight: #d19321;
+  --list-yearly-highlight: #69574ed2;
 }

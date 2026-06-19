@@ -11,17 +11,29 @@ export default {
       reminderCount: 0,
       notificationCount: 0,
       showExtendedInfo: false,
-      infoButtonText: showSimpleInfoText
+      infoButtonText: showSimpleInfoText,
+      darkMode: false
     }
   },
   props: ['versioninfo', 'clienttz', 'apilink', 'elemcount', 'metrics'],
   emits: ['copy-token'],
+  created() {
+    // The theme attribute lives on <html>, which persists even when this
+    // panel unmounts/remounts, so derive the button state from the DOM.
+    this.darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+  },
   methods: {
     copyTokenClicked() {
       this.$emit('copy-token')
     },
     toggleInfo() {
       this.showExtendedInfo = !this.showExtendedInfo;
+    },
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      const theme = this.darkMode ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      sessionStorage.setItem('theme', theme); 
     }
   },
   computed: {
@@ -34,6 +46,9 @@ export default {
       } else {
         return showExtendedInfoText;
       }
+    },
+    darkModeButtonText() {
+      return this.darkMode ? "Helles Design" : "Dunkles Design";
     }
   },
   watch: {
@@ -104,6 +119,10 @@ export default {
         </tr>
       </table>
     </p>
+    <p/>
+    Der folgende Button erlaubt das Umschalten zwischen hellem und dunklem Design.
+    <p/>
+    <button @click="toggleDarkMode()">{{ darkModeButtonText }}</button>
     <p/>
     Wenn ein Token für das Backupscript oder für die direkte Bedienung des APIs via Swagger benötigt wird, kann der aktuell verwendete Token über
     den unten stehenden Button in die Zwischenablage kopiert werden.

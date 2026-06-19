@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+/* Page defaults, driven by variables so the theme can switch them */
+body {
+  background-color: var(--global-background);
+  color: var(--global-foreground);
+}
+
 /* set font for specified elements */
 html,
 label {
@@ -21,6 +27,17 @@ select {
   font-size: 17px;
 }
 
+/* In dark mode Chrome draws native button borders with very low contrast, so
+   buttons look borderless. Give them an explicit border. The explicit border
+   squares off the corners (the native rounding is part of the native
+   appearance), so restore it with an explicit border-radius matching the
+   navbuttons. Firefox accepts this harmlessly; Safari ignores a custom border
+   on native push-buttons and keeps its own (already-bordered) native button. */
+[data-theme="dark"] button {
+  border: 1px solid var(--global-border);
+  border-radius: 3px;
+}
+
 /* -------------------------------------- */
 /* Main menu */
 
@@ -28,7 +45,7 @@ select {
   float: left;
   margin: 3px;
   border-radius: 3px;
-  border: 1px Solid Black;
+  border: 1px solid var(--global-border);
   font-size: 18px;
 }
 
@@ -59,6 +76,13 @@ fieldset {
   margin-bottom: 15px;
 }
 
+/* Firefox's default fieldset border is a groove whose shading is derived from
+   the background, so it nearly vanishes in dark mode. Give it an explicit
+   border to match Chrome. */
+[data-theme="dark"] fieldset {
+  border: 1px solid var(--global-border);
+}
+
 .message-text {
   background-color: var(--global-table-header);
 }
@@ -84,23 +108,23 @@ td.list-weekly {
 /* Draw external borders and column borders. No border between rows*/
 .about-table,
 .table-list-events {
-  border-top: 1px Solid Black;
-  border-left: 1px Solid Black;
-  border-bottom: 1px Solid Black;
+  border-top: 1px solid var(--global-border);
+  border-left: 1px solid var(--global-border);
+  border-bottom: 1px solid var(--global-border);
   border-spacing: 0;
 }
 
 /* While we draw no lines for the rows, we still want to draw lines for the columns */
 .table-about-elem,
 .table-list-events-elem {
-  border-right: 1px Solid Black;
+  border-right: 1px solid var(--global-border);
 }
 
 /* Draw a box around the header of the tables holding event lists and the about info */
 .table-about-header,
 .table-list-events-header {
-  border-right: 1px Solid Black;
-  border-bottom: 1px Solid Black;
+  border-right: 1px solid var(--global-border);
+  border-bottom: 1px solid var(--global-border);
   background-color: var(--global-table-header);
 }
 
@@ -144,7 +168,7 @@ td.list-weekly {
 
 /* Draw black lines between the table columns of the warning specification */
 .warningspec td {
-  border-right: 1px solid #000;
+  border-right: 1px solid var(--global-border);
   padding-right: 5px;
   padding-left: 5px;
 }
@@ -179,9 +203,16 @@ td.list-weekly {
   height: 100%;
 }
 
-/* Make selected day appear differently without breaking default styling */
+/* Mark the selected day with a bold label and an accent ring. We use outline
+   (not filter or box-shadow): filter makes Chrome drop the native border, and an
+   inset box-shadow is hidden by Firefox's native button background. An outline
+   is painted on top of the native control in both Chrome and Firefox, so it
+   stays visible without disturbing the native border; the negative offset insets
+   it so the table cell can't clip it.  */
 .dateselectbutton-current {
   width: 100%;
   height: 100%;
-  filter: brightness(0.8);
+  font-weight: bold;
+  outline: 2px solid var(--global-select-highlight);
+  outline-offset: -4px;
 }
