@@ -42,12 +42,12 @@
   --global-border: #5a5f66;
   --global-highlight: #2c313a;
   --global-hover: #3a4049;
-  --global-table-header: #2a3b4d;
+  --global-table-header: #542e07;
   --global-select-highlight: var(--global-white);
   /* The selected nav item defaults to --global-background, which is too close
      to the nav bar (--global-highlight) in dark mode. Override it with a
      distinctly darker shade so the active tab stays visible. */
-  --menu-active: #14161a;
+  --menu-active: var(--global-table-header);
   /* highlights that derive from palette greens/blues, not from --global-highlight */
   --list-monthly-highlight: #e87025;
   --list-weekly-highlight: #d19321;
