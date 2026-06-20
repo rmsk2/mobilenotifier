@@ -8,8 +8,6 @@ export default {
   data() {
     return {
       webUIVersion: versionString,
-      reminderCount: 0,
-      notificationCount: 0,
       showExtendedInfo: false,
       infoButtonText: showSimpleInfoText,
     }
@@ -41,20 +39,6 @@ export default {
     darkModeButtonText() {
       return this.isDarkTheme ? "Helles Design" : "Dunkles Design";
     }
-  },
-  watch: {
-    elemcount: {
-      handler(newVal){
-        this.reminderCount = newVal;
-      },
-      immediate: true
-    },
-    metrics: {
-      handler(newVal){
-        this.notificationCount = newVal;
-      },
-      immediate: true
-    }       
   },
 }
 </script>
@@ -89,7 +73,7 @@ export default {
       </tr>
       <tr>
         <td class="table-about-elem"><span class="about-text">Anzahl Ereignisse</span></td>
-        <td class="table-about-elem"><span class="about-text">{{ reminderCount }}</span></td>
+        <td class="table-about-elem"><span class="about-text">{{ elemcount }}</span></td>
       </tr>
       <tr>
         <td class="table-about-elem"><span class="about-text">Anzahl Benachrichtigungen</span></td>
