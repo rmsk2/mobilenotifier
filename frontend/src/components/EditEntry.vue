@@ -42,22 +42,6 @@ export default {
           this.copyData(newVal)
         },
         immediate: true
-    },
-    allrecipients: {
-        handler(newVal){
-          // make sure data is available as early as possible
-          // simply defining the watcher as immediate allows 
-          // this to happen
-        },
-        immediate: true
-    },
-    disablesave: {
-        handler(newVal){
-          // make sure data is available as early as possible
-          // simply defining the watcher as immediate allows 
-          // this to happen
-        },
-        immediate: true
     }
   },
   props: ['editdata', 'allrecipients', 'disablesave'],

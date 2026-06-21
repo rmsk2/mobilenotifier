@@ -9,10 +9,7 @@ export default {
       isDefault: false,
       addressType: "",
       address: "",
-      editButtonText: "Empfängerliste ändern",
       allowEditing: true,
-      allAddressTypes: [],
-      defaultAddrType: "",
     }
   },
   props: ['allrecipients', 'editvisible', 'editallow', 'alladdresstypes'],
@@ -59,13 +56,6 @@ export default {
     toggleEditable() {
       this.$emit("toggle-edit")
     },
-    setButtonText(val) {
-      if (val) {
-        this.editButtonText = "Empfängerliste nur betrachten"
-      } else {
-        this.editButtonText = "Empfängerliste ändern"
-      }
-    },
     getDefaultText(val) {
       if (val) {
         return "Ja"
@@ -87,47 +77,24 @@ export default {
   },
   watch: {
     allrecipients: {
-        handler(newVal){
-          // make sure data is available as early as possible
-          // simply defining the watcher as immediate allows
-          // this to happen
-          this.procNewEntry();
-        },
-        immediate: true
+      handler(){
+        this.procNewEntry();
+      },
+      immediate: true
     },
     alladdresstypes: {
-        handler(newVal) {
-            // make sure data is available as early as possible
-            // simply defining the watcher as immediate allows
-            // this to happen
-            // Select first address type as default
-            if (newVal.length > 0) {
-              this.defaultAddrType = newVal[0];
-            } else {
-              this.defaultAddrType = "";
-            }
-
-            this.addressType = this.defaultAddrType;
-        },
-        immediate: true
-    },
-    editvisible: {
-        handler(newVal){
-          // make sure data is available as early as possible
-          // simply defining the watcher as immediate allows
-          // this to happen
-          this.setButtonText(newVal)
-        },
-        immediate: true
+      // Side effect only: seed the selected type with the default whenever
+      // the type list (re)loads. defaultAddrType itself is derived (computed).
+      handler() {
+        this.addressType = this.defaultAddrType;
+      },
+      immediate: true
     },
     editallow: {
-        handler(newVal){
-          // make sure data is available as early as possible
-          // simply defining the watcher as immediate allows
-          // this to happen
-          this.allowEditing = newVal
-        },
-        immediate: true
+      handler(newVal){
+        this.allowEditing = newVal
+      },
+      immediate: true
     }
   },
   computed: {
@@ -139,7 +106,13 @@ export default {
       }
 
       return res;
-    }
+    },
+    editButtonText() {
+      return this.editvisible ? "Empfängerliste nur betrachten" : "Empfängerliste ändern";
+    },
+    defaultAddrType() {
+      return (this.alladdresstypes.length > 0) ? this.alladdresstypes[0] : "";
+    },
   }
 }
 </script>
