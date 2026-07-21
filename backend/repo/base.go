@@ -2,7 +2,6 @@ package repo
 
 import (
 	"fmt"
-	"notifier/tools"
 	"sync"
 
 	bolt "go.etcd.io/bbolt"
@@ -78,19 +77,15 @@ func (l *BoltDBLocker) RUnlock() {
 	l.mutex.RUnlock()
 }
 
-func InitDB(openFlag *bool, boltPath string) (*bolt.DB, error) {
+func InitDB(boltPath string) (*bolt.DB, error) {
 	db, err := bolt.Open(boltPath, 0600, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open database file %s: %v", boltPath, err)
 	}
 
-	*openFlag = true
-	tools.InstallSignalHandler(db, openFlag)
-
 	err = CreateBuckets(db)
 	if err != nil {
 		db.Close()
-		*openFlag = false
 		return nil, fmt.Errorf("unable to create buckets in database file %s: %v", boltPath, err)
 	}
 

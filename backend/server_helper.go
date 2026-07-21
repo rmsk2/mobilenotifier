@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -18,23 +19,34 @@ const DefaultPort = 5100
 type SimpleServer struct {
 	port          uint16
 	localHostOnly bool
+	server        *http.Server
 }
 
 func newSimpleServer(p uint16, localOnly bool) *SimpleServer {
+	addr := fmt.Sprintf(":%d", p)
+	if localOnly {
+		addr = "localhost" + addr
+	}
+
+	httpServer := &http.Server{
+		Addr: addr,
+	}
+
 	res := SimpleServer{
 		port:          p,
 		localHostOnly: localOnly,
+		server:        httpServer,
 	}
 
 	return &res
 }
 
 func (s *SimpleServer) Serve() error {
-	addr := fmt.Sprintf(":%d", s.port)
-	if s.localHostOnly {
-		addr = "localhost" + addr
-	}
-	return http.ListenAndServe(addr, nil)
+	return s.server.ListenAndServe()
+}
+
+func (s *SimpleServer) Shutdown(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }
 
 type TlsServer struct {
@@ -46,6 +58,10 @@ type TlsServer struct {
 
 func (t *TlsServer) Serve() error {
 	return t.server.ListenAndServeTLS(t.certFile, t.keyFile)
+}
+
+func (t *TlsServer) Shutdown(ctx context.Context) error {
+	return t.server.Shutdown(ctx)
 }
 
 func newTlsServer(p uint16, crtFile string, keyFile string) (*TlsServer, error) {

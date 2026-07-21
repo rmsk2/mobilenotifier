@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,6 +40,7 @@ const ERROR_OK = 0
 
 type WebServer interface {
 	Serve() error
+	Shutdown(context.Context) error
 }
 
 func createLogger() *log.Logger {
@@ -175,8 +178,6 @@ func determineSwaggerURL() string {
 }
 
 func run() int {
-	dbOpened := false
-
 	determineClientTZFromEnvironment()
 	getTokenDefinitionsFromEnv()
 
@@ -192,7 +193,7 @@ func run() int {
 		return ERROR_EXIT
 	}
 
-	rawDB, err := repo.InitDB(&dbOpened, boltPath)
+	rawDB, err := repo.InitDB(boltPath)
 	if err != nil {
 		log.Println(err)
 		return ERROR_EXIT
@@ -231,7 +232,11 @@ func run() int {
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
 	infoController.AddHandlersWithAuth(authWrapper)
 
-	logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
+	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
+	// Stop the warner before the server (registered below) so it is guaranteed
+	// to have finished before the deferred DB close runs. See the note at the
+	// server shutdown registration for why ordering matters.
+	tools.AddCleanUpFunc(stopWarner)
 
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
@@ -247,8 +252,22 @@ func run() int {
 		return ERROR_EXIT
 	}
 
+	// Register the server shutdown LAST. Serve() unblocks the moment Shutdown()
+	// returns, which lets run() return and fire its deferred DB close. Any
+	// service that must stop before the DB is closed (e.g. the warner above)
+	// therefore has to be registered before this one.
+	tools.AddCleanUpFunc(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("graceful server shutdown failed: %v", err)
+		}
+	})
+
+	tools.InstallSignalHandler()
+
 	err = server.Serve()
-	if err != nil {
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Println(err)
 		return ERROR_EXIT
 	}
@@ -257,5 +276,7 @@ func run() int {
 }
 
 func main() {
-	os.Exit(run())
+	errCode := run()
+	log.Println("Exiting now. Good bye ...")
+	os.Exit(errCode)
 }

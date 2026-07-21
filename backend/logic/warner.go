@@ -28,7 +28,11 @@ type warningGenerator struct {
 	metricCallback AddMetricsEvent
 }
 
-func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) {
+// StartWarner launches the background warning goroutine and returns a stop
+// function. Calling the stop function signals the goroutine to exit and blocks
+// until any in-flight tick has finished, so the caller can safely close the
+// database afterwards.
+func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) func() {
 	warner := warningGenerator{
 		db:             l,
 		addrBook:       addrBook,
@@ -37,13 +41,29 @@ func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticke
 		metricCallback: m,
 	}
 
+	done := make(chan struct{})
+	stopped := make(chan struct{})
+
 	go func() {
+		defer close(stopped)
 		for {
-			t := <-warner.ticker.C
-			warner.metricCallback(metricsTicks)
-			warner.processTick(t)
+			select {
+			case <-done:
+				warner.ticker.Stop()
+				lg.Println("Warner stopping")
+				return
+			case tick := <-warner.ticker.C:
+				warner.metricCallback(metricsTicks)
+				warner.processTick(tick)
+			}
 		}
 	}()
+
+	return func() {
+		close(done)
+		<-stopped
+		lg.Println("Warner stopped")
+	}
 }
 
 func (w *warningGenerator) collect(refTime time.Time) []expiryInfo {
