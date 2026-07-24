@@ -92,11 +92,10 @@ func NewConfigFromEnvironment() (*MqttConfig, error) {
 
 var ErrNoConnManager = errors.New("no connection manager found; please call Start() first")
 var ErrInvalidTimeoutValue = errors.New("a timeout of zero makes no sense")
+var ErrNotConnected = errors.New("connection to message broker currently unavailable")
 
 type MqttSender interface {
-	IsConnected() bool
-	PublishWithCtx(ctx context.Context, p *paho.Publish) (*paho.PublishResponse, error)
-	GetRootCtx() context.Context
+	PublishWhenConnected(topic string, payload []byte, qos byte, timeout time.Duration) error
 }
 
 func getTlsConfig(rootFileName string) (*tls.Config, error) {
@@ -282,8 +281,26 @@ func (m *Sender) Stop() {
 	m.cancel()
 }
 
-func (m *Sender) Publish(p *paho.Publish) (*paho.PublishResponse, error) {
-	return m.PublishWithCtx(m.GetRootCtx(), p)
+// PublishWhenConnected sends payload to topic with the given QoS. The publish is
+// bound to a context derived from the sender's root context and the given
+// timeout, so it is cancelled either when the timeout elapses or when the sender
+// is stopped. It returns ErrNotConnected if the broker connection is currently
+// down.
+func (m *Sender) PublishWhenConnected(topic string, payload []byte, qos byte, timeout time.Duration) error {
+	if !m.IsConnected() {
+		return ErrNotConnected
+	}
+
+	ctx, cancel := context.WithTimeout(m.rootCtx, timeout)
+	defer cancel()
+
+	_, err := m.PublishWithCtx(ctx, &paho.Publish{
+		QoS:     qos,
+		Topic:   topic,
+		Payload: payload,
+	})
+
+	return err
 }
 
 func (m *Sender) PublishWithCtx(ctx context.Context, p *paho.Publish) (*paho.PublishResponse, error) {

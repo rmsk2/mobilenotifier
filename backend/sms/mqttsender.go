@@ -1,12 +1,8 @@
 package sms
 
 import (
-	"context"
-	"fmt"
 	"notifier/mqtt"
 	"time"
-
-	"github.com/eclipse/paho.golang/paho"
 )
 
 type MqttMessageSender struct {
@@ -22,24 +18,9 @@ func NewMqttMessageSender(s mqtt.MqttSender, senderTimeOut time.Duration) *MqttM
 }
 
 func (m *MqttMessageSender) Send(recipientAddress string, message string) error {
-	if !m.sender.IsConnected() {
-		return fmt.Errorf("connection to message broker currently unavailable")
-	}
-
-	ctxWithTimeout, cancel := context.WithTimeout(m.sender.GetRootCtx(), m.timeOut)
-	defer cancel()
-
-	if _, err := m.sender.PublishWithCtx(ctxWithTimeout, &paho.Publish{
-		QoS:     1,
-		Topic:   recipientAddress,
-		Payload: []byte(message),
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	return m.sender.PublishWhenConnected(recipientAddress, []byte(message), 1, m.timeOut)
 }
 
 func (m *MqttMessageSender) GetName() string {
-	return "MQTT"
+	return TypeMqtt
 }

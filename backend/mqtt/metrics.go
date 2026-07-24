@@ -1,11 +1,8 @@
 package mqtt
 
 import (
-	"context"
 	"notifier/tools"
 	"time"
-
-	"github.com/eclipse/paho.golang/paho"
 )
 
 const EnvMqttMetricsTopic = "MN_MQTT_METRICS_TOPIC"
@@ -28,18 +25,7 @@ func NewMetricsWrapper(s MqttSender, t string) *MqttMetricsWrapper {
 
 func (m *MqttMetricsWrapper) Wrapper(eventId string, cb tools.AddMetricsEvent) {
 	go func(eventId string) {
-		if !m.sender.IsConnected() {
-			return
-		}
-
-		ctxWithTimeout, cancel := context.WithTimeout(m.sender.GetRootCtx(), m.timeOut)
-		defer cancel()
-
-		m.sender.PublishWithCtx(ctxWithTimeout, &paho.Publish{
-			QoS:     m.qOs,
-			Topic:   m.topic,
-			Payload: []byte(eventId),
-		})
+		_ = m.sender.PublishWhenConnected(m.topic, []byte(eventId), m.qOs, m.timeOut)
 	}(eventId)
 
 	cb(eventId)

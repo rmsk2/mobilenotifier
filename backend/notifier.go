@@ -284,7 +284,17 @@ func run() int {
 		}()
 
 		log.Println("MQTT client started")
-		log.Printf("MQTT client connection state: %t", sender.IsConnected())
+		log.Printf("MQTT client connection state: %s", func() string {
+			var res string
+
+			if !sender.IsConnected() {
+				res = "Not connected"
+			} else {
+				res = "Connected"
+			}
+
+			return res
+		}())
 
 		tools.AddCancelFunc(func() {
 			log.Println("MQTT client stopping")
@@ -295,6 +305,7 @@ func run() int {
 		if ok {
 			wrapper := mqtt.NewMetricsWrapper(sender, topic)
 			metricsCallback = wrapper.WrapCallback(metricsCallback)
+			log.Printf("MQTT metrics active. Using topic '%s'", topic)
 		}
 	}
 
