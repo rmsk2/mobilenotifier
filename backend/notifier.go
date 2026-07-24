@@ -38,6 +38,8 @@ const envExcludeDummySender = "MN_EXCLUDE_DUMMY_SENDER"
 const authHeaderName = "X-Token"
 const ERROR_EXIT = 42
 const ERROR_OK = 0
+const MqttMessageSendTimeoutInMs = 2000
+const MqttWaitGracePeriodinSeconds = 1
 
 type WebServer interface {
 	Serve() error
@@ -129,7 +131,7 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 	}
 
 	if mqttConfigured {
-		mqttSender := sms.NewMqttMessageSender(mqttSender, 5000*time.Millisecond)
+		mqttSender := sms.NewMqttMessageSender(mqttSender, MqttMessageSendTimeoutInMs*time.Millisecond)
 		addrBook.AddSender(mqttSender.GetName(), mqttSender)
 		log.Println("MQTT notifier added")
 	}
@@ -273,7 +275,7 @@ func run() int {
 	var metricsCallback tools.AddMetricsEvent = metricCollector.AddEvent
 
 	if mqttConfigured {
-		_, err = sender.StartAndWaitForConnection(1)
+		_, err = sender.StartAndWaitForConnection(MqttWaitGracePeriodinSeconds)
 		if err != nil {
 			log.Println(err)
 			return ERROR_EXIT

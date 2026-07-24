@@ -1,7 +1,7 @@
 # Mobile notifier
 
 This project implements a `Vue.js` webapp (and the corresponding backend in `Go`) which allows to manage reminders for events and to define notifications 
-for these reminders. Currently notifications via IFTTT, a GSM modem and e-mail are implemented. Here IFTTT is used to send text messages (SMS) or push
+for these reminders. Currently notifications via IFTTT, a GSM modem, MQTT and e-mail are implemented. Here IFTTT is used to send text messages (SMS) or push
 messages to mobile phones. It can be run either as a classic daemon on a server or in a kubernetes cluster. The tooling to create the neccessary images and 
 the needed `.yml` kubernetes config files are also part of the project.
 
@@ -48,13 +48,19 @@ variables:
 |EXPECTED_TOKEN_AUDIENCE| Expected token audience. Default value `gschmarri` | No |
 |TOKEN_TTL| Maximum acceptable age of a token in seconds. Default value 3600| No |
 |MN_LOCAL_SENDER_URL| HTTPS URL of local SMS sender | No |
-|MN_ADDITIONAL_ROOTS| Name of a file which contains additional root certificates to use for the connection to the local SMS sender | No |
+|MN_ADDITIONAL_ROOTS| Name of a file which contains additional root certificates to use for the connection to the local SMS sender and a possible MQTT broker | No |
 |MN_PORT_LISTEN| Set this to a port number in order to make `mobilenotifier` listen on another port than 5100| No |
 |MN_LISTEN_LOCALHOST_ONLY| Set this variable to any value in order to make `mobilenotifier` only listen on the loopback device. If this feature is active you can not use TLS | No |
 |MN_CERT_FILE| If you want to use TLS, set this to the name of a file which holds a TLS server certificate in PEM format| No |
 |MN_CERT_KEY| If you want to use TLS, set this to the name of a file which holds the private key of the TLS server certificate in PEM format. The name of the file is no secret. Its contents is| No |
 |MN_MAIL_SUBJECT| This variable determines the Subject of notification e-mails | No |
 |MN_EXCLUDE_DUMMY_SENDER| If IFTTT_API_KEY is not set a dummy sender is included for development purposes. Set this variable to any value to suppress this behaviour | No |
+|MN_MQTT_METRICS_TOPIC| If MQTT is configured and this variable is set to a topic name `mobilenotifier` will publish metrics data to this topic | No |
+|MN_MQTT_BROKER_URL| If you want to use MQTT for sending notifications and metrics set this variable to the URL of your MQTT broker. I use the Paho golang client internally. If you connect to your broker via TLS the URL has to begin with `mqtts` | No |
+|MN_MQTT_CLIENT_ID| If you want to use MQTT you have to set this environment variable to a value which uniquely identfies `mobilenotifier` on your broker  | No |
+|MN_MQTT_USER| If you want to use MQTT with basic auth you have to set this environment variable to the user name to use with your broker | No |
+|MN_MQTT_SESSION_EXPIRY| Set this to the value in seconds until you MQTT session is to expire. 60 seconds is used if this variable is not set| No |
+|MN_MQTT_PASSWORD| If you want to use MQTT with basic auth you have to set this environment variable to the password for the user defined above | Yes |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
 |MN_ADDR_BOOK| If set then this variable has to contain a base64 encoded JSON string which specifies recipients which are to be merged into the database. The format of the JSON data is specified below (see Address Book)| Yes |
@@ -144,6 +150,16 @@ In addition to or instead of the methods mentioned above you can configure `mobi
 - `MN_MAIL_SENDER_PW` This variable has to be set to the password wich is needed to autheticate to the mail server
 
 Optionally you can set `MN_MAIL_SUBJECT` to a value which will then be used as the subject of notification e-mails. If not set the default value "Benachrichtigung" will be used
+
+## Sending notifications with MQTT
+
+You have to set at least the environment variables `MN_MQTT_BROKER_URL` and `MN_MQTT_CLIENT_ID` to activate sending notififcations via MQTT. Additionally you have to set `MN_MQTT_METRICS_TOPIC`
+to make `mobilenotifier` publish metrics data via MQTT but this is optional. I use Mosquitto with TLS and basic auth. For that to work I also need to provide the custom root certificate I use
+through the file referenced via `MN_ADDITIONAL_ROOTS`. MQTT user name and password have to be specified via `MN_MQTT_USER` and `MN_MQTT_PASSWORD`.
+
+If you create a new MQTT recipient you have to set the address of the recipient to the name of the MQTT topic to which the notification text is published. `mobilenotifier` uses QoS 1 for that.
+I.e. MQTT makes sure that the notification is transmitted to the broker in such a fashion that the broker receives the notification at least once. I did not use QoS 2, where the broker makes
+sure that the notification is received exactly once but this would be easy to change (see file `sms/mqttsender.go`).
 
 # Some remarks
 

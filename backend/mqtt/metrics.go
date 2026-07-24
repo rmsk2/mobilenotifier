@@ -6,6 +6,7 @@ import (
 )
 
 const EnvMqttMetricsTopic = "MN_MQTT_METRICS_TOPIC"
+const MqttMetricsSendTimeoutInMs = 250
 
 type MqttMetricsWrapper struct {
 	sender  MqttSender
@@ -17,7 +18,7 @@ type MqttMetricsWrapper struct {
 func NewMetricsWrapper(s MqttSender, t string) *MqttMetricsWrapper {
 	return &MqttMetricsWrapper{
 		sender:  s,
-		timeOut: 250 * time.Millisecond,
+		timeOut: MqttMetricsSendTimeoutInMs * time.Millisecond,
 		topic:   t,
 		qOs:     0,
 	}
