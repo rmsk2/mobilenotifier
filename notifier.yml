@@ -12,7 +12,11 @@ data:
   MN_MAIL_SUBJECT: "Erinnerung MobileNotifier"
   MN_LOCAL_SENDER_URL: "https://raspberrypi:4443/localsender/send"
   MN_ADDITIONAL_ROOTS: "/opt/config/root.pem"
-
+  MN_MQTT_BROKER_URL: "mqtts://debasus:8883"
+  MN_MQTT_CLIENT_ID: "MobilenotifierProd"
+  MN_MQTT_USER: "mqtt"
+  MN_MQTT_SESSION_EXPIRY: "60"
+  MN_MQTT_METRICS_TOPIC: "gschmarri/metricsprod"
 
 ---
 apiVersion: v1
