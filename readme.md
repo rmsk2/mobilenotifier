@@ -151,7 +151,7 @@ In addition to or instead of the methods mentioned above you can configure `mobi
 
 Optionally you can set `MN_MAIL_SUBJECT` to a value which will then be used as the subject of notification e-mails. If not set the default value "Benachrichtigung" will be used
 
-## Sending notifications with MQTT
+## Sending notifications via MQTT
 
 You have to set at least the environment variables `MN_MQTT_BROKER_URL` and `MN_MQTT_CLIENT_ID` to activate sending notififcations via MQTT. Additionally you have to set `MN_MQTT_METRICS_TOPIC`
 to make `mobilenotifier` publish metrics data via MQTT but this is optional. I use Mosquitto with TLS and basic auth. For that to work I also need to provide the custom root certificate I use
