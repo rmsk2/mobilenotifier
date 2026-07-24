@@ -1,9 +1,11 @@
 package tools
 
-import "golang.org/x/exp/maps"
+import "maps"
 
 const NotificationSent = "notification_count"
 const CommandSendMetrics = "CMD_SEND"
+
+type AddMetricsEvent func(string)
 
 type MetricsInstruction struct {
 	Command         string

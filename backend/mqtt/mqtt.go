@@ -40,6 +40,9 @@ const EnvMqttPassword = "MN_MQTT_PASSWORD"
 const EnvRootCertFile = tools.EnvAdditionalRootCerts
 const EnvSessionExpiry = "MN_MQTT_SESSION_EXPIRY"
 
+// WaitForever is intended to be used when calling StartAndWaitForConnection with the intention to wait forever
+const WaitForever = -1
+
 type MqttConfig struct {
 	BrokerUrl string
 	ClientId  string
@@ -86,9 +89,6 @@ func NewConfigFromEnvironment() (*MqttConfig, error) {
 
 	return res, nil
 }
-
-// WaitForever is intended to be used when calling StartAndWaitForConnection with the intention to wait forever
-const WaitForever = -1
 
 var ErrNoConnManager = errors.New("no connection manager found; please call Start() first")
 var ErrInvalidTimeoutValue = errors.New("a timeout of zero makes no sense")

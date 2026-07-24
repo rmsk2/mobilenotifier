@@ -270,6 +270,8 @@ func run() int {
 		return ERROR_EXIT
 	}
 
+	var metricsCallback tools.AddMetricsEvent = metricCollector.AddEvent
+
 	if mqttConfigured {
 		_, err = sender.StartAndWaitForConnection(1)
 		if err != nil {
@@ -288,9 +290,15 @@ func run() int {
 			log.Println("MQTT client stopping")
 			sender.Stop()
 		})
+
+		topic, ok := os.LookupEnv(mqtt.EnvMqttMetricsTopic)
+		if ok {
+			wrapper := mqtt.NewMetricsWrapper(sender, topic)
+			metricsCallback = wrapper.WrapCallback(metricsCallback)
+		}
 	}
 
-	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
+	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricsCallback)
 	defer stopWarner()
 
 	// Register the server shutdown LAST. Serve() unblocks the moment Shutdown()

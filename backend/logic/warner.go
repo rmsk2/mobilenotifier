@@ -11,8 +11,6 @@ import (
 
 const metricsTicks = "ticks"
 
-type AddMetricsEvent func(string)
-
 type expiryInfo struct {
 	uuid        *tools.UUID
 	parent      *tools.UUID
@@ -25,14 +23,14 @@ type warningGenerator struct {
 	addrBook       sms.SmsAddressBook
 	ticker         *time.Ticker
 	log            *log.Logger
-	metricCallback AddMetricsEvent
+	metricCallback tools.AddMetricsEvent
 }
 
 // StartWarner launches the background warning goroutine and returns a stop
 // function. Calling the stop function signals the goroutine to exit and blocks
 // until any in-flight tick has finished, so the caller can safely close the
 // database afterwards.
-func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m AddMetricsEvent) func() {
+func StartWarner(l repo.DBSerializer, addrBook sms.SmsAddressBook, t *time.Ticker, lg *log.Logger, m tools.AddMetricsEvent) func() {
 	warner := warningGenerator{
 		db:             l,
 		addrBook:       addrBook,
