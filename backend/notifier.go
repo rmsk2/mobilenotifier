@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"notifier/controller"
 	"notifier/logic"
+	"notifier/mqtt"
 	"notifier/repo"
 	"notifier/sms"
 	"notifier/tools"
@@ -59,7 +60,7 @@ func saveEnvirnomentInDB(addrSaver *sms.AddressSaver, dbl repo.DBSerializer, gen
 	log.Println("Saved address book from environment to database")
 }
 
-func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo) sms.SmsAddressBook {
+func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo, mqttSender mqtt.MqttSender, mqttConfigured bool) sms.SmsAddressBook {
 	var addrBook sms.SmsAddressBook
 	var addressSaver *sms.AddressSaver
 	var addrBookJsonByte []byte
@@ -125,6 +126,12 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 		log.Println("Local notifier added")
 	} else {
 		log.Printf("Local notifier not added: %v", err)
+	}
+
+	if mqttConfigured {
+		mqttSender := sms.NewMqttMessageSender(mqttSender, 5000*time.Millisecond)
+		addrBook.AddSender(mqttSender.GetName(), mqttSender)
+		log.Println("MQTT notifier added")
 	}
 
 	return addrBook
@@ -210,7 +217,24 @@ func run() int {
 	metricCollector.Start()
 	defer func() { metricCollector.Stop() }()
 
-	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo)
+	mqttConfigured := false
+	var sender *mqtt.Sender = nil
+	ctx := context.Background()
+
+	config, err := mqtt.NewConfigFromEnvironment()
+	if err == nil {
+		mqttConfigured = true
+
+		sender, err = mqtt.NewSender(config.BrokerUrl, ctx, config.ClientId, config.Options...)
+		if err != nil {
+			log.Println(err)
+			return ERROR_EXIT
+		}
+	} else {
+		log.Printf("No usable MQTT config found: %v", err)
+	}
+
+	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo, sender, mqttConfigured)
 
 	smsController := controller.NewSmsController(createLogger(), smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
@@ -232,12 +256,6 @@ func run() int {
 	infoController := controller.NewGeneralController(dbl, createLogger(), metricCollector)
 	infoController.AddHandlersWithAuth(authWrapper)
 
-	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
-	// Stop the warner before the server (registered below) so it is guaranteed
-	// to have finished before the deferred DB close runs. See the note at the
-	// server shutdown registration for why ordering matters.
-	tools.AddCleanUpFunc(stopWarner)
-
 	dirName, ok := os.LookupEnv(envServeLocal)
 	if ok {
 		log.Println("Serving webapp locally")
@@ -252,11 +270,33 @@ func run() int {
 		return ERROR_EXIT
 	}
 
+	if mqttConfigured {
+		_, err = sender.StartAndWaitForConnection(1)
+		if err != nil {
+			log.Println(err)
+			return ERROR_EXIT
+		}
+		defer func() {
+			sender.WaitForShutdown()
+			log.Println("MQTT client stopped")
+		}()
+
+		log.Println("MQTT client started")
+		log.Printf("MQTT client connection state: %t", sender.IsConnected())
+
+		tools.AddCancelFunc(func() {
+			log.Println("MQTT client stopping")
+			sender.Stop()
+		})
+	}
+
+	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricCollector.AddEvent)
+	defer stopWarner()
+
 	// Register the server shutdown LAST. Serve() unblocks the moment Shutdown()
-	// returns, which lets run() return and fire its deferred DB close. Any
-	// service that must stop before the DB is closed (e.g. the warner above)
-	// therefore has to be registered before this one.
-	tools.AddCleanUpFunc(func() {
+	// returns, which lets run() return and fire its deferred functions in the defined
+	// order
+	tools.AddCancelFunc(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {

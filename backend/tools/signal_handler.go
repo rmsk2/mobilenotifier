@@ -6,12 +6,12 @@ import (
 	"syscall"
 )
 
-type CleanUpFunc func()
+type NotifierCancelFunc func()
 
-var allCleanUpFuncs []CleanUpFunc = []CleanUpFunc{}
+var allCancelFuncs []NotifierCancelFunc = []NotifierCancelFunc{}
 
-func AddCleanUpFunc(f CleanUpFunc) {
-	allCleanUpFuncs = append(allCleanUpFuncs, f)
+func AddCancelFunc(f NotifierCancelFunc) {
+	allCancelFuncs = append(allCancelFuncs, f)
 }
 
 func InstallSignalHandler() {
@@ -20,7 +20,7 @@ func InstallSignalHandler() {
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 		<-sigChan
 
-		for _, f := range allCleanUpFuncs {
+		for _, f := range allCancelFuncs {
 			f()
 		}
 	}()
