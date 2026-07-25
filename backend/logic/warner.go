@@ -120,6 +120,7 @@ func (w *warningGenerator) sendAndDeleteOne(info expiryInfo) bool {
 	err = sender.Send(address, info.description)
 	if err != nil {
 		w.log.Printf("Unable to send SMS to '%s' for notification '%s': %v", info.recipient, info.uuid, err)
+		w.metricCallback(fmt.Sprintf("fail:%s:%s", address, info.recipient.String()))
 		return false
 	}
 
