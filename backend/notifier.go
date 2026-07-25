@@ -186,6 +186,35 @@ func determineSwaggerURL() string {
 	return swaggerUrl
 }
 
+func completeMqttSetup(sender *mqtt.Sender, metricsCallback tools.AddMetricsEvent) tools.AddMetricsEvent {
+	log.Println("MQTT client started")
+	log.Printf("MQTT client connection state: %s", func() string {
+		var res string
+
+		if !sender.IsConnected() {
+			res = "Not connected"
+		} else {
+			res = "Connected"
+		}
+
+		return res
+	}())
+
+	tools.AddCancelFunc(func() {
+		log.Println("MQTT client stopping")
+		sender.Stop()
+	})
+
+	topic, ok := os.LookupEnv(mqtt.EnvMqttMetricsTopic)
+	if ok {
+		wrapper := mqtt.NewMetricsWrapper(sender, topic)
+		metricsCallback = wrapper.WrapCallback(metricsCallback)
+		log.Printf("MQTT metrics active. Using topic '%s'", topic)
+	}
+
+	return metricsCallback
+}
+
 func run() int {
 	determineClientTZFromEnvironment()
 	getTokenDefinitionsFromEnv()
@@ -275,40 +304,23 @@ func run() int {
 	var metricsCallback tools.AddMetricsEvent = metricCollector.AddEvent
 
 	if mqttConfigured {
+		// start MQTT client
 		_, err = sender.StartAndWaitForConnection(MqttWaitGracePeriodinSeconds)
 		if err != nil {
 			log.Println(err)
 			return ERROR_EXIT
 		}
+		// The deferred cleanup for the sender has to be at this level and not in completeMqttSetup(). If I would
+		// have moved StartAndWaitForConnection() into completeMqttSetup() there would have been a residual risk
+		// that a future version of completeMqttSetup() fails before the deferred cleanup handler could have
+		// been registered.
 		defer func() {
 			sender.WaitForShutdown()
 			log.Println("MQTT client stopped")
 		}()
 
-		log.Println("MQTT client started")
-		log.Printf("MQTT client connection state: %s", func() string {
-			var res string
-
-			if !sender.IsConnected() {
-				res = "Not connected"
-			} else {
-				res = "Connected"
-			}
-
-			return res
-		}())
-
-		tools.AddCancelFunc(func() {
-			log.Println("MQTT client stopping")
-			sender.Stop()
-		})
-
-		topic, ok := os.LookupEnv(mqtt.EnvMqttMetricsTopic)
-		if ok {
-			wrapper := mqtt.NewMetricsWrapper(sender, topic)
-			metricsCallback = wrapper.WrapCallback(metricsCallback)
-			log.Printf("MQTT metrics active. Using topic '%s'", topic)
-		}
+		// perform remaining tasks for MQTT setup
+		metricsCallback = completeMqttSetup(sender, metricsCallback)
 	}
 
 	stopWarner := logic.StartWarner(dbl, smsAddressBook, time.NewTicker(60*time.Second), createLogger(), metricsCallback)
