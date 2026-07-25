@@ -53,7 +53,11 @@ export default {
       return days[d.getDay()]
     },
     descriptionLen() {
-      return this.description.length
+      let res = this.description.length;
+      if (res > 140) {
+        res = `${res}. Zu lang für SMS`
+      }
+      return res;
     },
     recipientNames() {
       let res = []
@@ -192,10 +196,6 @@ export default {
 
       if (this.param > 23) {
         return {ok: false, msg: "Der Vorlauf kann maximal 23 Stunden sein"}
-      }
-
-      if (this.description.length > 140) {
-        return {ok: false, msg: "Die Beschreibung passt in keine SMS"}
       }
 
       if ((this.month == 2) && (this.day > 29)) {
