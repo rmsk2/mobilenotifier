@@ -62,7 +62,7 @@ func saveEnvirnomentInDB(addrSaver *sms.AddressSaver, dbl repo.DBSerializer, gen
 	log.Println("Saved address book from environment to database")
 }
 
-func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo, mqttSender mqtt.MqttSender, mqttConfigured bool) sms.SmsAddressBook {
+func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.BBoltAddrBookRepo, mqttSender mqtt.MqttSender) sms.SmsAddressBook {
 	var addrBook sms.SmsAddressBook
 	var addressSaver *sms.AddressSaver
 	var addrBookJsonByte []byte
@@ -130,10 +130,12 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 		log.Printf("Local notifier not added: %v", err)
 	}
 
-	if mqttConfigured {
+	if mqttSender != nil {
 		mqttSender := sms.NewMqttMessageSender(mqttSender, MqttMessageSendTimeoutInMs*time.Millisecond)
 		addrBook.AddSender(mqttSender.GetName(), mqttSender)
 		log.Println("MQTT notifier added")
+	} else {
+		log.Println("MQTT notifier not added")
 	}
 
 	return addrBook
@@ -250,6 +252,7 @@ func run() int {
 
 	mqttConfigured := false
 	var sender *mqtt.Sender = nil
+	var senderIface mqtt.MqttSender = nil
 	ctx := context.Background()
 
 	config, err := mqtt.NewConfigFromEnvironment()
@@ -261,11 +264,13 @@ func run() int {
 			log.Println(err)
 			return ERROR_EXIT
 		}
+
+		senderIface = sender
 	} else {
 		log.Printf("No usable MQTT config found: %v", err)
 	}
 
-	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo, sender, mqttConfigured)
+	smsAddressBook := createAddressBook(dblAddr, repo.NewBBoltAddressBookRepo, senderIface)
 
 	smsController := controller.NewSmsController(createLogger(), smsAddressBook)
 	smsController.AddHandlersWithAuth(authWrapper)
