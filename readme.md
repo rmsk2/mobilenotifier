@@ -60,6 +60,7 @@ variables:
 |MN_MQTT_CLIENT_ID| If you want to use MQTT you have to set this environment variable to a value which uniquely identfies `mobilenotifier` on your broker  | No |
 |MN_MQTT_USER| If you want to use MQTT with basic auth you have to set this environment variable to the user name to use with your broker | No |
 |MN_MQTT_SESSION_EXPIRY| Set this to the value in seconds until you MQTT session is to expire. 60 seconds is used if this variable is not set| No |
+|MN_MQTT_QOS| Set this to 0,1 or 2 for definig the quality of service value when `mobilenotifier` talks to the broker for sending notifications. If not set QOS = 1 is used. | No |
 |MN_MQTT_PASSWORD| If you want to use MQTT with basic auth you have to set this environment variable to the password for the user defined above | Yes |
 |MN_MAIL_SENDER_ADDR| This variable has to contain the mail address which is used as the sender address for mail notifications| Yes |
 |MN_MAIL_SENDER_PW| Here the password used by the sender address on the configured SMTP server has to be specified | Yes |
@@ -159,7 +160,7 @@ through the file referenced via `MN_ADDITIONAL_ROOTS`. MQTT user name and passwo
 
 If you create a new MQTT recipient you have to set the address of the recipient to the name of the MQTT topic to which the notification text is published. `mobilenotifier` uses QoS 1 for that.
 I.e. MQTT makes sure that the notification is transmitted to the broker in such a fashion that the broker receives the notification at least once. I did not use QoS 2, where the broker makes
-sure that the notification is received exactly once but this would be easy to change (see file `sms/mqttsender.go`).
+sure that the notification is received exactly once but this is easy to change (see environment variable `MN_MQTT_QOS`).
 
 # Some remarks
 
