@@ -85,6 +85,10 @@ export default {
       }
 
       return res;
+    },
+    advanceWarningTime: {
+      get() {return this.param & 0x1F},
+      set(newVal) {this.param = (this.param & ~0x1F) | (newVal & 0x1F)}
     }
   },
   methods: {
@@ -194,7 +198,7 @@ export default {
         return {ok: false, msg: "Diesen Tag gibt es nicht in jedem Monat"}
       }
 
-      if (this.param > 23) {
+      if ((this.param & 0x1F) > 23) {
         return {ok: false, msg: "Der Vorlauf kann maximal 23 Stunden sein"}
       }
 
@@ -445,8 +449,8 @@ export default {
             <input type="checkbox" v-model="warningAt" name="warningAt" :value="warningWeekBefore" />Eine Woche vor dem Ereignis<br/>
           </td>
           <td>
-            <label for="param">Vorlauf in Stunden am gleichen Tag:</label>
-            <input type="number" size="3" width="70" id="param" name="param" v-model="param"></input>
+            <label for="advancewarningtime">Vorlauf in Stunden am gleichen Tag:</label>
+            <input type="number" size="3" width="70" id="advancewarningtime" name="advancewarningtime" v-model="advanceWarningTime"></input>
           </td>
         </tr>
       </table>

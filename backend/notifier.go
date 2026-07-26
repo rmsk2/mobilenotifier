@@ -132,8 +132,17 @@ func createAddressBook(dbl repo.DBSerializer, generator func(repo.DbType) *repo.
 
 	if mqttSender != nil {
 		mqttSender := sms.NewMqttMessageSender(mqttSender, MqttMessageSendTimeoutInMs*time.Millisecond)
+		qOsByteStr, ok := os.LookupEnv(sms.EnvMqttqOs)
+		if ok {
+			qOsByteVal, err := strconv.ParseUint(qOsByteStr, 10, 8)
+			if (err == nil) && (qOsByteVal < 3) {
+				mqttSender.SetQos(byte(qOsByteVal))
+				log.Printf("Setting MQTT QOS to %d", qOsByteVal)
+			}
+		}
 		addrBook.AddSender(mqttSender.GetName(), mqttSender)
 		log.Println("MQTT notifier added")
+
 	} else {
 		log.Println("MQTT notifier not added")
 	}
