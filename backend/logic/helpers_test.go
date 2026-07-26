@@ -26,10 +26,11 @@ func newOneShotReminder(wa []repo.WarningType, recipients []*tools.UUID) *repo.R
 }
 
 func TestRescheduleOneShot(t *testing.T) {
+	tools.SetDefaultTZ()
 	martin := tools.UUIDGen()
 	push := tools.UUIDGen()
 	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []*tools.UUID{martin, push})
-	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen, tools.GenerateNotificationText)
+	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen)
 	notifications, err := sch.Reschedule(rem)
 	if err != nil {
 		t.Errorf("%v", err)
@@ -47,5 +48,26 @@ func TestRescheduleOneShot(t *testing.T) {
 
 	if len(notifications) != 6 {
 		t.Errorf("Wrong number of notifications: %d", len(notifications))
+	}
+}
+
+func TestRescheduleOneShotWithoutTimestamp(t *testing.T) {
+	tools.SetDefaultTZ()
+	martin := tools.UUIDGen()
+	push := tools.UUIDGen()
+	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []*tools.UUID{martin, push})
+	rem.Param = maskWithoutTimestamp
+	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen)
+	notifications, err := sch.Reschedule(rem)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if len(notifications) != 2 {
+		t.Errorf("Wrong number of notifications: %d", len(notifications))
+	}
+
+	if notifications[0].Description != rem.Description {
+		t.Errorf("Timestamp should not be there!")
 	}
 }

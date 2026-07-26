@@ -5,6 +5,8 @@ import { DeleteNotification, isLeapYear, incDay, decDay, sucMonth, predMonth, pe
 import { nextTick } from 'vue';
 import DaySelector from './DaySelector.vue'
 
+const maskAdvanceWarning = 0x1F;
+const maskWithoutTimestamp = 0x20;
 
 export default {
   data() {
@@ -87,8 +89,17 @@ export default {
       return res;
     },
     advanceWarningTime: {
-      get() {return this.param & 0x1F},
-      set(newVal) {this.param = (this.param & ~0x1F) | (newVal & 0x1F)}
+      get() {return this.param & maskAdvanceWarning},
+      set(newVal) {this.param = (this.param & ~maskAdvanceWarning) | (newVal & maskAdvanceWarning)}
+    },
+    withoutTimeStamp: {
+      get() {return (this.param & maskWithoutTimestamp) != 0},
+      set(newVal) {
+        this.param = this.param & ~maskWithoutTimestamp
+        if (newVal) {
+          this.param = this.param | maskWithoutTimestamp
+        }
+      }
     }
   },
   methods: {
@@ -401,6 +412,7 @@ export default {
               <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
               <option :value="reminderWeekly">Wöchentlich wiederkehrendes Ereignis</option>
             </select>
+            <input type="checkbox" v-model="withoutTimeStamp" name="withoutTimeStamp" />Ohne Zeitstempel
           </td>
         </tr>
         <tr>

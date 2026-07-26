@@ -10,13 +10,13 @@ import (
 func ReminderTypeToGenerator(k repo.ReminderType) (NotificationGenerator, error) {
 	switch k {
 	case repo.OneShot:
-		return NewGenericNotificationGenerator(false, oneShotRefTimeGen, tools.GenerateNotificationText), nil
+		return NewGenericNotificationGenerator(false, oneShotRefTimeGen), nil
 	case repo.Anniversary:
-		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen, tools.GenerateNotificationText), nil
+		return NewGenericNotificationGenerator(true, anniversaryRefTimeGen), nil
 	case repo.Monthly:
-		return NewGenericNotificationGenerator(true, monthlyRefTimeGen, tools.GenerateNotificationText), nil
+		return NewGenericNotificationGenerator(true, monthlyRefTimeGen), nil
 	case repo.Weekly:
-		return NewGenericNotificationGenerator(true, weeklyRefTimeGen, tools.GenerateNotificationText), nil
+		return NewGenericNotificationGenerator(true, weeklyRefTimeGen), nil
 	default:
 		return nil, fmt.Errorf("unknown reminder type: %d", k)
 	}

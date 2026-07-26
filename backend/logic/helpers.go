@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+const maskAdvanceWarning = 0x1F
+const maskWithoutTimestamp = 0x20
+
 type NotifcationMsgGenerator func(string, int, int, string) string
 
 type NotificationGenerator interface {
@@ -19,7 +22,7 @@ type GenericNotificationGenerator struct {
 	rescheduleNeeded bool
 	offsetGens       map[repo.WarningType]OffsetGenerator
 	genRefTime       ReftimeGenerator
-	genNotifText     NotifcationMsgGenerator
+	genNotifText     map[bool]NotifcationMsgGenerator
 }
 
 func toYesterday(t time.Time) time.Time {
@@ -48,11 +51,11 @@ func weekBefore(t time.Time, p int) (time.Time, string) {
 }
 
 func sameDay(t time.Time, p int) (time.Time, string) {
-	duration := time.Hour * time.Duration(p&31)
+	duration := time.Hour * time.Duration(p&maskAdvanceWarning)
 	return t.Add(-duration), tools.MsgTextToday
 }
 
-func NewGenericNotificationGenerator(r bool, g ReftimeGenerator, txtGen NotifcationMsgGenerator) *GenericNotificationGenerator {
+func NewGenericNotificationGenerator(r bool, g ReftimeGenerator) *GenericNotificationGenerator {
 	offGens := map[repo.WarningType]OffsetGenerator{}
 
 	offGens[repo.MorningBefore] = morningBefore
@@ -61,11 +64,16 @@ func NewGenericNotificationGenerator(r bool, g ReftimeGenerator, txtGen Notifcat
 	offGens[repo.WeekBefore] = weekBefore
 	offGens[repo.SameDay] = sameDay
 
+	textGens := map[bool]NotifcationMsgGenerator{
+		false: tools.GenerateNotificationText,
+		true:  tools.GenerateNotificationTextNoTimestamp,
+	}
+
 	res := &GenericNotificationGenerator{
 		rescheduleNeeded: r,
 		genRefTime:       g,
 		offsetGens:       offGens,
-		genNotifText:     txtGen,
+		genNotifText:     textGens,
 	}
 
 	return res
@@ -105,7 +113,7 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 			n := new(repo.Notification)
 			n.Id = tools.UUIDGen()
 			n.Parent = r.Id
-			n.Description = g.genNotifText(j.prefix, eventLocalTime.Hour(), eventLocalTime.Minute(), r.Description)
+			n.Description = g.genNotifText[(r.Param&maskWithoutTimestamp) != 0](j.prefix, eventLocalTime.Hour(), eventLocalTime.Minute(), r.Description)
 			n.WarningTime = j.t
 			n.Recipient = i
 
