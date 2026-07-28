@@ -56,7 +56,7 @@ func TestRescheduleOneShotWithoutTimestamp(t *testing.T) {
 	martin := tools.UUIDGen()
 	push := tools.UUIDGen()
 	rem := newOneShotReminder([]repo.WarningType{repo.SameDay}, []*tools.UUID{martin, push})
-	rem.Param = maskWithoutTimestamp
+	rem.Param = 0x20
 	sch := NewGenericNotificationGenerator(false, oneShotRefTimeGen)
 	notifications, err := sch.Reschedule(rem)
 	if err != nil {

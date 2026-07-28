@@ -6,7 +6,8 @@ import { nextTick } from 'vue';
 import DaySelector from './DaySelector.vue'
 
 const maskAdvanceWarning = 0x1F;
-const maskWithoutTimestamp = 0x20;
+const maskMessageFormat = 0x60;
+const messageFormatShift = 5;
 
 export default {
   data() {
@@ -92,13 +93,10 @@ export default {
       get() {return this.param & maskAdvanceWarning},
       set(newVal) {this.param = (this.param & ~maskAdvanceWarning) | (newVal & maskAdvanceWarning)}
     },
-    withoutTimeStamp: {
-      get() {return (this.param & maskWithoutTimestamp) != 0},
+    messageFormat: {
+      get() {return (this.param & maskMessageFormat) >> messageFormatShift},
       set(newVal) {
-        this.param = this.param & ~maskWithoutTimestamp
-        if (newVal) {
-          this.param = this.param | maskWithoutTimestamp
-        }
+        this.param = (this.param & ~maskMessageFormat) | ((newVal << messageFormatShift) & maskMessageFormat)
       }
     }
   },
@@ -412,7 +410,11 @@ export default {
               <option :value="reminderMonthly">Monatlich wiederkehrendes Ereignis</option>
               <option :value="reminderWeekly">Wöchentlich wiederkehrendes Ereignis</option>
             </select>
-            <input type="checkbox" v-model="withoutTimeStamp" name="withoutTimeStamp" />Ohne Zeitstempel
+            <select name="messageformat" v-model="messageFormat" id="messageformat">
+              <option :value="0">Mit Zeitstempel</option>
+              <option :value="1">Ohne Zeitstempel</option>
+              <option :value="2">JSON</option>
+            </select>
           </td>
         </tr>
         <tr>

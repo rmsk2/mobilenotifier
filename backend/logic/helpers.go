@@ -7,7 +7,6 @@ import (
 )
 
 const maskAdvanceWarning = 0x1F
-const maskWithoutTimestamp = 0x20
 
 type NotifcationMsgGenerator func(string, int, int, string) string
 
@@ -22,7 +21,7 @@ type GenericNotificationGenerator struct {
 	rescheduleNeeded bool
 	offsetGens       map[repo.WarningType]OffsetGenerator
 	genRefTime       ReftimeGenerator
-	genNotifText     map[bool]NotifcationMsgGenerator
+	genNotifText     map[int]NotifcationMsgGenerator
 }
 
 func toYesterday(t time.Time) time.Time {
@@ -64,9 +63,10 @@ func NewGenericNotificationGenerator(r bool, g ReftimeGenerator) *GenericNotific
 	offGens[repo.WeekBefore] = weekBefore
 	offGens[repo.SameDay] = sameDay
 
-	textGens := map[bool]NotifcationMsgGenerator{
-		false: tools.GenerateNotificationText,
-		true:  tools.GenerateNotificationTextNoTimestamp,
+	textGens := map[int]NotifcationMsgGenerator{
+		0: tools.GenerateNotificationText,
+		1: tools.GenerateNotificationTextNoTimestamp,
+		2: tools.GenerateNotificationTextJson,
 	}
 
 	res := &GenericNotificationGenerator{
@@ -86,6 +86,16 @@ func (g *GenericNotificationGenerator) IsRescheduleNeeded(r *repo.Reminder) bool
 type offsetTuple struct {
 	t      time.Time
 	prefix string
+}
+
+func getNotifierIndex(p int) int {
+	h := (p & 0b1100000) >> 5
+
+	if h > 2 {
+		h = 0
+	}
+
+	return h
 }
 
 func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Notification, error) {
@@ -113,7 +123,7 @@ func (g *GenericNotificationGenerator) Reschedule(r *repo.Reminder) ([]*repo.Not
 			n := new(repo.Notification)
 			n.Id = tools.UUIDGen()
 			n.Parent = r.Id
-			n.Description = g.genNotifText[(r.Param&maskWithoutTimestamp) != 0](j.prefix, eventLocalTime.Hour(), eventLocalTime.Minute(), r.Description)
+			n.Description = g.genNotifText[getNotifierIndex(r.Param)](j.prefix, eventLocalTime.Hour(), eventLocalTime.Minute(), r.Description)
 			n.WarningTime = j.t
 			n.Recipient = i
 
