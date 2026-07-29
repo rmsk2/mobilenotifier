@@ -158,9 +158,11 @@ You have to set at least the environment variables `MN_MQTT_BROKER_URL` and `MN_
 to make `mobilenotifier` publish metrics data via MQTT but this is optional. I use Mosquitto with TLS and basic auth. For that to work I also need to provide the custom root certificate I use
 through the file referenced via `MN_ADDITIONAL_ROOTS`. MQTT user name and password have to be specified via `MN_MQTT_USER` and `MN_MQTT_PASSWORD`.
 
-If you create a new MQTT recipient you have to set the address of the recipient to the name of the MQTT topic to which the notification text is published. `mobilenotifier` uses QoS 1 for that.
+If you create a new MQTT recipient you have to set the address of the recipient to the name of the MQTT topic to which the notification text should be published. `mobilenotifier` uses QoS 1 for that.
 I.e. MQTT makes sure that the notification is transmitted to the broker in such a fashion that the broker receives the notification at least once. I did not use QoS 2, where the broker makes
 sure that the notification is received exactly once but this is easy to change (see environment variable `MN_MQTT_QOS`).
+
+When using MQTT for notifications it can be useful to send raw data, i.e. only text wtihout a timestamp, or JSON data. You can select the format of the description when creating a new event.
 
 # Some remarks
 
